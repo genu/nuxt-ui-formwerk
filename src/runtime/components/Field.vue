@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type FormFieldProps } from "@nuxt/ui";
 import { useCustomControl } from "@formwerk/core";
-import { formBusInjectionKey } from "@nuxt/ui/composables/useFormField";
+import { formBusInjectionKey } from "#imports";
 import { inject, watch, computed } from "vue";
 import {
   formwerkOptionsInjectionKey,
@@ -41,7 +41,7 @@ const {
 const emitFormEvent = (
   type: FormwerkInputEvents,
   name?: string,
-  payload?: unknown,
+  payload?: unknown
 ) => {
   if (formwerkBus && name) formwerkBus.emit(type, { name, payload });
 };

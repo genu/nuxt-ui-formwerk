@@ -15,15 +15,16 @@ export default defineNuxtModule<ModuleOptions>({
     configKey: "uiElements",
   },
   defaults: {},
+  moduleDependencies: {
+    "@nuxt/ui": {},
+  },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url);
     const logger = useLogger("nuxt-ui-formwerk");
 
     // Check for @nuxt/ui after all modules are loaded
     if (!hasNuxtModule("@nuxt/ui")) {
-      logger.error(
-        "[nuxt-ui-formwerk] @nuxt/ui is required. Please install it",
-      );
+      logger.error("[nuxt-ui-formwerk] @nuxt/ui is required. Please install it");
     }
 
     // Auto-register components
