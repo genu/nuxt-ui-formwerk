@@ -5,6 +5,13 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
+> [!WARNING]
+> **⚠️ Experimental Module**
+>
+> This module is currently in an experimental phase. APIs may change, and some features may not be fully stable. Use with caution in production environments and please report any issues you encounter.
+>
+> **Technical Note:** This module works by tapping into Nuxt UI's form component injection mechanism and intercepting bus events to coordinate between Nuxt UI's native form system and formwerk's validation engine. Changes to Nuxt UI's internal form architecture may require updates to this module.
+
 Enhanced form components for Nuxt UI with [@formwerk/core](https://formwerk.dev/) integration. This module bridges the gap between Formwerk's powerful form validation and state management with Nuxt UI's beautiful form components.
 
 - [✨ &nbsp;Release Notes](/CHANGELOG.md)
