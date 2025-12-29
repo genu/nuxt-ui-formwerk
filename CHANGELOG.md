@@ -1,3 +1,15 @@
+## v0.1.7
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.6...v0.1.7)
+
+### 💅 Refactors
+
+- Update form components to use v-model and improve validation schema ([69cb7962](https://github.com/genu/nuxt-ui-formwerk/commit/69cb7962))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.6
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.5...v0.1.6)
