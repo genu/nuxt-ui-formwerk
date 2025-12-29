@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { type FormFieldProps } from "@nuxt/ui";
+// @ts-ignore - FormFieldProps is available from @nuxt/ui at runtime via moduleDependencies
+import type { FormFieldProps } from "@nuxt/ui";
 import { useCustomControl } from "@formwerk/core";
 import { formBusInjectionKey } from "#imports";
 import { inject, watch, computed } from "vue";
