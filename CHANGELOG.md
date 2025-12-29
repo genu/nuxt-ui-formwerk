@@ -1,3 +1,19 @@
+## v0.1.4
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.3...v0.1.4)
+
+### 💅 Refactors
+
+- Improve form handling and event management in Field, Form, and Group components ([91dd2851](https://github.com/genu/nuxt-ui-formwerk/commit/91dd2851))
+
+### 🏡 Chore
+
+- Formatting ([710e0165](https://github.com/genu/nuxt-ui-formwerk/commit/710e0165))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.3
 
 ### 🏡 Chore
