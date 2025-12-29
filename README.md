@@ -92,7 +92,7 @@ Enhanced field component that wraps `UFormField` with formwerk validation.
 
 ```vue
 <template>
-  <FormwerkForm">
+  <FormwerkForm>
     <FormwerkField name="email" label="Email" required #="{ setValue, value }">
       <UInput
         :model-value="value"
