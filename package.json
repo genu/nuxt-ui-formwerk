@@ -1,0 +1,63 @@
+{
+  "name": "nuxt-ui-formwerk",
+  "version": "0.1.0",
+  "description": "A collection of beautiful, animated UI components for Nuxt applications",
+  "license": "MIT",
+  "repository": "https://github.com/genu/nuxt-ui-formwerk.git",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "pnpm dev:prepare && nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix --type-aware",
+    "format": "oxfmt --write",
+    "format:check": "oxfmt --check",
+    "release": "pnpm lint && pnpm test && pnpm prepack && changelogen --release && pnpm publish && git push --follow-tags",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.2.2"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^3.1.1",
+    "@nuxt/module-builder": "^1.0.2",
+    "@nuxt/schema": "^4.2.2",
+    "@nuxt/test-utils": "^3.21.0",
+    "@types/culori": "^4.0.1",
+    "@types/node": "latest",
+    "changelogen": "^0.6.2",
+    "nuxt": "^4.2.2",
+    "oxfmt": "^0.20.0",
+    "oxlint": "^1.35.0",
+    "oxlint-tsgolint": "^0.10.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.16",
+    "vue-tsc": "^3.2.1"
+  },
+  "peerDependencies": {
+    "@nuxt/ui": "^4.0.0",
+    "@formwerk/core": "^0.14.4"
+  },
+  "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
+}

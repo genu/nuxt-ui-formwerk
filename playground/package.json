@@ -1,0 +1,15 @@
+{
+  "name": "nuxt-ui-formwerk-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "@formwerk/core": "^0.14.4",
+    "@nuxt/ui": "^4.3.0",
+    "nuxt": "^4.2.2"
+  }
+}
