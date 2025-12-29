@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-  import { useFormGroup } from "@formwerk/core"
+import { useFormGroup } from "@formwerk/core";
 
-  interface Props {
-    name: string
-  }
+interface Props {
+  name: string;
+}
 
-  defineProps<Props>()
+defineProps<Props>();
 
-  useFormGroup({
-    name: "options",
-  })
+useFormGroup({
+  name: "options",
+});
 </script>
 
 <template>
