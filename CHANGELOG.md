@@ -1,3 +1,15 @@
+## v0.1.8
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.7...v0.1.8)
+
+### 💅 Refactors
+
+- Update input bindings to use v-bind for better compatibility with v-model ([664979fd](https://github.com/genu/nuxt-ui-formwerk/commit/664979fd))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.7
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.6...v0.1.7)
