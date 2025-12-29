@@ -1,3 +1,15 @@
+## v0.1.6
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.5...v0.1.6)
+
+### 🩹 Fixes
+
+- Add ts-ignore comment for FormFieldProps import in Field component ([5bbb10e3](https://github.com/genu/nuxt-ui-formwerk/commit/5bbb10e3))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.5
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.4...v0.1.5)
