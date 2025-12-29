@@ -55,25 +55,18 @@ The root form component that provides validation context and tracks form state.
 ```vue
 <script setup lang="ts">
 import { z } from "zod";
+import { useForm } from "@formwerk/core"
 
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-const state = reactive({
-  email: "",
-  password: "",
-});
+const form = useForm({ schema })
 </script>
 
 <template>
-  <FormwerkForm
-    :schema="schema"
-    :state="state"
-    validate-on="blur"
-    #="{ blurredFields, touchedFields, dirtyFields }"
-  >
+  <FormwerkForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
     <!-- Form content here -->
     <p>Blurred fields: {{ blurredFields.size }}</p>
   </FormwerkForm>
@@ -99,7 +92,7 @@ Enhanced field component that wraps `UFormField` with formwerk validation.
 
 ```vue
 <template>
-  <FormwerkForm :schema="schema" :state="state">
+  <FormwerkForm">
     <FormwerkField name="email" label="Email" required #="{ setValue, value }">
       <UInput
         :model-value="value"
@@ -126,7 +119,7 @@ Groups related form fields together for nested validation.
 
 ```vue
 <template>
-  <FormwerkForm :schema="schema" :state="state">
+  <FormwerkForm>
     <FormwerkGroup name="address">
       <FormwerkField name="street" label="Street" #="{ setValue, value }">
         <UInput :model-value="value" @update:model-value="setValue" />
@@ -150,6 +143,7 @@ Groups related form fields together for nested validation.
 ```vue
 <script setup lang="ts">
 import { z } from "zod";
+import { useForm } from "@formwerk/core"
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -157,24 +151,15 @@ const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-const state = reactive({
-  name: "",
-  email: "",
-  password: "",
-});
+const form = useForm({ schema })
 
-const onSubmit = () => {
-  console.log("Form submitted:", state);
-};
+const onSubmit = form.handleSubmit(data => {
+// Handle validated data
+}
 </script>
 
 <template>
-  <FormwerkForm
-    :schema="schema"
-    :state="state"
-    validate-on="blur"
-    #="{ blurredFields }"
-  >
+  <FormwerkForm validate-on="blur">
     <div class="space-y-4">
       <FormwerkField name="name" label="Name" required #="{ setValue, value }">
         <UInput :model-value="value" @update:model-value="setValue" />
@@ -207,10 +192,6 @@ const onSubmit = () => {
       </FormwerkField>
 
       <UButton type="submit" @click="onSubmit"> Submit </UButton>
-
-      <p class="text-sm text-gray-500">
-        Fields blurred: {{ blurredFields.size }}
-      </p>
     </div>
   </FormwerkForm>
 </template>
