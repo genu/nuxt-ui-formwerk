@@ -1,4 +1,17 @@
 
+## v0.1.3
+
+
+### 🏡 Chore
+
+- Initial commit ([b3fb42d0](https://github.com/genu/nuxt-ui-formwerk/commit/b3fb42d0))
+- **release:** V0.1.1 ([ba7c804b](https://github.com/genu/nuxt-ui-formwerk/commit/ba7c804b))
+- **release:** V0.1.2 ([9d64f301](https://github.com/genu/nuxt-ui-formwerk/commit/9d64f301))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.2
 
 
