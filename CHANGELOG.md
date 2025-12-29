@@ -1,3 +1,19 @@
+## v0.1.5
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.4...v0.1.5)
+
+### 🩹 Fixes
+
+- Update module dependencies and improve error logging in Field component ([1ffc9377](https://github.com/genu/nuxt-ui-formwerk/commit/1ffc9377))
+
+### 📖 Documentation
+
+- Add warning and technical note about experimental module status ([ffa9f37d](https://github.com/genu/nuxt-ui-formwerk/commit/ffa9f37d))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.4
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.3...v0.1.4)
