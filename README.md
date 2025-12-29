@@ -154,7 +154,7 @@ const schema = z.object({
 const form = useForm({ schema })
 
 const onSubmit = form.handleSubmit(data => {
-// Handle validated data
+  // Handle validated data
 })
 </script>
 
