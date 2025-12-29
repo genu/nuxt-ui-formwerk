@@ -21,7 +21,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Check for @nuxt/ui after all modules are loaded
     if (!hasNuxtModule("@nuxt/ui")) {
-      logger.error("[nuxt-ui-formwerk] @nuxt/ui is required. Please install it");
+      logger.error(
+        "[nuxt-ui-formwerk] @nuxt/ui is required. Please install it",
+      );
     }
 
     // Auto-register components

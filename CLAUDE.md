@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Nuxt module that integrates [@formwerk/core](https://formwerk.dev/) with [@nuxt/ui](https://ui.nuxt.com/) to provide enhanced form components with validation and state management. The module wraps Nuxt UI's form components with formwerk's composables to enable advanced form handling features like field-level validation, blur/touch/dirty tracking, and event-driven validation strategies.
 
 **Key Dependencies:**
+
 - `@formwerk/core`: Form management library (peer dependency)
 - `@nuxt/ui`: Nuxt UI library (peer dependency)
 - `@vueuse/core`: Vue composition utilities for event bus
@@ -30,6 +31,7 @@ src/
 ### Component Integration Pattern
 
 **Form Component** ([src/runtime/components/Form.vue](src/runtime/components/Form.vue)):
+
 - Creates formwerk form context via `useFormContext()`
 - Manages two event buses:
   - `formwerkBus`: Custom bus for formwerk-specific events (touched, blur, dirty)
@@ -38,6 +40,7 @@ src/
 - Provides form options via injection keys (validateOn strategy, disabled state)
 
 **Field Component** ([src/runtime/components/Field.vue](src/runtime/components/Field.vue)):
+
 - Uses `useCustomControl` from formwerk for field registration and validation
 - Injects form context (formBus, formwerkBus, formwerkOptions)
 - Bridges between Nuxt UI form events and formwerk state management
@@ -45,12 +48,14 @@ src/
 - Exposes `setValue` and `fieldValue` to slot content
 
 **Group Component** ([src/runtime/components/Group.vue](src/runtime/components/Group.vue)):
+
 - Simple wrapper using `useFormGroup` from formwerk
 - Groups related fields for nested validation
 
 ### Injection Keys
 
 The module uses typed injection keys for form context sharing:
+
 - `formwerkOptionsInjectionKey`: Form configuration (validateOn, disabled)
 - `formwerkBusInjectionKey`: Custom event bus for form events
 - `formBusInjectionKey`: Nuxt UI form event bus (from @nuxt/ui)
@@ -111,11 +116,11 @@ Users configure the module in their `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['nuxt-ui-formwerk'],
+  modules: ["nuxt-ui-formwerk"],
   uiElements: {
-    prefix: 'UE' // Customizes component prefix (default: 'UE')
-  }
-})
+    prefix: "UE", // Customizes component prefix (default: 'UE')
+  },
+});
 ```
 
 The module checks for required peer dependencies (`@nuxt/ui`) at setup time and logs errors if missing.

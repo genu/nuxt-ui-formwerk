@@ -31,8 +31,8 @@ Add the module to your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', 'nuxt-ui-formwerk']
-})
+  modules: ["@nuxt/ui", "nuxt-ui-formwerk"],
+});
 ```
 
 That's it! You can now use enhanced form components in your Nuxt app ✨
@@ -47,21 +47,26 @@ The root form component that provides validation context and tracks form state.
 
 ```vue
 <script setup lang="ts">
-import { z } from 'zod'
+import { z } from "zod";
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(8)
-})
+  password: z.string().min(8),
+});
 
 const state = reactive({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+});
 </script>
 
 <template>
-  <FormwerkForm :schema="schema" :state="state" validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
+  <FormwerkForm
+    :schema="schema"
+    :state="state"
+    validate-on="blur"
+    #="{ blurredFields, touchedFields, dirtyFields }"
+  >
     <!-- Form content here -->
     <p>Blurred fields: {{ blurredFields.size }}</p>
   </FormwerkForm>
@@ -70,10 +75,10 @@ const state = reactive({
 
 #### Props
 
-| Prop         | Type                           | Default  | Description                                     |
-| ------------ | ------------------------------ | -------- | ----------------------------------------------- |
-| `validateOn` | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When to trigger validation                      |
-| `disabled`   | `boolean`                      | `false`  | Disable all form fields                         |
+| Prop         | Type                             | Default  | Description                |
+| ------------ | -------------------------------- | -------- | -------------------------- |
+| `validateOn` | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When to trigger validation |
+| `disabled`   | `boolean`                        | `false`  | Disable all form fields    |
 
 #### Slot Props
 
@@ -137,43 +142,64 @@ Groups related form fields together for nested validation.
 
 ```vue
 <script setup lang="ts">
-import { z } from 'zod'
+import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters')
-})
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 const state = reactive({
-  name: '',
-  email: '',
-  password: ''
-})
+  name: "",
+  email: "",
+  password: "",
+});
 
 const onSubmit = () => {
-  console.log('Form submitted:', state)
-}
+  console.log("Form submitted:", state);
+};
 </script>
 
 <template>
-  <FormwerkForm :schema="schema" :state="state" validate-on="blur" #="{ blurredFields }">
+  <FormwerkForm
+    :schema="schema"
+    :state="state"
+    validate-on="blur"
+    #="{ blurredFields }"
+  >
     <div class="space-y-4">
       <FormwerkField name="name" label="Name" required #="{ setValue, value }">
         <UInput :model-value="value" @update:model-value="setValue" />
       </FormwerkField>
 
-      <FormwerkField name="email" label="Email" required #="{ setValue, value }">
-        <UInput :model-value="value" @update:model-value="setValue" type="email" />
+      <FormwerkField
+        name="email"
+        label="Email"
+        required
+        #="{ setValue, value }"
+      >
+        <UInput
+          :model-value="value"
+          @update:model-value="setValue"
+          type="email"
+        />
       </FormwerkField>
 
-      <FormwerkField name="password" label="Password" required #="{ setValue, value }">
-        <UInput :model-value="value" @update:model-value="setValue" type="password" />
+      <FormwerkField
+        name="password"
+        label="Password"
+        required
+        #="{ setValue, value }"
+      >
+        <UInput
+          :model-value="value"
+          @update:model-value="setValue"
+          type="password"
+        />
       </FormwerkField>
 
-      <UButton type="submit" @click="onSubmit">
-        Submit
-      </UButton>
+      <UButton type="submit" @click="onSubmit"> Submit </UButton>
 
       <p class="text-sm text-gray-500">
         Fields blurred: {{ blurredFields.size }}
@@ -207,38 +233,38 @@ The integration allows you to use Nuxt UI's beautiful form components while leve
 <details>
   <summary>Local development</summary>
 
-  ```bash
-  # Install dependencies
-  pnpm install
+```bash
+# Install dependencies
+pnpm install
 
-  # Generate type stubs and prepare playground
-  pnpm dev:prepare
+# Generate type stubs and prepare playground
+pnpm dev:prepare
 
-  # Develop with the playground
-  pnpm dev
+# Develop with the playground
+pnpm dev
 
-  # Build the playground
-  pnpm dev:build
+# Build the playground
+pnpm dev:build
 
-  # Run linter (oxlint)
-  pnpm lint
+# Run linter (oxlint)
+pnpm lint
 
-  # Fix linting issues
-  pnpm lint:fix
+# Fix linting issues
+pnpm lint:fix
 
-  # Format code (oxfmt)
-  pnpm format
+# Format code (oxfmt)
+pnpm format
 
-  # Run tests
-  pnpm test
-  pnpm test:watch
+# Run tests
+pnpm test
+pnpm test:watch
 
-  # Type check
-  pnpm test:types
+# Type check
+pnpm test:types
 
-  # Release new version
-  pnpm release
-  ```
+# Release new version
+pnpm release
+```
 
 </details>
 
