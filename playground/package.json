@@ -10,6 +10,7 @@
   "dependencies": {
     "@formwerk/core": "^0.14.4",
     "@nuxt/ui": "^4.3.0",
-    "nuxt": "^4.2.2"
+    "nuxt": "^4.2.2",
+    "zod": "^4.2.1"
   }
 }

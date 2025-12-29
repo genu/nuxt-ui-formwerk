@@ -42,7 +42,7 @@ const {
 const emitFormEvent = (
   type: FormwerkInputEvents,
   name?: string,
-  payload?: unknown
+  payload?: unknown,
 ) => {
   if (formwerkBus && name) formwerkBus.emit(type, { name, payload });
 };
@@ -63,6 +63,11 @@ const error = computed(() => {
     default:
       return errorMessage.value ? errorMessage.value : undefined;
   }
+});
+
+const model = computed({
+  get: () => fieldValue.value,
+  set: (val: any) => setValue(val),
 });
 /**
  * Intercept form events
@@ -86,6 +91,6 @@ if (formBus) {
 
 <template>
   <UFormField v-bind="props" :error="error">
-    <slot :set-value="setValue" :value="fieldValue" />
+    <slot :model="model" :set-value="setValue" :value="fieldValue" />
   </UFormField>
 </template>

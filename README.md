@@ -55,18 +55,21 @@ The root form component that provides validation context and tracks form state.
 ```vue
 <script setup lang="ts">
 import { z } from "zod";
-import { useForm } from "@formwerk/core"
+import { useForm } from "@formwerk/core";
 
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-const form = useForm({ schema })
+const form = useForm({ schema });
 </script>
 
 <template>
-  <FormwerkForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
+  <FormwerkForm
+    validate-on="blur"
+    #="{ blurredFields, touchedFields, dirtyFields }"
+  >
     <!-- Form content here -->
     <p>Blurred fields: {{ blurredFields.size }}</p>
   </FormwerkForm>
@@ -93,12 +96,8 @@ Enhanced field component that wraps `UFormField` with formwerk validation.
 ```vue
 <template>
   <FormwerkForm>
-    <FormwerkField name="email" label="Email" required #="{ setValue, value }">
-      <UInput
-        :model-value="value"
-        @update:model-value="setValue"
-        type="email"
-      />
+    <FormwerkField name="email" label="Email" required #="{ model }">
+      <UInput v-model="model" type="email" />
     </FormwerkField>
   </FormwerkForm>
 </template>
@@ -110,6 +109,7 @@ Accepts all `UFormField` props except `validateOnInputDelay`, `errorPattern`, `e
 
 #### Slot Props
 
+- `model` - Computed ref for v-model binding (recommended)
 - `setValue` - Function to update field value
 - `value` - Current field value (fieldValue)
 
@@ -121,11 +121,11 @@ Groups related form fields together for nested validation.
 <template>
   <FormwerkForm>
     <FormwerkGroup name="address">
-      <FormwerkField name="street" label="Street" #="{ setValue, value }">
-        <UInput :model-value="value" @update:model-value="setValue" />
+      <FormwerkField name="street" label="Street" #="{ model }">
+        <UInput v-model="model" />
       </FormwerkField>
-      <FormwerkField name="city" label="City" #="{ setValue, value }">
-        <UInput :model-value="value" @update:model-value="setValue" />
+      <FormwerkField name="city" label="City" #="{ model }">
+        <UInput v-model="model" />
       </FormwerkField>
     </FormwerkGroup>
   </FormwerkForm>
@@ -143,7 +143,7 @@ Groups related form fields together for nested validation.
 ```vue
 <script setup lang="ts">
 import { z } from "zod";
-import { useForm } from "@formwerk/core"
+import { useForm } from "@formwerk/core";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -151,44 +151,26 @@ const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-const form = useForm({ schema })
+const form = useForm({ schema });
 
-const onSubmit = form.handleSubmit(data => {
+const onSubmit = form.handleSubmit((data) => {
   // Handle validated data
-})
+});
 </script>
 
 <template>
   <FormwerkForm validate-on="blur">
     <div class="space-y-4">
-      <FormwerkField name="name" label="Name" required #="{ setValue, value }">
-        <UInput :model-value="value" @update:model-value="setValue" />
+      <FormwerkField name="name" label="Name" required #="{ model }">
+        <UInput v-model="model" />
       </FormwerkField>
 
-      <FormwerkField
-        name="email"
-        label="Email"
-        required
-        #="{ setValue, value }"
-      >
-        <UInput
-          :model-value="value"
-          @update:model-value="setValue"
-          type="email"
-        />
+      <FormwerkField name="email" label="Email" required #="{ model }">
+        <UInput v-model="model" type="email" />
       </FormwerkField>
 
-      <FormwerkField
-        name="password"
-        label="Password"
-        required
-        #="{ setValue, value }"
-      >
-        <UInput
-          :model-value="value"
-          @update:model-value="setValue"
-          type="password"
-        />
+      <FormwerkField name="password" label="Password" required #="{ model }">
+        <UInput v-model="model" type="password" />
       </FormwerkField>
 
       <UButton type="submit" @click="onSubmit"> Submit </UButton>
