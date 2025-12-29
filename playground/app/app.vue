@@ -8,6 +8,9 @@ const schema = z
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions",
+    }),
     address: z.object({
       street: z.string().min(1, "Street is required"),
       city: z.string().min(1, "City is required"),
@@ -125,6 +128,18 @@ const resetForm = () => {
                     type="password"
                     placeholder="Confirm your password"
                   />
+                </FormwerkField>
+              </div>
+
+              <!-- Checkbox Field -->
+              <div class="space-y-4">
+                <FormwerkField
+                  name="acceptTerms"
+                  label="Terms and Conditions"
+                  required
+                  #="{ model }"
+                >
+                  <UCheckbox v-bind="model" label="I accept the terms and conditions" />
                 </FormwerkField>
               </div>
 

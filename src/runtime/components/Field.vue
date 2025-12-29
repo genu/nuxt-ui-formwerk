@@ -65,10 +65,10 @@ const error = computed(() => {
   }
 });
 
-const model = {
-  modelValue: fieldValue,
+const model = computed(() => ({
+  modelValue: fieldValue.value,
   "onUpdate:modelValue": setValue,
-};
+}));
 
 /**
  * Intercept form events
