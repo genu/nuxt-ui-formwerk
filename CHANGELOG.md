@@ -1,3 +1,15 @@
+## v0.1.9
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.8...v0.1.9)
+
+### 🩹 Fixes
+
+- Unwrap the fieldValue ([2ee4b8fb](https://github.com/genu/nuxt-ui-formwerk/commit/2ee4b8fb))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.8
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.7...v0.1.8)
