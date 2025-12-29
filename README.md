@@ -97,7 +97,7 @@ Enhanced field component that wraps `UFormField` with formwerk validation.
 <template>
   <FormwerkForm>
     <FormwerkField name="email" label="Email" required #="{ model }">
-      <UInput v-model="model" type="email" />
+      <UInput v-bind="model" type="email" />
     </FormwerkField>
   </FormwerkForm>
 </template>
@@ -109,7 +109,7 @@ Accepts all `UFormField` props except `validateOnInputDelay`, `errorPattern`, `e
 
 #### Slot Props
 
-- `model` - Computed ref for v-model binding (recommended)
+- `model` - Object with `modelValue` and `onUpdate:modelValue` for v-bind (recommended)
 - `setValue` - Function to update field value
 - `value` - Current field value (fieldValue)
 
@@ -122,10 +122,10 @@ Groups related form fields together for nested validation.
   <FormwerkForm>
     <FormwerkGroup name="address">
       <FormwerkField name="street" label="Street" #="{ model }">
-        <UInput v-model="model" />
+        <UInput v-bind="model" />
       </FormwerkField>
       <FormwerkField name="city" label="City" #="{ model }">
-        <UInput v-model="model" />
+        <UInput v-bind="model" />
       </FormwerkField>
     </FormwerkGroup>
   </FormwerkForm>
@@ -162,15 +162,15 @@ const onSubmit = form.handleSubmit((data) => {
   <FormwerkForm validate-on="blur">
     <div class="space-y-4">
       <FormwerkField name="name" label="Name" required #="{ model }">
-        <UInput v-model="model" />
+        <UInput v-bind="model" />
       </FormwerkField>
 
       <FormwerkField name="email" label="Email" required #="{ model }">
-        <UInput v-model="model" type="email" />
+        <UInput v-bind="model" type="email" />
       </FormwerkField>
 
       <FormwerkField name="password" label="Password" required #="{ model }">
-        <UInput v-model="model" type="password" />
+        <UInput v-bind="model" type="password" />
       </FormwerkField>
 
       <UButton type="submit" @click="onSubmit"> Submit </UButton>

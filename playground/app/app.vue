@@ -85,7 +85,7 @@ const resetForm = () => {
                 <h2 class="text-xl font-semibold">Basic Information</h2>
 
                 <FormwerkField name="name" label="Name" required #="{ model }">
-                  <UInput v-model="model" placeholder="John Doe" />
+                  <UInput v-bind="model" placeholder="John Doe" />
                 </FormwerkField>
 
                 <FormwerkField
@@ -95,7 +95,7 @@ const resetForm = () => {
                   #="{ model }"
                 >
                   <UInput
-                    v-model="model"
+                    v-bind="model"
                     type="email"
                     placeholder="john@example.com"
                   />
@@ -108,7 +108,7 @@ const resetForm = () => {
                   #="{ model }"
                 >
                   <UInput
-                    v-model="model"
+                    v-bind="model"
                     type="password"
                     placeholder="Enter your password"
                   />
@@ -121,7 +121,7 @@ const resetForm = () => {
                   #="{ model }"
                 >
                   <UInput
-                    v-model="model"
+                    v-bind="model"
                     type="password"
                     placeholder="Confirm your password"
                   />
@@ -140,7 +140,7 @@ const resetForm = () => {
                       required
                       #="{ model }"
                     >
-                      <UInput v-model="model" placeholder="123 Main St" />
+                      <UInput v-bind="model" placeholder="123 Main St" />
                     </FormwerkField>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -150,7 +150,7 @@ const resetForm = () => {
                         required
                         #="{ model }"
                       >
-                        <UInput v-model="model" placeholder="New York" />
+                        <UInput v-bind="model" placeholder="New York" />
                       </FormwerkField>
 
                       <FormwerkField
@@ -159,7 +159,7 @@ const resetForm = () => {
                         required
                         #="{ model }"
                       >
-                        <UInput v-model="model" placeholder="12345" />
+                        <UInput v-bind="model" placeholder="12345" />
                       </FormwerkField>
                     </div>
                   </div>
