@@ -120,7 +120,7 @@ export default defineNuxtConfig({
   uiElements: {
     prefix: "UE", // Customizes component prefix (default: 'UE')
   },
-});
+})
 ```
 
 The module checks for required peer dependencies (`@nuxt/ui`) at setup time and logs errors if missing.

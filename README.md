@@ -41,7 +41,7 @@ Add the module to your `nuxt.config.ts`:
 ```ts
 export default defineNuxtConfig({
   modules: ["@nuxt/ui", "nuxt-ui-formwerk"],
-});
+})
 ```
 
 That's it! You can now use enhanced form components in your Nuxt app ✨
@@ -56,22 +56,19 @@ The root form component that provides validation context and tracks form state.
 
 ```vue
 <script setup lang="ts">
-import { z } from "zod";
-import { useForm } from "@formwerk/core";
+  import { z } from "zod"
+  import { useForm } from "@formwerk/core"
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+  const schema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+  })
 
-const form = useForm({ schema });
+  const form = useForm({ schema })
 </script>
 
 <template>
-  <FormwerkForm
-    validate-on="blur"
-    #="{ blurredFields, touchedFields, dirtyFields }"
-  >
+  <FormwerkForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
     <!-- Form content here -->
     <p>Blurred fields: {{ blurredFields.size }}</p>
   </FormwerkForm>
@@ -146,20 +143,20 @@ Groups related form fields together for nested validation.
 
 ```vue
 <script setup lang="ts">
-import { z } from "zod";
-import { useForm } from "@formwerk/core";
+  import { z } from "zod"
+  import { useForm } from "@formwerk/core"
 
-const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
+  const schema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  })
 
-const form = useForm({ schema });
+  const form = useForm({ schema })
 
-const onSubmit = form.handleSubmit((data) => {
-  // Handle validated data
-});
+  const onSubmit = form.handleSubmit((data) => {
+    // Handle validated data
+  })
 </script>
 
 <template>
