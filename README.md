@@ -96,8 +96,8 @@ Enhanced field component that wraps `UFormField` with formwerk validation.
 ```vue
 <template>
   <FormwerkForm>
-    <FormwerkField name="email" label="Email" required #="{ model }">
-      <UInput v-bind="model" type="email" />
+    <FormwerkField name="email" label="Email" required v-slot="props">
+      <UInput v-bind="props" type="email" />
     </FormwerkField>
   </FormwerkForm>
 </template>
@@ -109,9 +109,12 @@ Accepts all `UFormField` props except `validateOnInputDelay`, `errorPattern`, `e
 
 #### Slot Props
 
-- `model` - Object with `modelValue` and `onUpdate:modelValue` for v-bind (recommended)
-- `setValue` - Function to update field value
-- `value` - Current field value (fieldValue)
+- `modelValue` - Current field value (reactive)
+- `onUpdateModelValue` - Function to update field value
+- `setValue` - Function to update field value (alias for onUpdateModelValue)
+- `value` - Current field value (alias for modelValue)
+
+**Recommended usage:** Use `v-slot="props"` and spread with `v-bind="props"` for compatibility with all Nuxt UI components.
 
 ### FormwerkGroup
 
@@ -121,11 +124,11 @@ Groups related form fields together for nested validation.
 <template>
   <FormwerkForm>
     <FormwerkGroup name="address">
-      <FormwerkField name="street" label="Street" #="{ model }">
-        <UInput v-bind="model" />
+      <FormwerkField name="street" label="Street" v-slot="props">
+        <UInput v-bind="props" />
       </FormwerkField>
-      <FormwerkField name="city" label="City" #="{ model }">
-        <UInput v-bind="model" />
+      <FormwerkField name="city" label="City" v-slot="props">
+        <UInput v-bind="props" />
       </FormwerkField>
     </FormwerkGroup>
   </FormwerkForm>
@@ -161,16 +164,16 @@ const onSubmit = form.handleSubmit((data) => {
 <template>
   <FormwerkForm validate-on="blur">
     <div class="space-y-4">
-      <FormwerkField name="name" label="Name" required #="{ model }">
-        <UInput v-bind="model" />
+      <FormwerkField name="name" label="Name" required v-slot="props">
+        <UInput v-bind="props" />
       </FormwerkField>
 
-      <FormwerkField name="email" label="Email" required #="{ model }">
-        <UInput v-bind="model" type="email" />
+      <FormwerkField name="email" label="Email" required v-slot="props">
+        <UInput v-bind="props" type="email" />
       </FormwerkField>
 
-      <FormwerkField name="password" label="Password" required #="{ model }">
-        <UInput v-bind="model" type="password" />
+      <FormwerkField name="password" label="Password" required v-slot="props">
+        <UInput v-bind="props" type="password" />
       </FormwerkField>
 
       <UButton type="submit" @click="onSubmit"> Submit </UButton>

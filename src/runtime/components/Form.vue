@@ -1,12 +1,9 @@
 <script lang="ts">
-import type { InjectionKey, Ref, ComputedRef } from "vue";
+import type { InjectionKey, ComputedRef } from "vue";
 import { provide, reactive, computed } from "vue";
-import {
-  formBusInjectionKey,
-  formOptionsInjectionKey,
-} from "@nuxt/ui/composables/useFormField";
 import { useEventBus, type UseEventBusReturn } from "@vueuse/core";
 import { useFormContext } from "@formwerk/core";
+import { formBusInjectionKey, formOptionsInjectionKey } from "#imports";
 
 export interface FormInjectedOptions {
   disabled?: boolean;
@@ -29,7 +26,15 @@ export const formwerkBusInjectionKey: InjectionKey<
 </script>
 
 <script lang="ts" setup>
-const { context } = useFormContext();
+const formContext = useFormContext();
+
+if (!formContext) {
+  throw new Error(
+    "FormwerkForm must be used within a component that has called useForm()"
+  );
+}
+
+const { context } = formContext;
 
 interface Props {
   validateOn?: FormwerkInputEvents;
@@ -38,7 +43,7 @@ interface Props {
 
 const { validateOn = "blur", disabled = false } = defineProps<Props>();
 const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(
-  `formwerk-form-${context.id}`,
+  `formwerk-form-${context.id}`
 );
 const NuxtUiFormBus = useEventBus<any>(`form-${context.id}`);
 
@@ -55,13 +60,13 @@ provide(
   formwerkOptionsInjectionKey,
   computed(() => ({
     validateOn: validateOn,
-  })),
+  }))
 );
 provide(
   formOptionsInjectionKey,
   computed(() => ({
     disabled,
-  })),
+  }))
 );
 
 /**

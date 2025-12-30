@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-ignore - FormFieldProps is available from @nuxt/ui at runtime via moduleDependencies
 import type { FormFieldProps } from "@nuxt/ui";
 import { useCustomControl } from "@formwerk/core";
 import { formBusInjectionKey } from "#imports";
@@ -42,7 +41,7 @@ const {
 const emitFormEvent = (
   type: FormwerkInputEvents,
   name?: string,
-  payload?: unknown,
+  payload?: unknown
 ) => {
   if (formwerkBus && name) formwerkBus.emit(type, { name, payload });
 };
