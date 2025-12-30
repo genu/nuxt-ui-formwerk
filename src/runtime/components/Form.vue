@@ -1,4 +1,5 @@
 <script lang="ts">
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   import type { InjectionKey, ComputedRef } from "vue"
   import { provide, reactive, computed } from "vue"
   import { useEventBus, type UseEventBusReturn } from "@vueuse/core"

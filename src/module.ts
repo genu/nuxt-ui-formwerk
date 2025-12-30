@@ -1,9 +1,9 @@
 import { defineNuxtModule, addComponentsDir, createResolver } from "@nuxt/kit"
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+// export interface ModuleOptions {}
 
-export default defineNuxtModule<ModuleOptions>({
+export default defineNuxtModule({
   meta: {
     name: "nuxt-ui-formwerk",
     configKey: "uiElements",

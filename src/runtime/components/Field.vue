@@ -13,6 +13,7 @@
 
   const {
     field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useCustomControl<any>({
     name: props.name,
     required: props.required,

@@ -25,21 +25,19 @@
 
   const { values, ...form } = useForm({ id: "My Form", schema })
 
-  const submittedData = ref<any>(null)
   const isSubmitting = ref(false)
 
-  const onSubmit = form.handleSubmit(async (data: any) => {
+  const onSubmit = form.handleSubmit(async (data) => {
     isSubmitting.value = true
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    submittedData.value = data
+
     isSubmitting.value = false
-    console.log("Form submitted:", data)
+    console.log("Form submitted:", data.toJSON())
   })
 
   const resetForm = () => {
     form.reset()
-    submittedData.value = null
   }
 </script>
 
@@ -89,6 +87,7 @@
             <pre>Dirtied: {{ dirtyFields }}</pre>
             <pre>Touched: {{ touchedFields }}</pre>
             <UButton label="Submit" @click="onSubmit" />
+            <UButton label="Reset" variant="ghost" @click="resetForm" />
           </FormwerkForm>
         </UCard>
       </div>
