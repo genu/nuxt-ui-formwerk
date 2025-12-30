@@ -1,3 +1,15 @@
+## v0.1.12
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.11...v0.1.12)
+
+### 💅 Refactors
+
+- Remove unused ModuleOptions interface and add eslint disables for any type usage ([d90396d2](https://github.com/genu/nuxt-ui-formwerk/commit/d90396d2))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.11
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.10...v0.1.11)
