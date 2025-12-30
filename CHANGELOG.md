@@ -1,3 +1,19 @@
+## v0.1.11
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.10...v0.1.11)
+
+### 📖 Documentation
+
+- Update README with peer dependency note and slot prop usage ([0dccc77d](https://github.com/genu/nuxt-ui-formwerk/commit/0dccc77d))
+
+### 🏡 Chore
+
+- Add FormwerkGroup props ([7f6f9483](https://github.com/genu/nuxt-ui-formwerk/commit/7f6f9483))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.10
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.9...v0.1.10)
