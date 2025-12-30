@@ -1,3 +1,19 @@
+## v0.1.10
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.9...v0.1.10)
+
+### 💅 Refactors
+
+- **Form.vue:** Streamline imports and add error handling for form context ([f35487d4](https://github.com/genu/nuxt-ui-formwerk/commit/f35487d4))
+
+### 🏡 Chore
+
+- Update playground ([c49bc5eb](https://github.com/genu/nuxt-ui-formwerk/commit/c49bc5eb))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.9
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.8...v0.1.9)
