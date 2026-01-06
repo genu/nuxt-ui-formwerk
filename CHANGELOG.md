@@ -1,3 +1,16 @@
+## v0.1.13
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.12...v0.1.13)
+
+### 🏡 Chore
+
+- Update dependencies and add peer dependency for `@internationalized/date` ([557ce094](https://github.com/genu/nuxt-ui-formwerk/commit/557ce094))
+- Lint/format ([7a15f728](https://github.com/genu/nuxt-ui-formwerk/commit/7a15f728))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.12
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.11...v0.1.12)
