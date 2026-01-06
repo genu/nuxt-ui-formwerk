@@ -4,6 +4,7 @@
   "description": "A collection of beautiful, animated UI components for Nuxt applications",
   "license": "MIT",
   "repository": "https://github.com/genu/nuxt-ui-formwerk.git",
+  "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6",
   "files": [
     "dist"
   ],
@@ -45,7 +46,7 @@
     "@nuxt/eslint-config": "^1.12.1",
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "^4.2.2",
-    "@nuxt/test-utils": "^3.21.0",
+    "@nuxt/test-utils": "^3.22.0",
     "@types/culori": "^4.0.1",
     "@types/node": "latest",
     "changelogen": "^0.6.2",
@@ -56,11 +57,11 @@
     "prettier": "^3.7.4",
     "typescript": "~5.9.3",
     "vitest": "^4.0.16",
-    "vue-tsc": "^3.2.1"
+    "vue-tsc": "^3.2.2"
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",
-    "@nuxt/ui": "^4.0.0"
-  },
-  "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6"
+    "@nuxt/ui": "^4.0.0",
+    "@internationalized/date": ">=3.10.0"
+  }
 }
