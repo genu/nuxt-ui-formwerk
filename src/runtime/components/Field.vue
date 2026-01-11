@@ -1,13 +1,12 @@
 <script lang="ts">
-  import type { FormFieldProps } from "@nuxt/ui"
-</script>
-
-<script setup lang="ts">
   import { useCustomControl, useFormField } from "@formwerk/core"
+  import type { FormFieldProps } from "@nuxt/ui"
   import { formBusInjectionKey } from "#imports"
   import { inject, watch, computed } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
+</script>
 
+<script setup lang="ts">
   export type FieldProps = Omit<FormFieldProps, "validateOnInputDelay" | "errorPattern" | "eagerValidation" | "error">
 
   export interface FieldSlots {
@@ -24,7 +23,7 @@
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
   const formwerkOptions = inject(formwerkOptionsInjectionKey, undefined)
 
-  useFormField({
+  const field = useFormField({
     path: props.name,
     label: props.label,
     description: props.description,
@@ -36,6 +35,8 @@
     name: props.name,
     required: props.required,
     disabled: formwerkOptions?.value?.disabled,
+    controlType: "NuxtUIInput",
+    _field: field,
   })
 
   const emitFormEvent = (type: FormwerkInputEvents, name?: string, payload?: unknown) => {
@@ -66,6 +67,9 @@
 
   if (formBus) {
     formBus.on(async (event) => {
+      // Only respond to events for this specific field
+      if ("name" in event && event.name !== props.name) return
+
       switch (event.type) {
         case "blur":
           setBlurred(true)
@@ -81,13 +85,15 @@
 </script>
 
 <template>
-  <UFormField v-bind="props" :error="error">
-    <slot
-      :model="model"
-      :set-value="setValue"
-      :value="fieldValue"
-      :is-touched="isTouched"
-      :is-blurred="isBlurred"
-      :is-dirty="isDirty" />
-  </UFormField>
+  <div>
+    <UFormField v-bind="props" :error="error">
+      <slot
+        :model="model"
+        :set-value="setValue"
+        :value="fieldValue"
+        :is-touched="isTouched"
+        :is-blurred="isBlurred"
+        :is-dirty="isDirty" />
+    </UFormField>
+  </div>
 </template>
