@@ -3,7 +3,7 @@
 </script>
 
 <script setup lang="ts">
-  import { useCustomControl } from "@formwerk/core"
+  import { useCustomControl, useFormField } from "@formwerk/core"
   import { formBusInjectionKey } from "#imports"
   import { inject, watch, computed } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
@@ -23,6 +23,12 @@
   const formBus = inject(formBusInjectionKey, undefined)
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
   const formwerkOptions = inject(formwerkOptionsInjectionKey, undefined)
+
+  useFormField({
+    path: props.name,
+    label: props.label,
+    description: props.description,
+  })
 
   const {
     field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
@@ -78,6 +84,12 @@
 
 <template>
   <UFormField v-bind="props" :error="error">
-    <slot :model="model" :set-value="setValue" :value="fieldValue" />
+    <slot
+      :model="model"
+      :set-value="setValue"
+      :value="fieldValue"
+      :is-touched="isTouched"
+      :is-blurred="isBlurred"
+      :is-dirty="isDirty" />
   </UFormField>
 </template>
