@@ -1,3 +1,20 @@
+## v0.1.15
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.14...v0.1.15)
+
+### 🚀 Enhancements
+
+- Integrate useFormField for devtools support ([febb0622](https://github.com/genu/nuxt-ui-formwerk/commit/febb0622))
+
+### 🩹 Fixes
+
+- Simplify error computation logic in Field component ([4dd5a77e](https://github.com/genu/nuxt-ui-formwerk/commit/4dd5a77e))
+- Ensure we quality event handling on the bus ([3fa90b57](https://github.com/genu/nuxt-ui-formwerk/commit/3fa90b57))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.14
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.13...v0.1.14)
