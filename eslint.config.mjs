@@ -13,6 +13,7 @@ export default createConfigForNuxt(eslintPluginPrettierRecommended, {
       },
     ],
     "@typescript-eslint/no-namespace": ["off"],
+    "@typescript-eslint/no-explicit-any": ["off"],
 
     // Stylistic
     "@stylistic/quotes": "off",

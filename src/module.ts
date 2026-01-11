@@ -3,6 +3,8 @@ import { defineNuxtModule, addComponentsDir, createResolver } from "@nuxt/kit"
 // Module options TypeScript interface definition
 // export interface ModuleOptions {}
 
+export type * from "./runtime/types"
+
 export default defineNuxtModule({
   meta: {
     name: "nuxt-ui-formwerk",

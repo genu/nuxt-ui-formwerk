@@ -1,29 +1,25 @@
 <script lang="ts">
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  import type { InjectionKey, ComputedRef } from "vue"
   import { provide, reactive, computed } from "vue"
-  import { useEventBus, type UseEventBusReturn } from "@vueuse/core"
+  import { useEventBus } from "@vueuse/core"
   import { useFormContext } from "@formwerk/core"
   import { formBusInjectionKey, formOptionsInjectionKey } from "#imports"
+  import {
+    formwerkOptionsInjectionKey,
+    formwerkBusInjectionKey,
+    type FormwerkInputEvent,
+    type FormwerkInputEvents,
+  } from "../types/form"
 
-  export interface FormInjectedOptions {
+  export interface Props {
+    validateOn?: "touched" | "blur" | "dirty"
     disabled?: boolean
-    validateOn?: FormwerkInputEvents
   }
-
-  export type FormwerkInputEvent = {
-    name: string
-    payload: unknown
-  }
-
-  export type FormwerkInputEvents = "touched" | "blur" | "dirty"
-
-  export const formwerkOptionsInjectionKey: InjectionKey<ComputedRef<FormInjectedOptions>> = Symbol("nuxt-ui-formwerk.form-options")
-  export const formwerkBusInjectionKey: InjectionKey<UseEventBusReturn<FormwerkInputEvents, FormwerkInputEvent>> =
-    Symbol("nuxt-ui-formwerk.form-events")
 </script>
 
 <script lang="ts" setup>
+  export interface FormSlots {
+    default(props: { blurredFields: ReadonlySet<any>; touchedFields: ReadonlySet<any>; dirtyFields: ReadonlySet<any> }): any
+  }
   const formContext = useFormContext()
 
   if (!formContext) {
@@ -31,11 +27,6 @@
   }
 
   const { context } = formContext
-
-  interface Props {
-    validateOn?: FormwerkInputEvents
-    disabled?: boolean
-  }
 
   const { validateOn = "blur", disabled = false } = defineProps<Props>()
   const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(`formwerk-form-${context.id}`)

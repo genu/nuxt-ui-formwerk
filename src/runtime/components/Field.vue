@@ -1,11 +1,24 @@
-<script setup lang="ts">
+<script lang="ts">
   import type { FormFieldProps } from "@nuxt/ui"
+</script>
+
+<script setup lang="ts">
   import { useCustomControl } from "@formwerk/core"
   import { formBusInjectionKey } from "#imports"
   import { inject, watch, computed } from "vue"
-  import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "./Form.vue"
+  import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
 
-  const props = defineProps<Omit<FormFieldProps, "validateOnInputDelay" | "errorPattern" | "eagerValidation" | "error">>()
+  export type FieldProps = Omit<FormFieldProps, "validateOnInputDelay" | "errorPattern" | "eagerValidation" | "error">
+
+  export interface FieldSlots {
+    default(props: {
+      model: { modelValue: any; "onUpdate:modelValue": (value: any) => void }
+      setValue: (value: any) => void
+      value: any
+    }): any
+  }
+
+  const props = defineProps<FieldProps>()
 
   const formBus = inject(formBusInjectionKey, undefined)
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
@@ -13,7 +26,6 @@
 
   const {
     field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useCustomControl<any>({
     name: props.name,
     required: props.required,
