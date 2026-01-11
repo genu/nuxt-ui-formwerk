@@ -1,3 +1,19 @@
+## v0.1.14
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.13...v0.1.14)
+
+### 🚀 Enhancements
+
+- Enhance TypeScript types and update ESLint configuration ([8aafaa91](https://github.com/genu/nuxt-ui-formwerk/commit/8aafaa91))
+
+### 🏡 Chore
+
+- Update @nuxt/test-utils to version 3.23.0 ([714bc01c](https://github.com/genu/nuxt-ui-formwerk/commit/714bc01c))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.13
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.12...v0.1.13)
