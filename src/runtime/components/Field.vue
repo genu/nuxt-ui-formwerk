@@ -2,7 +2,7 @@
   import { useCustomControl, useFormField } from "@formwerk/core"
   import type { FormFieldProps } from "@nuxt/ui"
   import { formBusInjectionKey } from "#imports"
-  import { inject, watch, computed } from "vue"
+  import { inject, watch, computed, useSlots, type Component } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
 </script>
 
@@ -18,6 +18,7 @@
   }
 
   const props = defineProps<FieldProps>()
+  const slots = useSlots()
 
   const formBus = inject(formBusInjectionKey, undefined)
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
@@ -29,13 +30,23 @@
     description: props.description,
   })
 
+  const defaultSlot = slots.default?.({ model: {} })
+  const firstNode = defaultSlot?.[0]
+
+  let slotComponentName: string | null = null
+
+  if (firstNode && typeof firstNode.type === "object" && firstNode.type !== null) {
+    const component = firstNode.type as Component & { __name?: string }
+    if (component.__name || component.name) slotComponentName = component.__name || component.name || null
+  }
+
   const {
     field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
     required: props.required,
     disabled: formwerkOptions?.value?.disabled,
-    controlType: "NuxtUIInput",
+    controlType: slotComponentName || "CustomInput",
     _field: field,
   })
 
@@ -85,15 +96,13 @@
 </script>
 
 <template>
-  <div>
-    <UFormField v-bind="props" :error="error">
-      <slot
-        :model="model"
-        :set-value="setValue"
-        :value="fieldValue"
-        :is-touched="isTouched"
-        :is-blurred="isBlurred"
-        :is-dirty="isDirty" />
-    </UFormField>
-  </div>
+  <UFormField v-bind="props" :error="error">
+    <slot
+      :model="model"
+      :set-value="setValue"
+      :value="fieldValue"
+      :is-touched="isTouched"
+      :is-blurred="isBlurred"
+      :is-dirty="isDirty" />
+  </UFormField>
 </template>
