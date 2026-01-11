@@ -1,3 +1,15 @@
+## v0.1.16
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.15...v0.1.16)
+
+### 🩹 Fixes
+
+- Enhance slot handling and control type determination in Field component ([2af1a964](https://github.com/genu/nuxt-ui-formwerk/commit/2af1a964))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.15
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.14...v0.1.15)
