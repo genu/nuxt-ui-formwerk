@@ -49,12 +49,10 @@
   const error = computed(() => {
     if (!formwerkOptions || !formwerkOptions.value) return errorMessage.value ? errorMessage.value : undefined
 
-    switch (formwerkOptions.value.validateOn) {
-      case "blur":
-        return isBlurred.value && errorMessage.value ? errorMessage.value : undefined
-      default:
-        return errorMessage.value ? errorMessage.value : undefined
+    if (formwerkOptions.value.validateOn === "blur") {
+      return isBlurred.value && errorMessage.value ? errorMessage.value : undefined
     }
+    return errorMessage.value ? errorMessage.value : undefined
   })
 
   const model = computed(() => ({
