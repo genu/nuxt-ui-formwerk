@@ -51,35 +51,34 @@
         </div>
 
         <UCard>
-          <FormwerkForm #="{ blurredFields, dirtyFields, touchedFields }" class="flex flex-col gap-4">
+          <UForm #="{ blurredFields, dirtyFields, touchedFields }" class="flex flex-col gap-4">
             <div class="flex space-x-4">
-              <FormwerkField name="name" #="{ model }" label="Name" class="flex-1">
+              <UFormField name="name" #="{ model }" label="Name" class="flex-1">
                 <UInput v-bind="model" class="w-full" />
-              </FormwerkField>
-              <FormwerkField name="email" label="Email" #="{ model }" class="flex-1">
+              </UFormField>
+              <UFormField name="email" label="Email" #="{ model }" class="flex-1">
                 <UInput v-bind="model" class="w-full" />
-              </FormwerkField>
+              </UFormField>
             </div>
 
-            <FormwerkField label="Accept Terms" name="acceptTerms" #="{ model }">
+            <UFormField label="Accept Terms" name="acceptTerms" #="{ model }">
               <UCheckbox v-bind="model" label="I accept the terms and conditions" />
-            </FormwerkField>
-            <FormwerkField label="Newsletter Subscription" name="newsletter" #="{ model }">
+            </UFormField>
+            <UFormField label="Newsletter Subscription" name="newsletter" #="{ model }">
               <USwitch v-bind="model" label="I accept the terms and conditions" />
-            </FormwerkField>
+            </UFormField>
 
-            <FormwerkGroup name="address" class="flex space-x-4">
-              <FormwerkField name="street" label="Street" #="{ model }">
+            <UFormGroup name="address" class="flex space-x-4">
+              <UFormField name="street" label="Street" #="{ model }">
                 <UInput v-bind="model" class="w-full" />
-              </FormwerkField>
-              <FormwerkField name="city" label="City" #="{ model }">
+              </UFormField>
+              <UFormField name="city" label="City" #="{ model }">
                 <UInput v-bind="model" class="w-full" />
-              </FormwerkField>
-              <FormwerkField name="zipCode" label="Zip Code" #="{ model }">
+              </UFormField>
+              <UFormField name="zipCode" label="Zip Code" #="{ model }">
                 <UInput v-bind="model" class="w-full" />
-              </FormwerkField>
-            </FormwerkGroup>
-
+              </UFormField>
+            </UFormGroup>
             <USeparator class="my-5" />
             <pre>values: {{ values }}</pre>
             <USeparator />
@@ -88,7 +87,7 @@
             <pre>Touched: {{ touchedFields }}</pre>
             <UButton label="Submit" @click="onSubmit" />
             <UButton label="Reset" variant="ghost" @click="resetForm" />
-          </FormwerkForm>
+          </UForm>
         </UCard>
       </div>
     </UContainer>

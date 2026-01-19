@@ -96,7 +96,7 @@
 </script>
 
 <template>
-  <UFormField v-bind="props" :error="error">
+  <NuxtUiFormField v-bind="props" :error="error">
     <slot
       :model="model"
       :set-value="setValue"
@@ -104,5 +104,5 @@
       :is-touched="isTouched"
       :is-blurred="isBlurred"
       :is-dirty="isDirty" />
-  </UFormField>
+  </NuxtUiFormField>
 </template>
