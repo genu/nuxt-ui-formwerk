@@ -32,7 +32,10 @@ export default defineNuxtModule({
         const component = components.find((c) => c.pascalName === name && c.filePath?.includes("@nuxt/ui"))
         if (component) {
           component.pascalName = `NuxtUi${name.slice(prefix.length)}`
-          component.kebabName = `nuxt-ui-${name.slice(prefix.length).replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()}`
+          component.kebabName = `nuxt-ui-${name
+            .slice(prefix.length)
+            .replaceAll(/([a-z])([A-Z])/g, "$1-$2")
+            .toLowerCase()}`
         }
       }
     })
