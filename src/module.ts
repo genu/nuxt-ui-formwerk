@@ -1,28 +1,25 @@
+import { fileURLToPath } from "node:url"
 import { defineNuxtModule, addComponent, createResolver } from "@nuxt/kit"
-
-// Module options TypeScript interface definition
-// export interface ModuleOptions {}
 
 export type * from "./runtime/types"
 
 export default defineNuxtModule({
   meta: {
     name: "nuxt-ui-formwerk",
-    configKey: "uiElements",
   },
-  defaults: {},
   moduleDependencies: {
     "@nuxt/ui": {},
   },
-  setup(_options, nuxt) {
+  async setup(_options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     // Get the prefix from Nuxt UI's config, defaulting to 'U'
     const uiOptions = nuxt.options.ui as { prefix?: string } | undefined
     const prefix = uiOptions?.prefix ?? "U"
 
-    // Ensure @formwerk/core resolves to the same instance for both module and app
-    nuxt.options.alias["@formwerk/core"] = resolver.resolve(nuxt.options.rootDir, "node_modules/@formwerk/core")
+    // Prevent duplicate @formwerk/core instances which break context sharing between
+    // useForm() and useFormContext(). Required for dev playground and pnpm strict mode.
+    nuxt.options.alias["@formwerk/core"] = fileURLToPath(import.meta.resolve("@formwerk/core"))
 
     // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
     const componentsToRename = [`${prefix}Form`, `${prefix}FormField`]
