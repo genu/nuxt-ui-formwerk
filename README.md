@@ -6,32 +6,31 @@
 [![Nuxt][nuxt-src]][nuxt-href]
 
 > [!WARNING]
-> **⚠️ Experimental Module**
+> **Experimental Module**
 >
 > This module is currently in an experimental phase. APIs may change, and some features may not be fully stable. Use with caution in production environments and please report any issues you encounter.
->
-> **Technical Note:** This module works by tapping into Nuxt UI's form mechanism and intercepting events to coordinate between Nuxt UI's native form system and formwerk's validation engine.
 
 Enhanced form components for Nuxt UI with [@formwerk/core](https://formwerk.dev/) integration. This module bridges the gap between Formwerk's powerful form validation and state management with Nuxt UI's beautiful form components.
 
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
+- [Release Notes](/CHANGELOG.md)
 
 ## Features
 
-- 🎯 **Formwerk Integration** - Seamless integration with [@formwerk/core](https://formwerk.dev/) for advanced form validation
-- 📝 **Enhanced Form Components** - Wraps Nuxt UI components with formwerk capabilities
-- ✅ **Field-level Validation** - Granular validation control with error message handling
-- 🔄 **State Tracking** - Track touched, blurred, and dirty states per field
-- ⚙️ **Flexible Validation Strategies** - Configure when validation occurs (on blur, on input, etc.)
-- 📦 **Auto-import** - Components are automatically available in your app
-- 🎯 **TypeScript** - Full type safety out of the box
+- **Formwerk Integration** - Seamless integration with [@formwerk/core](https://formwerk.dev/) for advanced form validation
+- **Drop-in Replacement** - Overrides Nuxt UI's form components, keeping the same component names
+- **Field-level Validation** - Granular validation control with error message handling
+- **State Tracking** - Track touched, blurred, and dirty states per field
+- **Flexible Validation Strategies** - Configure when validation occurs (on blur, on input, etc.)
+- **Form Repeater** - Built-in support for dynamic array fields with add/remove/reorder
+- **Auto-import** - Components are automatically available in your app
+- **TypeScript** - Full type safety out of the box
 
 ## Quick Setup
 
 Install the module and its peer dependencies:
 
 ```bash
-pnpm add nuxt-ui-formwerk
+pnpm add nuxt-ui-formwerk @formwerk/core
 ```
 
 > **Note:** This module requires `@formwerk/core` and `@nuxt/ui` as peer dependencies. Make sure they are installed in your project.
@@ -44,34 +43,45 @@ export default defineNuxtConfig({
 })
 ```
 
-That's it! You can now use enhanced form components in your Nuxt app ✨
+That's it! You can now use enhanced form components in your Nuxt app.
+
+## How It Works
+
+This module **overrides** Nuxt UI's form components (`UForm`, `UFormField`) with formwerk-enhanced versions. The original Nuxt UI components are renamed internally (e.g., `NuxtUiForm`, `NuxtUiFormField`) and are still accessible if needed.
+
+This means you use the same component names you're familiar with:
+
+- `UForm` - Enhanced form component (overrides Nuxt UI's UForm)
+- `UFormField` - Enhanced field component (overrides Nuxt UI's UFormField)
+- `UFormGroup` - Field grouping component (new)
+- `UFormRepeater` - Dynamic array field component (new)
+
+The module automatically uses the same prefix as your Nuxt UI configuration (default: `U`).
 
 ## Usage
 
-This module provides three main components that wrap Nuxt UI form components with formwerk functionality:
-
-### FormwerkForm
+### UForm
 
 The root form component that provides validation context and tracks form state.
 
 ```vue
 <script setup lang="ts">
-  import { z } from "zod"
-  import { useForm } from "@formwerk/core"
+import { z } from "zod"
+import { useForm } from "@formwerk/core"
 
-  const schema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-  })
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+})
 
-  const form = useForm({ schema })
+const form = useForm({ schema })
 </script>
 
 <template>
-  <FormwerkForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
+  <UForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
     <!-- Form content here -->
     <p>Blurred fields: {{ blurredFields.size }}</p>
-  </FormwerkForm>
+  </UForm>
 </template>
 ```
 
@@ -88,17 +98,17 @@ The root form component that provides validation context and tracks form state.
 - `touchedFields` - Set of field names that have been touched
 - `dirtyFields` - Set of field names with modified values
 
-### FormwerkField
+### UFormField
 
-Enhanced field component that wraps `UFormField` with formwerk validation.
+Enhanced field component that wraps Nuxt UI's UFormField with formwerk validation.
 
 ```vue
 <template>
-  <FormwerkForm>
-    <FormwerkField name="email" label="Email" required #="{ model }">
+  <UForm>
+    <UFormField name="email" label="Email" required #="{ model }">
       <UInput v-bind="model" type="email" />
-    </FormwerkField>
-  </FormwerkForm>
+    </UFormField>
+  </UForm>
 </template>
 ```
 
@@ -114,22 +124,22 @@ Accepts all `UFormField` props except `validateOnInputDelay`, `errorPattern`, `e
 
 **Recommended usage:** Use `#="{ model }"` and spread with `v-bind="model"` for compatibility with all Nuxt UI components.
 
-### FormwerkGroup
+### UFormGroup
 
 Groups related form fields together for nested validation.
 
 ```vue
 <template>
-  <FormwerkForm>
-    <FormwerkGroup name="address">
-      <FormwerkField name="street" label="Street" #="{ model }">
+  <UForm>
+    <UFormGroup name="address">
+      <UFormField name="street" label="Street" #="{ model }">
         <UInput v-bind="model" />
-      </FormwerkField>
-      <FormwerkField name="city" label="City" #="{ model }">
+      </UFormField>
+      <UFormField name="city" label="City" #="{ model }">
         <UInput v-bind="model" />
-      </FormwerkField>
-    </FormwerkGroup>
-  </FormwerkForm>
+      </UFormField>
+    </UFormGroup>
+  </UForm>
 </template>
 ```
 
@@ -139,63 +149,226 @@ Groups related form fields together for nested validation.
 | ------ | -------- | -------- | ---------------- |
 | `name` | `string` | Yes      | Group identifier |
 
+### UFormRepeater
+
+Dynamic array field component for managing lists of items with add, remove, and reorder capabilities.
+
+```vue
+<script setup lang="ts">
+import { z } from "zod"
+import { useForm } from "@formwerk/core"
+
+const schema = z.object({
+  contacts: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Name is required"),
+        email: z.string().email("Invalid email"),
+      })
+    )
+    .min(1, "At least one contact required")
+    .max(5, "Maximum 5 contacts"),
+})
+
+const form = useForm({ schema })
+</script>
+
+<template>
+  <UForm>
+    <UFormRepeater
+      name="contacts"
+      :min="1"
+      :max="5"
+      :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }"
+    >
+      <template #default="{ index, items, isFirst, isLast, repeater }">
+        <div class="flex gap-4 items-end">
+          <UFormField name="name" label="Name" class="flex-1" #="{ model }">
+            <UInput v-bind="model" placeholder="Contact name" />
+          </UFormField>
+          <UFormField name="email" label="Email" class="flex-1" #="{ model }">
+            <UInput v-bind="model" placeholder="Contact email" />
+          </UFormField>
+          <div class="flex gap-1">
+            <UButton
+              icon="i-lucide-arrow-up"
+              variant="ghost"
+              size="sm"
+              :disabled="isFirst"
+              @click="repeater.move(index, index - 1)"
+            />
+            <UButton
+              icon="i-lucide-arrow-down"
+              variant="ghost"
+              size="sm"
+              :disabled="isLast"
+              @click="repeater.move(index, index + 1)"
+            />
+            <UButton
+              icon="i-lucide-trash"
+              color="error"
+              variant="ghost"
+              size="sm"
+              :disabled="items.length <= 1"
+              @click="repeater.remove(index)"
+            />
+          </div>
+        </div>
+      </template>
+      <template #trailing="{ items, repeater }">
+        <UButton
+          icon="i-lucide-plus"
+          variant="outline"
+          :disabled="items.length >= 5"
+          @click="repeater.add()"
+        >
+          Add Contact
+        </UButton>
+      </template>
+    </UFormRepeater>
+  </UForm>
+</template>
+```
+
+#### Props
+
+| Prop   | Type     | Required | Description                       |
+| ------ | -------- | -------- | --------------------------------- |
+| `name` | `string` | Yes      | Field name for the array          |
+| `min`  | `number` | No       | Minimum number of items           |
+| `max`  | `number` | No       | Maximum number of items           |
+| `ui`   | `object` | No       | Styling classes for slots         |
+
+#### UI Prop
+
+```ts
+{
+  root?: string      // Class for the root container
+  leading?: string   // Class for the leading slot wrapper
+  item?: string      // Class for each iteration item
+  trailing?: string  // Class for the trailing slot wrapper
+}
+```
+
+#### Slots
+
+**default** - Rendered for each item in the array
+
+| Prop       | Type               | Description                              |
+| ---------- | ------------------ | ---------------------------------------- |
+| `index`    | `number`           | Current item index                       |
+| `items`    | `readonly string[]`| Array of item keys                       |
+| `isFirst`  | `boolean`          | Whether this is the first item           |
+| `isLast`   | `boolean`          | Whether this is the last item            |
+| `repeater` | `RepeaterMethods`  | Methods to manipulate the array          |
+
+**leading** - Content before the items (optional)
+
+| Prop       | Type               | Description                     |
+| ---------- | ------------------ | ------------------------------- |
+| `items`    | `readonly string[]`| Array of item keys              |
+| `repeater` | `RepeaterMethods`  | Methods to manipulate the array |
+
+**trailing** - Content after the items (optional)
+
+| Prop       | Type               | Description                     |
+| ---------- | ------------------ | ------------------------------- |
+| `items`    | `readonly string[]`| Array of item keys              |
+| `repeater` | `RepeaterMethods`  | Methods to manipulate the array |
+
+#### Repeater Methods
+
+```ts
+interface RepeaterMethods {
+  add: (count?: number) => void           // Add items to the end
+  remove: (index: number) => void         // Remove item at index
+  move: (from: number, to: number) => void // Move item from one index to another
+  swap: (indexA: number, indexB: number) => void // Swap two items
+  insert: (index: number, count?: number) => void // Insert items at index
+}
+```
+
+> **Note:** Field names inside UFormRepeater should be relative (e.g., `name`, `email`), not the full path. The repeater automatically handles the array index pathing.
+
 ## Complete Example
 
 ```vue
 <script setup lang="ts">
-  import { z } from "zod"
-  import { useForm } from "@formwerk/core"
+import { z } from "zod"
+import { useForm } from "@formwerk/core"
 
-  const schema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-  })
+const schema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  address: z.object({
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+  }),
+})
 
-  const form = useForm({ schema })
+const form = useForm({ schema })
 
-  const onSubmit = form.handleSubmit((data) => {
-    // Handle validated data
-  })
+const onSubmit = form.handleSubmit((data) => {
+  console.log("Validated data:", data.toJSON())
+})
 </script>
 
 <template>
-  <FormwerkForm validate-on="blur">
+  <UForm validate-on="blur">
     <div class="space-y-4">
-      <FormwerkField name="name" label="Name" required #="{ model }">
+      <UFormField name="name" label="Name" required #="{ model }">
         <UInput v-bind="model" />
-      </FormwerkField>
+      </UFormField>
 
-      <FormwerkField name="email" label="Email" required #="{ model }">
+      <UFormField name="email" label="Email" required #="{ model }">
         <UInput v-bind="model" type="email" />
-      </FormwerkField>
+      </UFormField>
 
-      <FormwerkField name="password" label="Password" required #="{ model }">
+      <UFormField name="password" label="Password" required #="{ model }">
         <UInput v-bind="model" type="password" />
-      </FormwerkField>
+      </UFormField>
 
-      <UButton type="submit" @click="onSubmit"> Submit </UButton>
+      <UFormGroup name="address" class="space-y-4">
+        <UFormField name="street" label="Street" #="{ model }">
+          <UInput v-bind="model" />
+        </UFormField>
+        <UFormField name="city" label="City" #="{ model }">
+          <UInput v-bind="model" />
+        </UFormField>
+      </UFormGroup>
+
+      <UButton type="submit" @click="onSubmit">Submit</UButton>
     </div>
-  </FormwerkForm>
+  </UForm>
 </template>
 ```
 
-## Components
+## Components Summary
 
-All components are auto-imported with the `Formwerk` prefix:
+| Component        | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| `UForm`          | Root form component (overrides Nuxt UI)          |
+| `UFormField`     | Field wrapper with validation (overrides Nuxt UI)|
+| `UFormGroup`     | Groups related fields for nested paths           |
+| `UFormRepeater`  | Dynamic array fields with add/remove/reorder     |
 
-- `FormwerkForm` - Root form component
-- `FormwerkField` - Field wrapper component
-- `FormwerkGroup` - Field grouping component
+## Accessing Original Nuxt UI Components
 
-## How It Works
+The original Nuxt UI form components are renamed and still accessible:
+
+- `NuxtUiForm` - Original Nuxt UI Form component
+- `NuxtUiFormField` - Original Nuxt UI FormField component
+
+## Technical Details
 
 This module bridges [@formwerk/core](https://formwerk.dev/) with [@nuxt/ui](https://ui.nuxt.com/) by:
 
-1. **FormwerkForm** creates a formwerk form context and manages dual event buses (one for Nuxt UI, one for formwerk)
-2. **FormwerkField** uses formwerk's `useCustomControl` composable to register fields and handle validation
-3. Event coordination between both systems ensures validation triggers work as expected
-4. Field state (touched, blurred, dirty) is tracked and exposed to the parent form
+1. **UForm** creates a formwerk form context and manages dual event buses (one for Nuxt UI, one for formwerk)
+2. **UFormField** uses formwerk's `useCustomControl` composable to register fields and handle validation
+3. **UFormRepeater** uses formwerk's `useFormRepeater` composable for array field management
+4. Event coordination between both systems ensures validation triggers work as expected
+5. Field state (touched, blurred, dirty) is tracked and exposed to the parent form
 
 The integration allows you to use Nuxt UI's beautiful form components while leveraging formwerk's powerful validation and state management capabilities.
 
