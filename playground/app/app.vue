@@ -17,6 +17,15 @@
         city: z.string().min(1, "City is required"),
         zipCode: z.string().regex(/^\d{5}$/, "Zip code must be 5 digits"),
       }),
+      contacts: z
+        .array(
+          z.object({
+            name: z.string().min(1, "Contact name is required"),
+            email: z.string().email("Invalid contact email"),
+          }),
+        )
+        .min(1, "At least one contact is required")
+        .max(5, "Maximum 5 contacts allowed"),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords don't match",
@@ -79,6 +88,58 @@
                 <UInput v-bind="model" class="w-full" />
               </UFormField>
             </UFormGroup>
+
+            <div class="mt-4">
+              <h3 class="text-lg font-medium mb-2">Contacts</h3>
+              <UFormRepeater
+                name="contacts"
+                :min="1"
+                :max="5"
+                :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }"
+              >
+                <template #default="{ index, items, isFirst, isLast, repeater }">
+                  <div class="flex gap-4 items-end">
+                    <UFormField name="name" label="Name" class="flex-1" #="{ model }">
+                      <UInput v-bind="model" placeholder="Contact name" />
+                    </UFormField>
+                    <UFormField name="email" label="Email" class="flex-1" #="{ model }">
+                      <UInput v-bind="model" placeholder="Contact email" />
+                    </UFormField>
+                    <div class="flex gap-1">
+                      <UButton
+                        icon="i-lucide-arrow-up"
+                        variant="ghost"
+                        size="sm"
+                        :disabled="isFirst"
+                        @click="repeater.move(index, index - 1)" />
+                      <UButton
+                        icon="i-lucide-arrow-down"
+                        variant="ghost"
+                        size="sm"
+                        :disabled="isLast"
+                        @click="repeater.move(index, index + 1)" />
+                      <UButton
+                        icon="i-lucide-trash"
+                        color="error"
+                        variant="ghost"
+                        size="sm"
+                        :disabled="items.length <= 1"
+                        @click="repeater.remove(index)" />
+                    </div>
+                  </div>
+                </template>
+                <template #trailing="{ items, repeater }">
+                  <UButton
+                    icon="i-lucide-plus"
+                    variant="outline"
+                    :disabled="items.length >= 5"
+                    @click="repeater.add()"
+                  >
+                    Add Contact
+                  </UButton>
+                </template>
+              </UFormRepeater>
+            </div>
             <USeparator class="my-5" />
             <pre>values: {{ values }}</pre>
             <USeparator />

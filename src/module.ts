@@ -52,5 +52,10 @@ export default defineNuxtModule({
       name: `${prefix}FormGroup`,
       filePath: resolver.resolve("./runtime/components/Group.vue"),
     })
+
+    addComponent({
+      name: `${prefix}FormRepeater`,
+      filePath: resolver.resolve("./runtime/components/Repeater.vue"),
+    })
   },
 })
