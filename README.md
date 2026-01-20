@@ -58,6 +58,20 @@ This means you use the same component names you're familiar with:
 
 The module automatically uses the same prefix as your Nuxt UI configuration (default: `U`).
 
+### Event Bus Integration
+
+The module bridges Nuxt UI's form system with formwerk by intercepting and coordinating events between both systems:
+
+1. **Dual Event Buses** - `UForm` creates two event buses:
+   - A Nuxt UI form bus (`form-{id}`) that Nuxt UI input components emit to
+   - A formwerk bus (`formwerk-form-{id}`) for internal state tracking
+
+2. **Event Interception** - `UFormField` listens to the Nuxt UI form bus and intercepts events (`blur`, `change`, `input`, `focus`) emitted by Nuxt UI input components. These events are translated into formwerk state updates (`setBlurred`, `setTouched`).
+
+3. **State Propagation** - When formwerk field state changes (touched, blurred, dirty), `UFormField` emits events on the formwerk bus, which `UForm` listens to for tracking field-level state across the entire form.
+
+This architecture allows Nuxt UI's native input components to work seamlessly with formwerk's validation and state management without requiring any modifications to the input components themselves.
+
 ## Usage
 
 ### UForm
@@ -390,13 +404,13 @@ pnpm dev
 # Build the playground
 pnpm dev:build
 
-# Run linter (oxlint)
+# Run linter
 pnpm lint
 
 # Fix linting issues
 pnpm lint:fix
 
-# Format code (oxfmt)
+# Format code
 pnpm format
 
 # Run tests
