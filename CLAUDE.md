@@ -25,7 +25,8 @@ src/
     └── components/
         ├── Field.vue         # Wraps UFormField with formwerk validation
         ├── Form.vue          # Provides form context and event coordination
-        └── Group.vue         # Groups related form fields
+        ├── Group.vue         # Groups related form fields
+        └── Repeater.vue      # Repeatable field groups (dynamic arrays)
 ```
 
 ### Component Integration Pattern
@@ -51,6 +52,15 @@ src/
 
 - Simple wrapper using `useFormGroup` from formwerk
 - Groups related fields for nested validation
+
+**Repeater Component** ([src/runtime/components/Repeater.vue](src/runtime/components/Repeater.vue)):
+
+- Uses `useFormRepeater` from formwerk for dynamic array fields
+- Exposes `Iteration` component for proper formwerk state tracking
+- Provides `repeater` methods: `add`, `remove`, `move`, `swap`, `insert`
+- Supports `ui` prop for styling: `root`, `leading`, `wrapper`, `item`, `trailing`
+- Slots: `leading`, `wrapper` (for custom containers like drag-drop), `default`, `trailing`
+- The `wrapper` slot receives the `Iteration` component to enable custom rendering while preserving formwerk's internal state
 
 ### Injection Keys
 
@@ -127,8 +137,8 @@ The module checks for required peer dependencies (`@nuxt/ui`) at setup time and 
 
 ## Tooling
 
-- **Linter**: oxlint (with type-aware checking and TSGolint plugin)
-- **Formatter**: oxfmt
+- **Linter**: ESLint with @nuxt/eslint-config and Prettier
+- **Formatter**: Prettier
 - **Type Checker**: vue-tsc
 - **Test Framework**: Vitest with @nuxt/test-utils
 - **Build Tool**: @nuxt/module-builder
