@@ -28,6 +28,7 @@ export default createConfigForNuxt(eslintPluginPrettierRecommended, {
     "vue/max-attributes-per-line": ["error", { singleline: 5 }],
     "vue/space-infix-ops": ["error"],
     "vue/multi-word-component-names": "off",
+    "vue/require-default-prop": "off",
     "vue/html-closing-bracket-newline": [
       "error",
       {
