@@ -1,3 +1,39 @@
+## v0.1.18
+
+[compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.17...v0.1.18)
+
+### 🚀 Enhancements
+
+- Add repeater component ([460b3c5a](https://github.com/genu/nuxt-ui-formwerk/commit/460b3c5a))
+- Enhance Repeater component with wrapper slot support ([d87c7070](https://github.com/genu/nuxt-ui-formwerk/commit/d87c7070))
+
+### 🩹 Fixes
+
+- Update dependencies for eslint-plugin-prettier, prettier, and vitest ([86f0924a](https://github.com/genu/nuxt-ui-formwerk/commit/86f0924a))
+- Remove @nuxt/ui module from configuration since we already have it as a module dependency ([62383656](https://github.com/genu/nuxt-ui-formwerk/commit/62383656))
+- Replace the @nuxt/ui registered components directly ([bdfef28a](https://github.com/genu/nuxt-ui-formwerk/commit/bdfef28a))
+- Update kebab name generation for components to use replaceAll for consistency ([92980578](https://github.com/genu/nuxt-ui-formwerk/commit/92980578))
+- Streamline module setup and prevent duplicate @formwerk/core instances ([89d0590a](https://github.com/genu/nuxt-ui-formwerk/commit/89d0590a))
+- Disable require-default-prop rule in Vue ESLint configuration ([8a6aeb6f](https://github.com/genu/nuxt-ui-formwerk/commit/8a6aeb6f))
+
+### 📖 Documentation
+
+- Update README for clarity and component details ([3e3e4c0e](https://github.com/genu/nuxt-ui-formwerk/commit/3e3e4c0e))
+- Add Event Bus integration details to README ([9a3339b6](https://github.com/genu/nuxt-ui-formwerk/commit/9a3339b6))
+
+### 🏡 Chore
+
+- **release:** V0.1.17 ([c9b4fce3](https://github.com/genu/nuxt-ui-formwerk/commit/c9b4fce3))
+- Update claude.md for better context support ([60822223](https://github.com/genu/nuxt-ui-formwerk/commit/60822223))
+
+### ✅ Tests
+
+- Add enhanced tests ([4546dadf](https://github.com/genu/nuxt-ui-formwerk/commit/4546dadf))
+
+### ❤️ Contributors
+
+- Eugen Istoc <eugenistoc@gmail.com>
+
 ## v0.1.17
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.16...v0.1.17)
