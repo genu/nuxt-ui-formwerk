@@ -37,29 +37,29 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@nuxt/kit": "^4.2.2",
-    "@vueuse/core": "^14.1.0"
+    "@nuxt/kit": "4.2.2",
+    "@vueuse/core": "14.1.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^3.1.1",
-    "@nuxt/eslint-config": "^1.12.1",
-    "@nuxt/module-builder": "^1.0.2",
-    "@nuxt/schema": "^4.2.2",
-    "@nuxt/test-utils": "^3.23.0",
-    "@types/culori": "^4.0.1",
+    "@nuxt/devtools": "3.1.1",
+    "@nuxt/eslint-config": "1.12.1",
+    "@nuxt/module-builder": "1.0.2",
+    "@nuxt/schema": "4.2.2",
+    "@nuxt/test-utils": "3.23.0",
+    "@types/culori": "4.0.1",
     "@types/node": "latest",
-    "eslint": "^9.39.2",
+    "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
-    "nuxt": "^4.2.2",
-    "prettier": "^3.8.0",
-    "typescript": "~5.9.3",
-    "vitest": "^4.0.17",
-    "vue-tsc": "^3.2.2"
+    "nuxt": "4.2.2",
+    "prettier": "3.8.0",
+    "typescript": "5.9.3",
+    "vitest": "4.0.17",
+    "vue-tsc": "3.2.2"
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",
     "@nuxt/ui": "^4.0.0",
-    "@internationalized/date": ">=3.10.0"
+    "@internationalized/date": "^3.10.0"
   }
 }
