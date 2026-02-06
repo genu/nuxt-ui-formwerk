@@ -32,7 +32,6 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "release": "pnpm lint && pnpm test && pnpm prepack && changelogen --release && pnpm publish && git push --follow-tags",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
@@ -49,7 +48,6 @@
     "@nuxt/test-utils": "^3.23.0",
     "@types/culori": "^4.0.1",
     "@types/node": "latest",
-    "changelogen": "^0.6.2",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
