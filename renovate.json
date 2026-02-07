@@ -11,7 +11,8 @@
     {
       "description": "Group Nuxt ecosystem packages",
       "groupName": "nuxt",
-      "matchPackageNames": ["/^@nuxt//", "/^nuxt$/", "/^nuxi$/"]
+      "matchPackageNames": ["/^@nuxt//", "/^nuxt$/", "/^nuxi$/"],
+      "excludePackageNames": ["@nuxt/ui"]
     },
     {
       "description": "Group Vitest packages",
