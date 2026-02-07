@@ -21,8 +21,8 @@ importers:
         specifier: ^4.0.0
         version: 4.3.0(@babel/parser@7.29.0)(@floating-ui/dom@1.7.4)(@tiptap/extension-drag-handle@3.14.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/extension-collaboration@3.14.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0)(@tiptap/y-tiptap@3.0.1(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.28))(yjs@13.6.28))(yjs@13.6.28))(@tiptap/extension-node-range@3.14.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0)(@tiptap/y-tiptap@3.0.1(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.7(yjs@13.6.28))(yjs@13.6.28)))(@tiptap/extensions@3.14.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0))(change-case@5.4.4)(db0@0.3.4)(embla-carousel@8.6.0)(ioredis@5.9.2)(magicast@0.5.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(yaml@2.8.2))(vue-router@4.6.4(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
       '@vueuse/core':
-        specifier: 14.1.0
-        version: 14.1.0(vue@3.5.27(typescript@5.9.3))
+        specifier: 14.2.0
+        version: 14.2.0(vue@3.5.27(typescript@5.9.3))
     devDependencies:
       '@nuxt/devtools':
         specifier: 3.1.1
@@ -2788,6 +2788,11 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@vueuse/core@14.2.0':
+    resolution: {integrity: sha512-tpjzVl7KCQNVd/qcaCE9XbejL38V6KJAEq/tVXj7mDPtl6JtzmUdnXelSS+ULRkkrDgzYVK7EerQJvd2jR794Q==}
+    peerDependencies:
+      vue: ^3.5.0
+
   '@vueuse/integrations@14.1.0':
     resolution: {integrity: sha512-eNQPdisnO9SvdydTIXnTE7c29yOsJBD/xkwEyQLdhDC/LKbqrFpXHb3uS//7NcIrQO3fWVuvMGp8dbK6mNEMCA==}
     peerDependencies:
@@ -2839,6 +2844,9 @@ packages:
   '@vueuse/metadata@14.1.0':
     resolution: {integrity: sha512-7hK4g015rWn2PhKcZ99NyT+ZD9sbwm7SGvp7k+k+rKGWnLjS/oQozoIZzWfCewSUeBmnJkIb+CNr7Zc/EyRnnA==}
 
+  '@vueuse/metadata@14.2.0':
+    resolution: {integrity: sha512-i3axTGjU8b13FtyR4Keeama+43iD+BwX9C2TmzBVKqjSHArF03hjkp2SBZ1m72Jk2UtrX0aYCugBq2R1fhkuAQ==}
+
   '@vueuse/shared@10.11.1':
     resolution: {integrity: sha512-LHpC8711VFZlDaYUXEBbFBCQ7GS3dVU9mjOhhMhXP6txTV4EhYQg/KGnQuvt/sPAtoUKq7VVUnL6mVtFoL42sA==}
 
@@ -2847,6 +2855,11 @@ packages:
 
   '@vueuse/shared@14.1.0':
     resolution: {integrity: sha512-EcKxtYvn6gx1F8z9J5/rsg3+lTQnvOruQd8fUecW99DCK04BkWD7z5KQ/wTAx+DazyoEE9dJt/zV8OIEQbM6kw==}
+    peerDependencies:
+      vue: ^3.5.0
+
+  '@vueuse/shared@14.2.0':
+    resolution: {integrity: sha512-Z0bmluZTlAXgUcJ4uAFaML16JcD8V0QG00Db3quR642I99JXIDRa2MI2LGxiLVhcBjVnL1jOzIvT5TT2lqJlkA==}
     peerDependencies:
       vue: ^3.5.0
 
@@ -7195,7 +7208,7 @@ snapshots:
       '@tiptap/suggestion': 3.13.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0)
       '@tiptap/vue-3': 3.13.0(@floating-ui/dom@1.7.4)(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0)(vue@3.5.27(typescript@5.9.3))
       '@unhead/vue': 2.1.1(vue@3.5.27(typescript@5.9.3))
-      '@vueuse/core': 14.1.0(vue@3.5.27(typescript@5.9.3))
+      '@vueuse/core': 14.2.0(vue@3.5.27(typescript@5.9.3))
       '@vueuse/integrations': 14.1.0(change-case@5.4.4)(fuse.js@7.1.0)(vue@3.5.27(typescript@5.9.3))
       colortranslator: 5.0.0
       consola: 3.4.2
@@ -7212,7 +7225,7 @@ snapshots:
       knitwork: 1.3.0
       magic-string: 0.30.21
       mlly: 1.8.0
-      motion-v: 1.7.4(@vueuse/core@14.1.0(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
+      motion-v: 1.7.4(@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
       ohash: 2.0.11
       pathe: 2.0.3
       reka-ui: 2.6.1(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3))
@@ -7223,7 +7236,7 @@ snapshots:
       tinyglobby: 0.2.15
       typescript: 5.9.3
       unplugin: 2.3.11
-      unplugin-auto-import: 20.3.0(@nuxt/kit@4.3.1(magicast@0.5.1))(@vueuse/core@14.1.0(vue@3.5.27(typescript@5.9.3)))
+      unplugin-auto-import: 20.3.0(@nuxt/kit@4.3.1(magicast@0.5.1))(@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3)))
       unplugin-vue-components: 30.0.0(@babel/parser@7.29.0)(@nuxt/kit@4.3.1(magicast@0.5.1))(vue@3.5.27(typescript@5.9.3))
       vaul-vue: 0.4.1(reka-ui@2.6.1(typescript@5.9.3)(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3))
       vue-component-type-helpers: 3.2.1
@@ -8765,6 +8778,13 @@ snapshots:
       '@vueuse/shared': 14.1.0(vue@3.5.27(typescript@5.9.3))
       vue: 3.5.27(typescript@5.9.3)
 
+  '@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.21
+      '@vueuse/metadata': 14.2.0
+      '@vueuse/shared': 14.2.0(vue@3.5.27(typescript@5.9.3))
+      vue: 3.5.27(typescript@5.9.3)
+
   '@vueuse/integrations@14.1.0(change-case@5.4.4)(fuse.js@7.1.0)(vue@3.5.27(typescript@5.9.3))':
     dependencies:
       '@vueuse/core': 14.1.0(vue@3.5.27(typescript@5.9.3))
@@ -8780,6 +8800,8 @@ snapshots:
 
   '@vueuse/metadata@14.1.0': {}
 
+  '@vueuse/metadata@14.2.0': {}
+
   '@vueuse/shared@10.11.1(vue@3.5.27(typescript@5.9.3))':
     dependencies:
       vue-demi: 0.14.10(vue@3.5.27(typescript@5.9.3))
@@ -8794,6 +8816,10 @@ snapshots:
       - typescript
 
   '@vueuse/shared@14.1.0(vue@3.5.27(typescript@5.9.3))':
+    dependencies:
+      vue: 3.5.27(typescript@5.9.3)
+
+  '@vueuse/shared@14.2.0(vue@3.5.27(typescript@5.9.3))':
     dependencies:
       vue: 3.5.27(typescript@5.9.3)
 
@@ -10318,9 +10344,9 @@ snapshots:
 
   motion-utils@12.23.6: {}
 
-  motion-v@1.7.4(@vueuse/core@14.1.0(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)):
+  motion-v@1.7.4(@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3)))(vue@3.5.27(typescript@5.9.3)):
     dependencies:
-      '@vueuse/core': 14.1.0(vue@3.5.27(typescript@5.9.3))
+      '@vueuse/core': 14.2.0(vue@3.5.27(typescript@5.9.3))
       framer-motion: 12.23.12
       hey-listen: 1.0.8
       motion-dom: 12.23.12
@@ -11724,7 +11750,7 @@ snapshots:
       unplugin: 2.3.11
       unplugin-utils: 0.3.1
 
-  unplugin-auto-import@20.3.0(@nuxt/kit@4.3.1(magicast@0.5.1))(@vueuse/core@14.1.0(vue@3.5.27(typescript@5.9.3))):
+  unplugin-auto-import@20.3.0(@nuxt/kit@4.3.1(magicast@0.5.1))(@vueuse/core@14.2.0(vue@3.5.27(typescript@5.9.3))):
     dependencies:
       local-pkg: 1.1.2
       magic-string: 0.30.21
@@ -11734,7 +11760,7 @@ snapshots:
       unplugin-utils: 0.3.1
     optionalDependencies:
       '@nuxt/kit': 4.3.1(magicast@0.5.1)
-      '@vueuse/core': 14.1.0(vue@3.5.27(typescript@5.9.3))
+      '@vueuse/core': 14.2.0(vue@3.5.27(typescript@5.9.3))
 
   unplugin-utils@0.2.5:
     dependencies:
