@@ -34,6 +34,19 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.19](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.18...v0.1.19) (2026-02-07)
+
+
+### Features
+
+* add CI and release workflows with pnpm setup and versioning ([718019a](https://github.com/genu/nuxt-ui-formwerk/commit/718019a45ee9abeebc817ae866254cb72b87599e))
+* enhance Repeater component with wrapper slot support ([d87c707](https://github.com/genu/nuxt-ui-formwerk/commit/d87c70707cc048e84fb14c07326730341b54d8f7))
+
+
+### Bug Fixes
+
+* disable require-default-prop rule in Vue ESLint configuration ([8a6aeb6](https://github.com/genu/nuxt-ui-formwerk/commit/8a6aeb6f1be9cbc18a35b2bff926f1b8e919c0a3))
+
 ## v0.1.17
 
 [compare changes](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.16...v0.1.17)
