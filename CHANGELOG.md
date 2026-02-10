@@ -34,6 +34,13 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.20](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.19...v0.1.20) (2026-02-10)
+
+
+### Bug Fixes
+
+* add missing prepare step to release workflow ([#13](https://github.com/genu/nuxt-ui-formwerk/issues/13)) ([38198c3](https://github.com/genu/nuxt-ui-formwerk/commit/38198c30ff5f76ee3e9a2907a165edcd04fc2706))
+
 ## [0.1.19](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.18...v0.1.19) (2026-02-07)
 
 
