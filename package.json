@@ -55,7 +55,7 @@
     "prettier": "3.8.1",
     "typescript": "5.9.3",
     "vitest": "4.0.18",
-    "vue-tsc": "3.2.4"
+    "vue-tsc": "3.2.5"
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",
