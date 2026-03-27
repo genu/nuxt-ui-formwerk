@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useCustomControl, useFormField } from "@formwerk/core"
   import type { FormFieldProps } from "@nuxt/ui"
-  import { formBusInjectionKey } from "#imports"
+  import { formBusInjectionKey } from "@nuxt/ui/composables/useFormField"
   import { inject, watch, computed, useSlots, type Component } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
 </script>
