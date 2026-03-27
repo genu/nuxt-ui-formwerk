@@ -34,6 +34,14 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.21](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.20...v0.1.21) (2026-03-27)
+
+
+### Bug Fixes
+
+* **ci:** use PAT for release-please to trigger CI on PRs ([#42](https://github.com/genu/nuxt-ui-formwerk/issues/42)) ([b387d7f](https://github.com/genu/nuxt-ui-formwerk/commit/b387d7f6e2be291185218f4b02352a4fbdf048bc))
+* use explicit import path for Nuxt UI injection keys ([#40](https://github.com/genu/nuxt-ui-formwerk/issues/40)) ([9da6b52](https://github.com/genu/nuxt-ui-formwerk/commit/9da6b525daaf9fd2d39e48b007824f4e7f4b27e0)), closes [#39](https://github.com/genu/nuxt-ui-formwerk/issues/39)
+
 ## [0.1.20](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.19...v0.1.20) (2026-02-10)
 
 
