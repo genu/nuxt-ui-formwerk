@@ -2,7 +2,7 @@
   import { provide, reactive, computed } from "vue"
   import { useEventBus } from "@vueuse/core"
   import { useFormContext } from "@formwerk/core"
-  import { formBusInjectionKey, formOptionsInjectionKey } from "#imports"
+  import { formBusInjectionKey, formOptionsInjectionKey } from "@nuxt/ui/composables/useFormField"
   import {
     formwerkOptionsInjectionKey,
     formwerkBusInjectionKey,
