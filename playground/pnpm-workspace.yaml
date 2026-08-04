@@ -1,0 +1,16 @@
+# The playground is a standalone pnpm project with its own lockfile, not a
+# member of the root workspace. Adding pnpm-workspace.yaml at the repo root
+# would otherwise make pnpm treat this directory as part of that workspace,
+# so it needs its own workspace root marker to stay independent.
+#
+# Release-age gating is enforced by Renovate rather than pnpm, so that CI
+# results depend on the commit and not on the time of day. See the root
+# pnpm-workspace.yaml for the full rationale.
+minimumReleaseAge: 0
+
+# pnpm 11 turns previously-warned ignored build scripts into a hard install
+# error. Managed with "pnpm approve-builds".
+allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  vue-demi: true

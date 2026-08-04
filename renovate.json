@@ -7,7 +7,13 @@
     ":label(dependencies)",
     ":disablePeerDependencies"
   ],
+  "minimumReleaseAge": "3 days",
   "packageRules": [
+    {
+      "description": "Hold TypeScript at v6. TypeScript 7 breaks @nuxt/module-builder, which does `import { convertCompilerOptionsFromJson } from \"typescript\"` — TS7 no longer exposes that as a Node-detectable CJS named export, so `pnpm dev:prepare` fails. Remove this once module-builder ships an ESM-safe import.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
     {
       "description": "Group Nuxt ecosystem packages",
       "groupName": "nuxt",

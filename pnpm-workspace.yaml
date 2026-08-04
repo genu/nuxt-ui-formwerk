@@ -1,0 +1,24 @@
+# pnpm 11 settings. The "pnpm" field in package.json is no longer read by
+# pnpm 11, so configuration lives here instead. See https://pnpm.io/settings
+
+# pnpm 11 defaults minimumReleaseAge to 24h, which rejects any lockfile entry
+# published within the last day. That makes CI pass or fail based on wall-clock
+# time rather than on the contents of the commit: the same lockfile is red in
+# the morning and green in the afternoon, and any dependency released today
+# breaks every build until tomorrow.
+#
+# Release-age gating is instead enforced by Renovate ("minimumReleaseAge":
+# "3 days" in renovate.json), which is where every dependency change in this
+# repo originates. Renovate simply never proposes a version that young, so the
+# lockfile can't contain one — and it's checked when the PR is created rather
+# than re-evaluated on every later CI run.
+minimumReleaseAge: 0
+
+# pnpm 11 turns previously-warned ignored build scripts into a hard install
+# error, so every dependency that needs to run install scripts must be
+# approved explicitly. Managed with "pnpm approve-builds".
+allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  unrs-resolver: true
+  vue-demi: true
