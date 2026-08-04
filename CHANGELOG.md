@@ -34,6 +34,13 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.22](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.21...v0.1.22) (2026-08-04)
+
+
+### Bug Fixes
+
+* **deps:** update nuxt, @vueuse/core, @nuxt/ui, zod, pnpm and CI actions ([#96](https://github.com/genu/nuxt-ui-formwerk/issues/96)) ([37923ac](https://github.com/genu/nuxt-ui-formwerk/commit/37923ac6a2cca5be58ab5c94dbaaa69b2ca06afe))
+
 ## [0.1.21](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.20...v0.1.21) (2026-03-27)
 
 
