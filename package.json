@@ -4,7 +4,7 @@
   "description": "A collection of beautiful, animated UI components for Nuxt applications",
   "license": "MIT",
   "repository": "https://github.com/genu/nuxt-ui-formwerk.git",
-  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
+  "packageManager": "pnpm@10.34.5+sha512.a4ee05f2f73658255bd6a89859c065a45c28a57daefae2c893a168ee2b73168c37b91e83e57ea67654ad03f03031746430e8bce38e362e042605fb8abc80192e",
   "files": [
     "dist"
   ],
@@ -37,21 +37,21 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
-    "@nuxt/kit": "4.4.4",
-    "@vueuse/core": "14.2.1"
+    "@nuxt/kit": "4.5.1",
+    "@vueuse/core": "14.4.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "3.2.4",
-    "@nuxt/eslint-config": "1.15.2",
-    "@nuxt/module-builder": "1.0.2",
-    "@nuxt/schema": "4.4.4",
-    "@nuxt/test-utils": "4.0.3",
+    "@nuxt/devtools": "3.4.1",
+    "@nuxt/eslint-config": "1.16.0",
+    "@nuxt/module-builder": "1.0.3",
+    "@nuxt/schema": "4.5.1",
+    "@nuxt/test-utils": "4.1.0",
     "@types/culori": "4.0.1",
     "@types/node": "latest",
     "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
-    "nuxt": "4.4.4",
+    "nuxt": "4.5.1",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
