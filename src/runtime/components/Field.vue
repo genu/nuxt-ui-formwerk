@@ -59,12 +59,24 @@
   watch(isDirty, (newValue) => emitFormEvent("dirty", props.name, newValue))
 
   const error = computed(() => {
-    if (!formwerkOptions || !formwerkOptions.value) return errorMessage.value ? errorMessage.value : undefined
+    if (!errorMessage.value) return undefined
+    if (!formwerkOptions || !formwerkOptions.value) return errorMessage.value
 
-    if (formwerkOptions.value.validateOn === "blur") {
-      return isBlurred.value && errorMessage.value ? errorMessage.value : undefined
+    // Once a submit has been attempted, formwerk has already run full-schema
+    // validation, so surface errors regardless of per-field interaction state
+    // (mirrors Nuxt UI's own <UForm>, which always validates on submit).
+    if (formwerkOptions.value.isSubmitAttempted) return errorMessage.value
+
+    switch (formwerkOptions.value.validateOn) {
+      case "blur":
+        return isBlurred.value ? errorMessage.value : undefined
+      case "touched":
+        return isTouched.value ? errorMessage.value : undefined
+      case "dirty":
+        return isDirty.value ? errorMessage.value : undefined
+      default:
+        return errorMessage.value
     }
-    return errorMessage.value ? errorMessage.value : undefined
   })
 
   const model = computed(() => ({

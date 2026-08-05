@@ -26,7 +26,7 @@
     throw new Error("FormwerkForm must be used within a component that has called useForm()")
   }
 
-  const { context } = formContext
+  const { context, isSubmitAttempted } = formContext
 
   const { validateOn = "blur", disabled = false } = defineProps<Props>()
   const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(`formwerk-form-${context.id}`)
@@ -45,6 +45,7 @@
     formwerkOptionsInjectionKey,
     computed(() => ({
       validateOn: validateOn,
+      isSubmitAttempted: isSubmitAttempted.value,
     })),
   )
   provide(
