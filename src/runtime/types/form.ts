@@ -4,6 +4,7 @@ import type { UseEventBusReturn } from "@vueuse/core"
 export interface FormInjectedOptions {
   disabled?: boolean
   validateOn?: FormwerkInputEvents
+  isSubmitAttempted?: boolean
 }
 
 export type FormwerkInputEvent = {
