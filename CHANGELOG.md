@@ -34,6 +34,13 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.23](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.22...v0.1.23) (2026-08-05)
+
+
+### Bug Fixes
+
+* **field:** show validation errors on submit of untouched fields ([#100](https://github.com/genu/nuxt-ui-formwerk/issues/100)) ([3c7550e](https://github.com/genu/nuxt-ui-formwerk/commit/3c7550e435d0b9251da22bed0872a8979b2bdb4a))
+
 ## [0.1.22](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.21...v0.1.22) (2026-08-04)
 
 
