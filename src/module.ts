@@ -43,6 +43,19 @@ export default defineNuxtModule({
       filePath: resolver.resolve("./runtime/components/Form.vue"),
     })
 
+    // Form roots that create their own formwerk form, one per useForm overload.
+    // Each instance provides its own context, so sibling forms in a single
+    // component stay isolated.
+    addComponent({
+      name: `${prefix}FormWithSchema`,
+      filePath: resolver.resolve("./runtime/components/FormWithSchema.vue"),
+    })
+
+    addComponent({
+      name: `${prefix}FormWithValues`,
+      filePath: resolver.resolve("./runtime/components/FormWithValues.vue"),
+    })
+
     addComponent({
       name: `${prefix}FormField`,
       filePath: resolver.resolve("./runtime/components/Field.vue"),

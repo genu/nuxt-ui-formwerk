@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { z } from "zod"
-  import { useForm } from "@formwerk/core"
+  import { useForm, type ConsumableData } from "@formwerk/core"
 
   const schema = z
     .object({
@@ -48,6 +48,40 @@
   const resetForm = () => {
     form.reset()
   }
+
+  /**
+   * Two independent forms in this same component.
+   *
+   * Calling useForm() twice here would not work: each call provides on this
+   * component instance, so the second overwrites the first and every field in
+   * both forms would bind to the last one. UFormWithSchema creates its form in
+   * its own instance, so the two stay isolated.
+   */
+  const loginSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  })
+
+  const signupSchema = z.object({
+    company: z.string().min(2, "Company must be at least 2 characters"),
+    seats: z.coerce.number().min(1, "At least one seat is required"),
+  })
+
+  const loginResult = ref<unknown>(null)
+  const signupResult = ref<unknown>(null)
+  const profileResult = ref<unknown>(null)
+
+  const onLogin = (payload: ConsumableData<z.output<typeof loginSchema>>) => {
+    // payload.toObject() is typed as { email: string; password: string }
+    loginResult.value = payload.toObject()
+  }
+
+  const onSignup = (payload: ConsumableData<z.output<typeof signupSchema>>) => {
+    signupResult.value = payload.toObject()
+  }
+
+  /** No schema: the initial values object is what gives the form its type. */
+  const profileDefaults = { nickname: "", bio: "" }
 </script>
 
 <template>
@@ -149,6 +183,92 @@
             <UButton label="Submit" @click="onSubmit" />
             <UButton label="Reset" variant="ghost" @click="resetForm" />
           </UForm>
+        </UCard>
+
+        <UCard class="mt-8">
+          <template #header>
+            <h2 class="text-xl font-semibold">Two forms, one component</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Both forms live in this single component. Each
+              <code>UFormWithSchema</code> calls useForm() in its own instance, so their values, validation and
+              dirty/touched state stay completely independent.
+            </p>
+          </template>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <UFormWithSchema
+              :schema="loginSchema"
+              #="{ values, submit, isSubmitting, isValid, dirtyFields }"
+              class="flex flex-col gap-4"
+              @submit="onLogin"
+            >
+              <h3 class="font-medium">Log in</h3>
+              <UFormField name="email" label="Email" #="{ model }">
+                <UInput v-bind="model" class="w-full" />
+              </UFormField>
+              <UFormField name="password" label="Password" #="{ model }">
+                <UInput v-bind="model" type="password" class="w-full" />
+              </UFormField>
+              <pre class="text-xs">{{ values }}</pre>
+              <pre class="text-xs">dirty: {{ [...dirtyFields] }}</pre>
+              <UButton label="Log in" :loading="isSubmitting" :disabled="!isValid" @click="submit" />
+            </UFormWithSchema>
+
+            <UFormWithSchema
+              :schema="signupSchema"
+              #="{ values, submit, isSubmitting, isValid, dirtyFields }"
+              class="flex flex-col gap-4"
+              @submit="onSignup"
+            >
+              <h3 class="font-medium">Sign up</h3>
+              <UFormField name="company" label="Company" #="{ model }">
+                <UInput v-bind="model" class="w-full" />
+              </UFormField>
+              <UFormField name="seats" label="Seats" #="{ model }">
+                <UInput v-bind="model" type="number" class="w-full" />
+              </UFormField>
+              <pre class="text-xs">{{ values }}</pre>
+              <pre class="text-xs">dirty: {{ [...dirtyFields] }}</pre>
+              <UButton label="Sign up" :loading="isSubmitting" :disabled="!isValid" @click="submit" />
+            </UFormWithSchema>
+          </div>
+
+          <template #footer>
+            <pre class="text-xs">login submitted: {{ loginResult }}</pre>
+            <pre class="text-xs">signup submitted: {{ signupResult }}</pre>
+          </template>
+        </UCard>
+
+        <UCard class="mt-8">
+          <template #header>
+            <h2 class="text-xl font-semibold">No schema</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              <code>UFormWithValues</code> takes its type from the initial values object instead of a schema.
+            </p>
+          </template>
+
+          <UFormWithValues
+            :initial-values="profileDefaults"
+            #="{ values, submit, reset }"
+            class="flex flex-col gap-4"
+            @submit="profileResult = $event.toObject()"
+          >
+            <UFormField name="nickname" label="Nickname" #="{ model }">
+              <UInput v-bind="model" class="w-full" />
+            </UFormField>
+            <UFormField name="bio" label="Bio" #="{ model }">
+              <UTextarea v-bind="model" class="w-full" />
+            </UFormField>
+            <pre class="text-xs">{{ values }}</pre>
+            <div class="flex gap-2">
+              <UButton label="Save" @click="submit" />
+              <UButton label="Reset" variant="ghost" @click="reset" />
+            </div>
+          </UFormWithValues>
+
+          <template #footer>
+            <pre class="text-xs">profile submitted: {{ profileResult }}</pre>
+          </template>
         </UCard>
       </div>
     </UContainer>
