@@ -140,6 +140,20 @@ rename hook for `UForm`/`UFormField` is untouched.
 
 `scrollToInvalidFieldOnSubmit` is deliberately **not** exposed — see Known limitations.
 
+**Principle governing this list: expose every formwerk form option except the one that provably
+no-ops.** The table is `_FormProps` minus `scrollToInvalidFieldOnSubmit`, plus our own `as` and
+`validateOn`.
+
+This matters more here than it does for `UForm`. With `UForm` the user calls `useForm()` themselves,
+so anything we fail to expose is still reachable. In these components the `useForm()` call is owned
+by the component, so **the props are the entire API** — any omitted option becomes flatly
+unavailable, with no escape hatch short of switching back to `UForm`. That is the reason
+`initialTouched` / `initialDirty` are included: not because pre-marking touched state is especially
+compelling on its own (its main use is edit forms that should show validation on mount), but because
+omitting it would create an arbitrary capability cliff. They are fully typed —
+`TouchedSchema<TForm>` is `Simplify<Schema<TForm, boolean>>` (`core.d.ts:256`), a deep mapped type
+mirroring the form shape, giving the same checking you get passing it to `useForm` directly.
+
 ### Per-component props
 
 ```ts
@@ -258,10 +272,18 @@ The README must say so.
    remount.
 
 4. **`scrollToInvalidFieldOnSubmit` cannot work, so it is not exposed.** It queries
-   `[aria-invalid="true"][aria-errormessage][data-fw-form-id="…"]` (`core.mjs:1269`), and
-   `data-fw-form-id` only exists on formwerk's `controlProps` (`core.mjs:1477`). `Field.vue` never
-   binds `controlProps` — it hands the slot `{ modelValue, onUpdate:modelValue }` and nothing else —
-   so those attributes never reach the `<input>` and the option silently no-ops.
+   `[aria-invalid="true"][aria-errormessage][data-fw-form-id="…"]` (`core.mjs:1269`).
+   `data-fw-form-id` only exists on formwerk's `controlProps` (`core.mjs:1477`), and `Field.vue`
+   never binds `controlProps` — it hands the slot `{ modelValue, onUpdate:modelValue }` and nothing
+   else. Nuxt UI meanwhile expresses the same intent with `aria-describedby` rather than
+   `aria-errormessage`. So the selector never matches and the option silently no-ops.
+
+   This is a selector mismatch between two accessibility conventions, **not** an accessibility gap.
+   Because `Field.vue:111` delegates to the real `NuxtUiFormField` and feeds it our formwerk-derived
+   `error`, Nuxt UI's own a11y wiring runs end to end: `FormField.vue:46` provides the field context,
+   `useFormField.js:55-65` derives `aria-invalid` and `aria-describedby`, `Input.vue:132` binds them
+   onto the real `<input>`, and `FormField.vue:85` renders the error text under the matching id.
+   Screen readers get error announcements. Nothing to fix here.
 
 5. **Two forms given the same explicit `:id` share event buses.** Bus keys are `form-${context.id}` /
    `formwerk-form-${context.id}` and `useEventBus` is globally keyed. Auto-generated ids make the
@@ -271,10 +293,10 @@ The README must say so.
 
 - **Typing `name` against the schema.** `name` stays a plain `string` from Nuxt UI's `FormFieldProps`.
   Unchanged from today, but more noticeable once the root is generic.
-- **Forwarding formwerk's accessibility props.** `Field.vue` drops `aria-invalid`,
-  `aria-errormessage` and `aria-describedby` across the board — the same root cause as limitation 4,
-  and it also means screen readers get no error announcements. A real bug and a larger fix; file it
-  as a separate issue on the repo.
+- **Forwarding formwerk's `controlProps`.** Accessibility is Nuxt UI's job here and it already works
+  (limitation 4). Binding formwerk's competing set of aria attributes on top would duplicate or
+  conflict with it. The only thing forgone is `scrollToInvalidFieldOnSubmit`, which is not worth
+  reopening that.
 - **Removing or deprecating `UForm`.** It stays as the lower-level entry point.
 
 ## Testing
@@ -300,21 +322,24 @@ Working versions of every probe cited in this document live in this workspace's 
 **Layer 2 — SSR.** Extend `test/fixtures/basic/app.vue` with both components; assert they render and
 that `USchemaForm` produces a real `<form>` with an id.
 
-**Layer 3 — DOM.** New setup required. The headline feature is invisible to HTML string matching, so
-this needs `mountSuspended` plus a DOM environment; `vitest.config.ts` currently has neither. Add
-`happy-dom` and a second vitest project for runtime tests.
+**Layer 3 — DOM: deliberately out of scope for this change.** Verifying multi-form isolation,
+`@submit` / `@error` firing, `disabled` stripping a field from the payload, and `as="div"` all
+require `mountSuspended` plus a DOM environment, and `vitest.config.ts` currently has neither by
+design (its comment notes E2E does not need one). Standing that up means adding `happy-dom` and a
+second vitest project.
 
-- **multi-form isolation — non-negotiable.** Two `USchemaForm`s in one component, with independent
-  values and submits. It is the entire reason for the feature and every other layer is blind to it.
-- `@submit` fires with validated data; `@error` fires with issues on invalid
-- `disabled` strips a field from the submit payload
-- `as="div"` renders a div
+Decision: skip it. Behaviour is verified through the playground for now.
 
-The last three may follow the first.
+**This leaves a known coverage gap, stated plainly so it is not mistaken for coverage:** the headline
+feature — multiple independent forms in one component — has no automated test. SSR string matching
+cannot see it and type tests cannot see it. If this ships and later regresses, nothing in CI will
+catch it. Revisit when DOM testing is stood up for other reasons.
 
 ## Playground
 
-Add a page with two forms in one component — both the demo and the proof.
+Add a page with two forms in one component. Given the Layer 3 decision above, this is not just a
+demo — it is the only verification that the core feature works, so it should exercise independent
+values, independent submits, and independent validation state.
 
 ## Release
 
