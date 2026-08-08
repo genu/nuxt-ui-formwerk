@@ -57,5 +57,10 @@ export default defineNuxtModule({
       name: `${prefix}FormRepeater`,
       filePath: resolver.resolve("./runtime/components/Repeater.vue"),
     })
+
+    addComponent({
+      name: `${prefix}SchemaForm`,
+      filePath: resolver.resolve("./runtime/components/SchemaForm.vue"),
+    })
   },
 })
