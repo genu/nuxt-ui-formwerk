@@ -41,4 +41,13 @@ export default createConfigForNuxt(eslintPluginPrettierRecommended, {
       },
     ],
   },
+}).append({
+  ignores: [
+    // Per-workspace agent scratch directory.
+    ".context/**",
+    // Type-test fixtures. These exist to be checked by vue-tsc, not ESLint:
+    // their assertions are deliberately bare expressions paired with
+    // @ts-expect-error / @vue-expect-error, which no-unused-expressions flags.
+    "test/types/**",
+  ],
 })
