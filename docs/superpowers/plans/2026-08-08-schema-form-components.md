@@ -1113,6 +1113,64 @@ git commit -m "docs: document USchemaForm and USchemalessForm"
 
 ---
 
+### Task 7: Run the type tests in CI
+
+Added during execution. The Task 2 re-review surfaced that `.github/workflows/ci.yml` runs only `pnpm dev:prepare`, `pnpm test` and `pnpm prepack`. It does **not** run `pnpm test:types`. Since Layer 3 DOM tests were deliberately dropped, the type tests are this feature's primary automated regression guard — including the guard that stops anyone collapsing the two components back into one. Unrun, they are decorative.
+
+**Files:**
+
+- Modify: `.github/workflows/ci.yml`
+
+**Interfaces:**
+
+- Consumes: the `test:types` script as extended in Task 2.
+- Produces: nothing.
+
+- [ ] **Step 1: Confirm the gap and the baseline**
+
+Run: `grep -nE "pnpm (test|lint|format:check|prepack|dev:prepare|test:types)" .github/workflows/ci.yml`
+Expected: shows `dev:prepare`, `test`, `prepack` only — no `test:types`, no `lint`.
+
+Then confirm both commands you are about to add already pass locally:
+
+Run: `pnpm lint && pnpm test:types`
+Expected: both PASS. If either fails, stop and report — do not wire a failing command into CI.
+
+- [ ] **Step 2: Add the steps**
+
+In `.github/workflows/ci.yml`, after the existing `Prepare` step (which runs `pnpm dev:prepare` and generates the `.nuxt` directory that both type-check configs extend), and before `Run tests`:
+
+```yaml
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm test:types
+```
+
+Ordering matters: `test:types` must come after `Prepare`, because both `tsconfig.json` and `test/types/tsconfig.json` extend the generated `.nuxt/tsconfig.json`.
+
+- [ ] **Step 3: Verify the workflow file is valid**
+
+Run: `pnpm exec js-yaml .github/workflows/ci.yml > /dev/null && echo "valid yaml"`
+Expected: `valid yaml`. If `js-yaml` is unavailable, use `node -e "require('node:fs').readFileSync('.github/workflows/ci.yml','utf8')"` and instead verify by eye that the two new steps sit at the same indentation as the surrounding `- name:` entries.
+
+- [ ] **Step 4: Verify locally what CI will now run**
+
+Run: `pnpm dev:prepare && pnpm lint && pnpm test:types && pnpm test`
+Expected: all PASS, in that order — this is the exact sequence CI will execute.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add .github/workflows/ci.yml
+git commit -m "ci: run lint and type checks"
+```
+
+**Explicitly out of scope:** do **not** add `pnpm format:check` to CI. It currently fails on 9 pre-existing files (`README.md`, `src/runtime/components/Repeater.vue`, `playground/app/app.vue`, both test fixtures, and others). Fixing those is a repo-wide formatting sweep unrelated to this feature.
+
+---
+
 ## Deferred / Known Gaps
 
 Recorded so they are not mistaken for oversights:
