@@ -37,4 +37,23 @@ jobs:
         run: pnpm test
 
       - name: Build
-        run: pnpm prepack
+        run: |
+          set -o pipefail
+          pnpm prepack 2>&1 | tee build.log
+
+      # nuxt-module-build exits 0 even when the declaration emitter fails, and
+      # vue-sfc-transformer then writes an empty .d.ts that breaks consumers.
+      - name: Check declaration output
+        run: |
+          if grep -q 'error TS' build.log; then
+            echo '::error::prepack reported TypeScript errors — declarations are unreliable'
+            grep 'error TS' build.log
+            exit 1
+          fi
+
+          empty=$(find dist \( -name '*.d.ts' -o -name '*.d.vue.ts' \) -empty)
+          if [ -n "$empty" ]; then
+            echo '::error::empty declaration files were emitted'
+            echo "$empty"
+            exit 1
+          fi
