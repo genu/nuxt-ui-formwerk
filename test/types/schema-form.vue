@@ -17,7 +17,7 @@
     formRef.value?.values.email?.toUpperCase()
     formRef.value?.reset()
     // @ts-expect-error `nope` is not on the schema
-    formRef.value?.values.nope
+    void formRef.value?.values.nope
   }
 
   const save = async (email: string) => email

@@ -25,7 +25,7 @@
   function exposedApi() {
     formRef.value?.values.email?.toUpperCase()
     // @ts-expect-error `nope` was not in initialValues
-    formRef.value?.values.nope
+    void formRef.value?.values.nope
   }
 
   const save = async (email: string) => email
