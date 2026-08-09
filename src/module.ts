@@ -62,5 +62,10 @@ export default defineNuxtModule({
       name: `${prefix}SchemaForm`,
       filePath: resolver.resolve("./runtime/components/SchemaForm.vue"),
     })
+
+    addComponent({
+      name: `${prefix}SchemalessForm`,
+      filePath: resolver.resolve("./runtime/components/SchemalessForm.vue"),
+    })
   },
 })
