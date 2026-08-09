@@ -3,6 +3,23 @@
   import { computed } from "vue"
   import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues } from "../types/form"
+
+  /**
+   * Props of `USchemalessForm`.
+   *
+   * Generic in the input shape so it can be declared here — see SchemaForm.vue,
+   * the SFC's own `generic` parameter is not in scope in this block.
+   */
+  export interface SchemalessFormProps<TInput extends FormObject> extends FormRootProps<TInput> {
+    /**
+     * Initial values. This is the only place the form's shape can be
+     * inferred from, so it must be a plain object or a sync getter — an
+     * async getter is a compile error. Declare the shape with `type`,
+     * not `interface`. For async initial values use USchemaForm, or
+     * UForm with your own useForm<T>() call.
+     */
+    initialValues?: TInput | (() => TInput)
+  }
 </script>
 
 <script lang="ts" setup generic="TInput extends FormObject">
@@ -10,21 +27,15 @@
   /** `PartialDeep<TInput>`, without importing type-fest. */
   type Values = FormValues<TInput>
 
-  const props = withDefaults(
-    defineProps<
-      FormRootProps<TInput> & {
-        /**
-         * Initial values. This is the only place the form's shape can be
-         * inferred from, so it must be a plain object or a sync getter — an
-         * async getter is a compile error. Declare the shape with `type`,
-         * not `interface`. For async initial values use USchemaForm, or
-         * UForm with your own useForm<T>() call.
-         */
-        initialValues?: TInput | (() => TInput)
-      }
-    >(),
-    { as: "form", validateOn: "blur", disabled: false },
-  )
+  const {
+    as = "form",
+    validateOn = "blur",
+    disabled = false,
+    id,
+    initialValues,
+    initialTouched,
+    initialDirty,
+  } = defineProps<SchemalessFormProps<TInput>>()
 
   const emit = defineEmits<{
     submit: [data: ConsumableData<TInput>]
@@ -44,21 +55,22 @@
   // See SchemaForm.vue — the generic cannot satisfy useForm's overload
   // constraints from inside the component. The public surface stays typed.
   const form = useForm({
-    id: props.id,
-    initialValues: props.initialValues,
-    initialTouched: props.initialTouched,
-    initialDirty: props.initialDirty,
-    disabled: () => props.disabled,
+    id,
+    initialValues,
+    initialTouched,
+    initialDirty,
+    // See SchemaForm.vue — destructured props stay reactive in Vue 3.5.
+    disabled: () => disabled,
   } as never) as unknown as FormApi
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
-    validateOn: () => props.validateOn,
-    disabled: () => props.disabled,
+    validateOn: () => validateOn,
+    disabled: () => disabled,
   })
 
   // See SchemaForm.vue — native constraint validation would swallow the submit
   // event before formwerk ever sees it.
-  const novalidate = computed(() => (props.as === "form" ? true : undefined))
+  const novalidate = computed(() => (as === "form" ? true : undefined))
 
   // See SchemaForm.vue — handleSubmit has no failure hook, so `error` is derived
   // afterwards from getSubmitErrors().

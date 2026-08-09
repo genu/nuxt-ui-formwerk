@@ -11,6 +11,19 @@
   import { computed } from "vue"
   import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
+
+  /**
+   * Props of `USchemaForm`.
+   *
+   * Generic in the schema rather than in the input shape, so it can be written
+   * out here — the SFC's own `generic` parameter is not in scope in this block.
+   */
+  export interface SchemaFormProps<TSchema extends GenericFormSchema> extends FormRootProps<SchemaInput<TSchema>> {
+    /** Standard Schema (zod, valibot, …). Drives all type inference. Read once at setup — use `:key` to swap it. */
+    schema: TSchema
+    /** Initial values. Object, sync getter, or async getter. */
+    initialValues?: MaybeGetter<MaybeAsync<FormValues<SchemaInput<TSchema>>>>
+  }
 </script>
 
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
@@ -20,16 +33,16 @@
   /** `PartialDeep<TInput>`, without importing type-fest. */
   type Values = FormValues<TInput>
 
-  const props = withDefaults(
-    defineProps<
-      FormRootProps<TInput> & {
-        /** Standard Schema (zod, valibot, …). Drives all type inference. Read once at setup — use `:key` to swap it. */
-        schema: TSchema
-        initialValues?: MaybeGetter<MaybeAsync<Values>>
-      }
-    >(),
-    { as: "form", validateOn: "blur", disabled: false },
-  )
+  const {
+    as = "form",
+    validateOn = "blur",
+    disabled = false,
+    id,
+    schema,
+    initialValues,
+    initialTouched,
+    initialDirty,
+  } = defineProps<SchemaFormProps<TSchema>>()
 
   const emit = defineEmits<{
     submit: [data: ConsumableData<TOutput>]
@@ -50,24 +63,26 @@
   // constraints from inside the component, so the argument is cast here. The
   // public surface — props, slots, emits, expose — stays fully typed.
   const form = useForm({
-    id: props.id,
-    schema: props.schema,
-    initialValues: props.initialValues,
-    initialTouched: props.initialTouched,
-    initialDirty: props.initialDirty,
-    disabled: () => props.disabled,
+    id,
+    schema,
+    initialValues,
+    initialTouched,
+    initialDirty,
+    // Destructured props stay reactive in Vue 3.5 — the compiler rewrites each
+    // reference back to `__props.x`, so these getters still track changes.
+    disabled: () => disabled,
   } as never) as unknown as FormApi
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
-    validateOn: () => props.validateOn,
-    disabled: () => props.disabled,
+    validateOn: () => validateOn,
+    disabled: () => disabled,
   })
 
   // Native constraint validation would fire before submit and swallow the
   // event, so @submit/@error would never emit. formwerk's own formProps sets
   // novalidate for the same reason. Undefined (not false) keeps the attribute
   // off non-form elements entirely.
-  const novalidate = computed(() => (props.as === "form" ? true : undefined))
+  const novalidate = computed(() => (as === "form" ? true : undefined))
 
   // handleSubmit only runs its callback on success and offers no failure hook,
   // so `error` is derived afterwards. It also calls preventDefault itself.
