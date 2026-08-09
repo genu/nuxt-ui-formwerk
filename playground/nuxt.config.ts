@@ -23,10 +23,4 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
   devtools: { enabled: true },
-
-  vite: {
-    resolve: {
-      dedupe: ["vue", "@vue/runtime-core", "@vue/runtime-dom", "@vue/shared"],
-    },
-  },
 })

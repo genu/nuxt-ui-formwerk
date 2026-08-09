@@ -19,6 +19,13 @@ export default defineNuxtModule({
 
     // Prevent duplicate @formwerk/core instances which break context sharing between
     // useForm() and useFormContext(). Required for dev playground and pnpm strict mode.
+    //
+    // Known gap: this assumes the module and its consumer share a dependency tree, which
+    // is true once this package is installed from npm. A consumer who links this package
+    // via a pnpm workspace/monorepo instead can end up with two Vue runtimes in one page —
+    // the same failure the playground's inline module works around (see
+    // playground/nuxt.config.ts). The symptom is silent: markup renders, reactivity is
+    // dead, and the console stays clean.
     nuxt.options.alias["@formwerk/core"] = fileURLToPath(import.meta.resolve("@formwerk/core"))
 
     // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
