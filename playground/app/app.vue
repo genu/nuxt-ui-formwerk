@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { z } from "zod"
-  import { useForm, type ConsumableData } from "@formwerk/core"
-  import type { FormSubmitContext } from "../../src/runtime/types/form"
+  import { useForm } from "@formwerk/core"
 
   const schema = z
     .object({
@@ -61,16 +60,6 @@
   })
 
   const lastSubmit = ref<string | null>(null)
-
-  // Demonstrates FormSubmitContext.waitUntil: the login button's :loading must stay
-  // lit for the whole second, not flash off the moment validation passes.
-  const onLoginSubmit = (data: ConsumableData<z.infer<typeof loginSchema>>, { waitUntil }: FormSubmitContext) => {
-    waitUntil(
-      new Promise((resolve) => setTimeout(resolve, 1000)).then(() => {
-        lastSubmit.value = `login: ${JSON.stringify(data.toJSON())}`
-      }),
-    )
-  }
 </script>
 
 <template>
@@ -187,7 +176,7 @@
             :schema="loginSchema"
             class="flex flex-col gap-3"
             #="{ values, form, dirtyFields }"
-            @submit="onLoginSubmit"
+            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`"
           >
             <h3 class="font-medium">Login</h3>
             <UFormField name="email" label="Email" #="{ model }">

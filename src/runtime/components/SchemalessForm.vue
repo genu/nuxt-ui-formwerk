@@ -2,7 +2,7 @@
   import { useForm, type ConsumableData, type FormObject, type FormReturns, type IssueCollection } from "@formwerk/core"
   import { computed } from "vue"
   import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
-  import type { FormRootProps, FormValues, FormSubmitContext } from "../types/form"
+  import type { FormRootProps, FormValues } from "../types/form"
 </script>
 
 <script lang="ts" setup generic="TInput extends FormObject">
@@ -27,7 +27,7 @@
   )
 
   const emit = defineEmits<{
-    submit: [data: ConsumableData<TInput>, context: FormSubmitContext]
+    submit: [data: ConsumableData<TInput>]
     error: [issues: IssueCollection[]]
   }>()
 
@@ -60,15 +60,10 @@
   // event before formwerk ever sees it.
   const novalidate = computed(() => (props.as === "form" ? true : undefined))
 
-  // See SchemaForm.vue for why the submit callback awaits an opt-in promise.
+  // See SchemaForm.vue — handleSubmit has no failure hook, so `error` is derived
+  // afterwards from getSubmitErrors().
   const onSubmit = async (event?: Event) => {
-    await form.handleSubmit(async (data) => {
-      const pending: Promise<unknown>[] = []
-
-      emit("submit", data, { waitUntil: (work) => void pending.push(work) })
-
-      await Promise.all(pending)
-    })(event)
+    await form.handleSubmit((data) => emit("submit", data))(event)
 
     const issues = form.getSubmitErrors()
 

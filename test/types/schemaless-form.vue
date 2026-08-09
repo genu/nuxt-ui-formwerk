@@ -48,8 +48,8 @@
       {{ values.nope }}
     </SchemalessForm>
 
-    <!-- submit hands over (data, context); data carries the inferred shape -->
-    <SchemalessForm :initial-values="typedInitial" #="{ values }" @submit="(data, ctx) => ctx.waitUntil(save(data.toObject().email))">
+    <!-- submit hands over the data, carrying the inferred shape -->
+    <SchemalessForm :initial-values="typedInitial" #="{ values }" @submit="(data) => save(data.toObject().email)">
       {{ values }}
     </SchemalessForm>
 

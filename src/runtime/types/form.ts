@@ -51,18 +51,6 @@ export type SchemaOutput<TSchema> =
   TSchema extends StandardSchema<infer _TInput, infer TOutput> ? (TOutput extends FormObject ? TOutput : FormObject) : FormObject
 
 /**
- * Second argument handed to `@submit` listeners on a self-contained form root.
- *
- * Vue throws away whatever an emit listener returns, so an `async` `@submit`
- * handler would otherwise keep running after `isSubmitting` had already flipped
- * back to `false`. Pass the promise to `waitUntil` and the form root holds
- * `isSubmitting` true until it settles.
- */
-export interface FormSubmitContext {
-  waitUntil: (work: Promise<unknown>) => void
-}
-
-/**
  * Props common to every self-contained form root.
  *
  * This is formwerk's `_FormProps` minus the two options that provably no-op on

@@ -3,7 +3,6 @@
   import { z } from "zod"
   import type { ConsumableData } from "@formwerk/core"
   import SchemaForm from "../../src/runtime/components/SchemaForm.vue"
-  import type { FormSubmitContext } from "../../src/runtime/types/form"
 
   const schema = z.object({
     email: z.string(),
@@ -22,10 +21,9 @@
 
   const save = async (email: string) => email
 
-  // Pins the two-argument submit signature: schema-typed data, plus the
-  // FormSubmitContext that keeps isSubmitting true across async work.
-  function onSubmit(data: ConsumableData<z.infer<typeof schema>>, { waitUntil }: FormSubmitContext) {
-    waitUntil(save(data.toObject().email))
+  // Pins the submit signature: a single, schema-typed payload.
+  function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
+    void save(data.toObject().email)
   }
 </script>
 
@@ -46,13 +44,11 @@
     <!-- Valid partial initialValues are accepted -->
     <SchemaForm :schema="schema" :initial-values="{ email: 'a@b.c' }" #="{ values }">{{ values }}</SchemaForm>
 
-    <!-- A declared handler matches the emitted (data, context) pair -->
+    <!-- A declared handler matches the emitted payload -->
     <SchemaForm :schema="schema" #="{ values }" @submit="onSubmit">{{ values }}</SchemaForm>
 
-    <!-- Inline: both arguments infer, and data stays schema-typed -->
-    <SchemaForm :schema="schema" #="{ values }" @submit="(data, ctx) => ctx.waitUntil(save(data.toObject().email))">
-      {{ values }}
-    </SchemaForm>
+    <!-- Inline: the argument infers, and stays schema-typed -->
+    <SchemaForm :schema="schema" #="{ values }" @submit="(data) => save(data.toObject().email)">{{ values }}</SchemaForm>
 
     <!--
       REGRESSION GUARD for the submit payload's own typing. If `submit` ever

@@ -10,7 +10,7 @@
   } from "@formwerk/core"
   import { computed } from "vue"
   import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
-  import type { FormRootProps, FormValues, SchemaInput, SchemaOutput, FormSubmitContext } from "../types/form"
+  import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
 </script>
 
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
@@ -32,7 +32,7 @@
   )
 
   const emit = defineEmits<{
-    submit: [data: ConsumableData<TOutput>, context: FormSubmitContext]
+    submit: [data: ConsumableData<TOutput>]
     error: [issues: IssueCollection[]]
   }>()
 
@@ -72,18 +72,11 @@
   // handleSubmit only runs its callback on success and offers no failure hook,
   // so `error` is derived afterwards. It also calls preventDefault itself.
   //
-  // handleSubmit awaits its callback before clearing isSubmitting, but Vue
-  // discards whatever an emit listener returns — so an async @submit handler
-  // would finish after isSubmitting had already gone false. The FormSubmitContext
-  // handed to the listener lets it enrol its own promise via waitUntil.
+  // Vue discards whatever an emit listener returns, so `isSubmitting` covers
+  // validation only. Async submit work that needs a loading state should go
+  // through `form.handleSubmit` (slot prop or template ref) instead.
   const onSubmit = async (event?: Event) => {
-    await form.handleSubmit(async (data) => {
-      const pending: Promise<unknown>[] = []
-
-      emit("submit", data, { waitUntil: (work) => void pending.push(work) })
-
-      await Promise.all(pending)
-    })(event)
+    await form.handleSubmit((data) => emit("submit", data))(event)
 
     const issues = form.getSubmitErrors()
 

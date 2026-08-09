@@ -124,16 +124,14 @@ Use `USchemaForm` when you have a [Standard Schema](https://standardschema.dev/)
 <script setup lang="ts">
 import { z } from "zod"
 import type { ConsumableData } from "@formwerk/core"
-import type { FormSubmitContext } from "nuxt-ui-formwerk"
 
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 })
 
-// Hand async work to `waitUntil` so `isSubmitting` stays true until it settles.
-function onSubmit(data: ConsumableData<z.infer<typeof schema>>, { waitUntil }: FormSubmitContext) {
-  waitUntil($fetch("/api/sign-in", { method: "POST", body: data.toJSON() }))
+function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
+  return $fetch("/api/sign-in", { method: "POST", body: data.toJSON() })
 }
 </script>
 
@@ -170,8 +168,10 @@ function onSubmit(data: ConsumableData<z.infer<typeof schema>>, { waitUntil }: F
 
 #### Emits
 
-- `submit` - `(data: ConsumableData<TOutput>, context: FormSubmitContext)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object, and `context.waitUntil(promise)` to keep `isSubmitting` true while async work runs — see [Gotchas](#gotchas).
+- `submit` - `(data: ConsumableData<TOutput>)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object.
 - `error` - `(issues: IssueCollection[])`, emitted when the submit attempt fails validation.
+
+`@submit` is a Vue emit, and Vue discards whatever a listener returns — so `isSubmitting` covers validation only, not your handler's own async work. If you need a loading state that spans an API call, drive the submit with `form.handleSubmit(async …)` from the slot prop or a template ref instead; that's formwerk's own API, and it awaits your callback before clearing `isSubmitting`.
 
 #### Exposed
 
@@ -226,8 +226,10 @@ const initialValues: Credentials = { email: "", password: "" }
 
 #### Emits
 
-- `submit` - `(data: ConsumableData<TInput>, context: FormSubmitContext)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object, and `context.waitUntil(promise)` to keep `isSubmitting` true while async work runs — see [Gotchas](#gotchas).
+- `submit` - `(data: ConsumableData<TInput>)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object.
 - `error` - `(issues: IssueCollection[])`, emitted when the submit attempt fails validation.
+
+As with `USchemaForm`, `isSubmitting` covers validation only — Vue discards a listener's return value. For a loading state that spans async submit work, use `form.handleSubmit(async …)` from the slot prop or a template ref.
 
 #### Exposed
 
@@ -241,22 +243,7 @@ These were all found experimentally — expect to hit them cold otherwise.
 2. **Async initial values need `USchemaForm`.** On `USchemalessForm`, `:initial-values` is the only place the shape can be inferred from, so an object or a *sync* getter works, but an async getter is rejected at compile time. Use `USchemaForm` (the schema supplies the shape, so async is fine there), or `UForm` with your own `useForm<T>()` call.
 3. **`:schema` is read once at setup.** Formwerk closes over it, so swapping the schema at runtime does nothing — use `:key` on `USchemaForm` to force a remount when the schema changes.
 4. **Use `useTemplateRef`, not `ComponentExposed`.** The usual `ComponentExposed<typeof Comp>` advice for generic components degrades the type to `{}` here. A plain `useTemplateRef("form")` keeps the exposed API fully typed.
-5. **An `async` `@submit` handler needs `waitUntil`.** Vue discards whatever an emit listener returns, so `isSubmitting` would flip back to `false` the moment your handler hit its first `await` — and a `:loading` button would flash instead of staying lit. The second `@submit` argument is a `FormSubmitContext`; hand it your promise and the form waits:
-
-   ```ts
-   async function onSubmit(data, { waitUntil }) {
-     waitUntil(save(data.toJSON()))
-   }
-   // or, without the wrapper indirection:
-   function onSubmit(data, ctx) {
-     ctx.waitUntil((async () => {
-       await save(data.toJSON())
-       await navigateTo("/done")
-     })())
-   }
-   ```
-
-   Nothing forces you through the emit — `form.handleSubmit(async …)` off the slot prop or template ref works exactly as it does with `UForm`, and is awaited natively.
+5. **`isSubmitting` covers validation only when you submit via `@submit`.** Vue discards whatever an emit listener returns, so an `async` handler keeps running after `isSubmitting` has flipped back to `false`, and a `:loading` button flashes instead of staying lit. Drive async submits with `form.handleSubmit(async …)` — off the slot prop or a template ref — and `isSubmitting` stays true for the whole callback.
 
 Also worth knowing:
 
