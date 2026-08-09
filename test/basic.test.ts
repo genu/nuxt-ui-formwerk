@@ -84,9 +84,20 @@ describe("ssr - basic", async () => {
     expect(html).toContain("Schema Email")
   })
 
+  it("marks the rendered form novalidate so native validation never swallows submit", async () => {
+    const html = await $fetch("/")
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")(?=[^>]*novalidate)[^>]*>/)
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schemaless-form")(?=[^>]*novalidate)[^>]*>/)
+  })
+
   it("honours the as prop to avoid nested form elements", async () => {
     const html = await $fetch("/")
     expect(html).toMatch(/<div[^>]*data-testid="as-div-form"/)
+  })
+
+  it("leaves novalidate off when as is not a form", async () => {
+    const html = await $fetch("/")
+    expect(html).not.toMatch(/<div(?=[^>]*data-testid="as-div-form")(?=[^>]*novalidate)[^>]*>/)
   })
 
   it("renders two independent forms in one component", async () => {

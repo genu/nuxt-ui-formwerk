@@ -1,13 +1,14 @@
 <script lang="ts">
   import { useForm, type ConsumableData, type FormObject, type FormReturns, type IssueCollection } from "@formwerk/core"
-  import { useFormRoot } from "../composables/useFormRoot"
-  import type { FormRootProps } from "../types/form"
+  import { computed } from "vue"
+  import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
+  import type { FormRootProps, FormValues, FormSubmitContext } from "../types/form"
 </script>
 
 <script lang="ts" setup generic="TInput extends FormObject">
   type FormApi = FormReturns<TInput>
   /** `PartialDeep<TInput>`, without importing type-fest. */
-  type Values = FormApi["values"]
+  type Values = FormValues<TInput>
 
   const props = withDefaults(
     defineProps<
@@ -15,7 +16,7 @@
         /**
          * Initial values. This is the only place the form's shape can be
          * inferred from, so it must be a plain object or a sync getter — an
-         * async getter yields an empty type. Declare the shape with `type`,
+         * async getter is a compile error. Declare the shape with `type`,
          * not `interface`. For async initial values use USchemaForm, or
          * UForm with your own useForm<T>() call.
          */
@@ -26,7 +27,7 @@
   )
 
   const emit = defineEmits<{
-    submit: [data: ConsumableData<TInput>]
+    submit: [data: ConsumableData<TInput>, context: FormSubmitContext]
     error: [issues: IssueCollection[]]
   }>()
 
@@ -47,7 +48,6 @@
     initialValues: props.initialValues,
     initialTouched: props.initialTouched,
     initialDirty: props.initialDirty,
-    disableHtmlValidation: props.disableHtmlValidation,
     disabled: () => props.disabled,
   } as never) as unknown as FormApi
 
@@ -56,9 +56,18 @@
     disabled: () => props.disabled,
   })
 
+  // See SchemaForm.vue — native constraint validation would swallow the submit
+  // event before formwerk ever sees it.
+  const novalidate = computed(() => (props.as === "form" ? true : undefined))
+
+  // See SchemaForm.vue for why the submit callback awaits an opt-in promise.
   const onSubmit = async (event?: Event) => {
-    await form.handleSubmit((data) => {
-      emit("submit", data)
+    await form.handleSubmit(async (data) => {
+      const pending: Promise<unknown>[] = []
+
+      emit("submit", data, { waitUntil: (work) => void pending.push(work) })
+
+      await Promise.all(pending)
     })(event)
 
     const issues = form.getSubmitErrors()
@@ -66,11 +75,12 @@
     if (issues.length) emit("error", issues)
   }
 
-  defineExpose({ ...form, blurredFields, touchedFields, dirtyFields })
+  // See SchemaForm.vue — annotated so the emitter never inlines type-fest internals.
+  defineExpose<FormApi & FormRootState>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 
 <template>
-  <component :is="as" :id="form.formProps.id" @submit="onSubmit">
+  <component :is="as" :id="form.formProps.id" :novalidate="novalidate" @submit="onSubmit">
     <slot
       :form="form"
       :values="form.values"

@@ -124,14 +124,16 @@ Use `USchemaForm` when you have a [Standard Schema](https://standardschema.dev/)
 <script setup lang="ts">
 import { z } from "zod"
 import type { ConsumableData } from "@formwerk/core"
+import type { FormSubmitContext } from "nuxt-ui-formwerk"
 
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 })
 
-function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
-  console.log(data.toJSON())
+// Hand async work to `waitUntil` so `isSubmitting` stays true until it settles.
+function onSubmit(data: ConsumableData<z.infer<typeof schema>>, { waitUntil }: FormSubmitContext) {
+  waitUntil($fetch("/api/sign-in", { method: "POST", body: data.toJSON() }))
 }
 </script>
 
@@ -155,7 +157,6 @@ function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
 | `id`                    | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                          |
 | `validateOn`            | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`   | When field errors become visible.                                                                   |
 | `disabled`              | `boolean`                         | `false`    | Disables every field, and strips disabled paths out of the submitted data.                          |
-| `disableHtmlValidation` | `boolean`                         | `false`    | Turns off native HTML5 validation for this form.                                                    |
 | `initialTouched`        | `TouchedSchema<TInput>`           | -          | Marks fields as touched on mount.                                                                   |
 | `initialDirty`          | `DirtySchema<TInput>`             | -          | Marks fields as dirty on mount.                                                                     |
 
@@ -169,7 +170,7 @@ function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
 
 #### Emits
 
-- `submit` - `(data: ConsumableData<TOutput>)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object.
+- `submit` - `(data: ConsumableData<TOutput>, context: FormSubmitContext)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object, and `context.waitUntil(promise)` to keep `isSubmitting` true while async work runs — see [Gotchas](#gotchas).
 - `error` - `(issues: IssueCollection[])`, emitted when the submit attempt fails validation.
 
 #### Exposed
@@ -212,7 +213,6 @@ const initialValues: Credentials = { email: "", password: "" }
 | `id`                    | `string`                    | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                              |
 | `validateOn`            | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When field errors become visible.                                                                       |
 | `disabled`              | `boolean`                   | `false`    | Disables every field, and strips disabled paths out of the submitted data.                              |
-| `disableHtmlValidation` | `boolean`                   | `false`    | Turns off native HTML5 validation for this form.                                                        |
 | `initialTouched`        | `TouchedSchema<TInput>`     | -          | Marks fields as touched on mount.                                                                       |
 | `initialDirty`          | `DirtySchema<TInput>`       | -          | Marks fields as dirty on mount.                                                                         |
 
@@ -226,7 +226,7 @@ const initialValues: Credentials = { email: "", password: "" }
 
 #### Emits
 
-- `submit` - `(data: ConsumableData<TInput>)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object.
+- `submit` - `(data: ConsumableData<TInput>, context: FormSubmitContext)`, emitted after a successful `handleSubmit`. Call `data.toJSON()` to get the plain validated object, and `context.waitUntil(promise)` to keep `isSubmitting` true while async work runs — see [Gotchas](#gotchas).
 - `error` - `(issues: IssueCollection[])`, emitted when the submit attempt fails validation.
 
 #### Exposed
@@ -241,10 +241,27 @@ These were all found experimentally — expect to hit them cold otherwise.
 2. **Async initial values need `USchemaForm`.** On `USchemalessForm`, `:initial-values` is the only place the shape can be inferred from, so an object or a *sync* getter works, but an async getter is rejected at compile time. Use `USchemaForm` (the schema supplies the shape, so async is fine there), or `UForm` with your own `useForm<T>()` call.
 3. **`:schema` is read once at setup.** Formwerk closes over it, so swapping the schema at runtime does nothing — use `:key` on `USchemaForm` to force a remount when the schema changes.
 4. **Use `useTemplateRef`, not `ComponentExposed`.** The usual `ComponentExposed<typeof Comp>` advice for generic components degrades the type to `{}` here. A plain `useTemplateRef("form")` keeps the exposed API fully typed.
+5. **An `async` `@submit` handler needs `waitUntil`.** Vue discards whatever an emit listener returns, so `isSubmitting` would flip back to `false` the moment your handler hit its first `await` — and a `:loading` button would flash instead of staying lit. The second `@submit` argument is a `FormSubmitContext`; hand it your promise and the form waits:
+
+   ```ts
+   async function onSubmit(data, { waitUntil }) {
+     waitUntil(save(data.toJSON()))
+   }
+   // or, without the wrapper indirection:
+   function onSubmit(data, ctx) {
+     ctx.waitUntil((async () => {
+       await save(data.toJSON())
+       await navigateTo("/done")
+     })())
+   }
+   ```
+
+   Nothing forces you through the emit — `form.handleSubmit(async …)` off the slot prop or template ref works exactly as it does with `UForm`, and is awaited natively.
 
 Also worth knowing:
 
 - **`as` avoids invalid nested `<form>` markup.** Render `USchemaForm`/`USchemalessForm` as a non-`form` element (e.g. `as="div"`) when nesting one inside another form-like element.
+- **Native HTML5 validation is always off.** When rendered as a real `<form>`, these components set `novalidate`, matching formwerk's own `formProps`. Without it the browser's constraint bubbles fire first and swallow the `submit` event, so `@submit`/`@error` would never emit for a field marked `required`. There is no `disableHtmlValidation` prop, because formwerk's own flag provably no-ops here (this module's fields never hand formwerk an `inputEl`).
 - **Two forms sharing an explicit `:id` share event buses.** Leave `id` unset (it's auto-generated) unless you specifically want two form components to observe the same formwerk/Nuxt UI events.
 
 ### UFormField

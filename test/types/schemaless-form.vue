@@ -27,6 +27,8 @@
     // @ts-expect-error `nope` was not in initialValues
     formRef.value?.values.nope
   }
+
+  const save = async (email: string) => email
 </script>
 
 <template>
@@ -44,6 +46,11 @@
       {{ values.email?.toUpperCase() }}
       <!-- @vue-expect-error `nope` is not on Contact -->
       {{ values.nope }}
+    </SchemalessForm>
+
+    <!-- submit hands over (data, context); data carries the inferred shape -->
+    <SchemalessForm :initial-values="typedInitial" #="{ values }" @submit="(data, ctx) => ctx.waitUntil(save(data.toObject().email))">
+      {{ values }}
     </SchemalessForm>
 
     <!-- A sync getter infers the shape -->

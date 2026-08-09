@@ -1,6 +1,6 @@
 import type { InjectionKey, ComputedRef, Component } from "vue"
 import type { UseEventBusReturn } from "@vueuse/core"
-import type { StandardSchema, FormObject, TouchedSchema, DirtySchema } from "@formwerk/core"
+import type { StandardSchema, FormObject, FormReturns, TouchedSchema, DirtySchema } from "@formwerk/core"
 
 export interface FormInjectedOptions {
   disabled?: boolean
@@ -28,15 +28,50 @@ export const formwerkBusInjectionKey: InjectionKey<UseEventBusReturn<FormwerkInp
 export type SchemaInput<TSchema> =
   TSchema extends StandardSchema<infer TInput, unknown> ? (TInput extends FormObject ? TInput : FormObject) : FormObject
 
-/** The output type a Standard Schema produces after validation. */
+/**
+ * The values bag a form root exposes: a deep partial of the form's input shape.
+ *
+ * Declared as a named alias — rather than being read inline off `FormReturns` —
+ * so the declaration emitter prints `FormValues<T>` instead of expanding it into
+ * type-fest's `_PartialDeep`, which type-fest never exports and TypeScript
+ * therefore cannot name in a `.d.ts` (TS2883). Expanding it produced empty
+ * declaration files for the form roots.
+ */
+export type FormValues<TInput extends FormObject> = FormReturns<TInput>["values"]
+
+/**
+ * The output type a Standard Schema produces after validation.
+ *
+ * Both parameters are inferred. Pinning the input side to `never` (the mirror of
+ * what `SchemaInput` does with `unknown`) never matches, because a schema's
+ * declared input has to be assignable to it — so every schema silently fell back
+ * to `FormObject` and `@submit` handed over untyped data.
+ */
 export type SchemaOutput<TSchema> =
-  TSchema extends StandardSchema<never, infer TOutput> ? (TOutput extends FormObject ? TOutput : FormObject) : FormObject
+  TSchema extends StandardSchema<infer _TInput, infer TOutput> ? (TOutput extends FormObject ? TOutput : FormObject) : FormObject
+
+/**
+ * Second argument handed to `@submit` listeners on a self-contained form root.
+ *
+ * Vue throws away whatever an emit listener returns, so an `async` `@submit`
+ * handler would otherwise keep running after `isSubmitting` had already flipped
+ * back to `false`. Pass the promise to `waitUntil` and the form root holds
+ * `isSubmitting` true until it settles.
+ */
+export interface FormSubmitContext {
+  waitUntil: (work: Promise<unknown>) => void
+}
 
 /**
  * Props common to every self-contained form root.
  *
- * This is formwerk's `_FormProps` minus `scrollToInvalidFieldOnSubmit` (which
- * cannot work — see the design spec), plus `as` and `validateOn`.
+ * This is formwerk's `_FormProps` minus the two options that provably no-op on
+ * these components — `scrollToInvalidFieldOnSubmit` and `disableHtmlValidation`
+ * (see the design spec) — plus `as` and `validateOn`.
+ *
+ * `disableHtmlValidation` is absent because native constraint validation is
+ * always off here: the rendered `<form>` carries `novalidate`, matching
+ * formwerk's own `formProps`.
  */
 export interface FormRootProps<TInput extends FormObject> {
   /** Element or component to render as. Set to a non-form element to avoid invalid nested `<form>` markup. */
@@ -47,8 +82,6 @@ export interface FormRootProps<TInput extends FormObject> {
   validateOn?: FormwerkInputEvents
   /** Disables every field, and strips disabled paths out of the submitted data. */
   disabled?: boolean
-  /** Turns off native HTML5 validation for this form. */
-  disableHtmlValidation?: boolean
   /** Marks fields as touched on mount. */
   initialTouched?: TouchedSchema<TInput>
   /** Marks fields as dirty on mount. */
