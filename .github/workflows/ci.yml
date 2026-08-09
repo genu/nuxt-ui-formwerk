@@ -27,6 +27,12 @@ jobs:
       - name: Prepare
         run: pnpm dev:prepare
 
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm test:types
+
       - name: Run tests
         run: pnpm test
 
