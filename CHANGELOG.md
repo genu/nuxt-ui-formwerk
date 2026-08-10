@@ -34,6 +34,13 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.1.24](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.23...v0.1.24) (2026-08-10)
+
+
+### Features
+
+* add USchemaForm and USchemalessForm for multiple forms per component ([#102](https://github.com/genu/nuxt-ui-formwerk/issues/102)) ([f324e9d](https://github.com/genu/nuxt-ui-formwerk/commit/f324e9df31521eca7c9c229e12d064152ba15031))
+
 ## [0.1.23](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.22...v0.1.23) (2026-08-05)
 
 
