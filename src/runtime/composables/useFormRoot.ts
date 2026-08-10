@@ -24,7 +24,7 @@ export interface FormRootState {
  * Callers own the `useForm()` / `useFormContext()` call and pass the result in,
  * which is what lets a single component host several independent forms.
  */
-export function useFormRoot(form: FormReturns<any, any>, options: UseFormRootOptions): FormRootState {
+export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions): FormRootState => {
   const { context, isSubmitAttempted } = form
 
   const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(`formwerk-form-${context.id}`)
