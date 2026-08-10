@@ -40,5 +40,7 @@ jobs:
       - name: Build
         run: pnpm prepack
 
-      - name: Verify declaration output
+      # Type-checks dist/ the way a consumer does. Catches the declaration
+      # emitter failing silently, which `prepack` itself reports as success.
+      - name: Verify dist
         run: pnpm verify:dist
