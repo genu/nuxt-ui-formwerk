@@ -183,9 +183,23 @@ The schema-free counterpart to `USchemaForm`, for forms that don't validate agai
 
 Because there's no schema, `initialValues` is the only place the form's shape can be inferred from.
 
+An inline object literal is enough — no type declaration needed, and `values` is still fully typed:
+
+```vue
+<template>
+  <USchemalessForm :initial-values="{ email: '', password: '' }" #="{ values, form }">
+    <UFormField name="email" label="Email" #="{ model }">
+      <UInput v-bind="model" />
+    </UFormField>
+    <UButton type="submit" label="Sign in" :loading="form.isSubmitting.value" />
+  </USchemalessForm>
+</template>
+```
+
+If you want a reusable named shape, declare it with `type`, not `interface` — an `interface` is rejected, see [Gotchas](#gotchas):
+
 ```vue
 <script setup lang="ts">
-// Declare the shape with `type`, not `interface` — see Gotchas below.
 type Credentials = {
   email: string
   password: string
@@ -195,12 +209,7 @@ const initialValues: Credentials = { email: "", password: "" }
 </script>
 
 <template>
-  <USchemalessForm :initial-values="initialValues" #="{ values, form }">
-    <UFormField name="email" label="Email" #="{ model }">
-      <UInput v-bind="model" />
-    </UFormField>
-    <UButton type="submit" label="Sign in" :loading="form.isSubmitting.value" />
-  </USchemalessForm>
+  <USchemalessForm :initial-values="initialValues" #="{ values }">{{ values.email }}</USchemalessForm>
 </template>
 ```
 
