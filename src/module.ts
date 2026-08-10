@@ -31,6 +31,17 @@ export default defineNuxtModule({
     }
     nuxt.options.alias["@formwerk/core"] = formwerk
 
+    // Nuxt UI's injection keys are plain per-module Symbols, so two physical copies of @nuxt/ui
+    // never match and our provide() is invisible to its components. Pin just this subpath —
+    // consumer's rootDir first, ours as fallback — rather than the whole package.
+    let uiFormField: string
+    try {
+      uiFormField = resolveModule("@nuxt/ui/composables/useFormField", { url: directoryToURL(nuxt.options.rootDir) })
+    } catch {
+      uiFormField = resolveModule("@nuxt/ui/composables/useFormField", { url: new URL(import.meta.url) })
+    }
+    nuxt.options.alias["@nuxt/ui/composables/useFormField"] = uiFormField
+
     // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
     const componentsToRename = [`${prefix}Form`, `${prefix}FormField`]
 
