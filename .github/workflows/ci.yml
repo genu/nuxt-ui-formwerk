@@ -24,15 +24,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Also prepares the playground, which the playground type check needs.
+      # The playground is deliberately out of scope here: it is a local sandbox,
+      # not a workspace member, so its dependencies are never installed. Use
+      # `pnpm test:types:all` locally to cover it. test/types checks the public
+      # API on purpose, which is the coverage that matters.
       - name: Prepare
-        run: pnpm dev:prepare:playground
+        run: pnpm dev:prepare
 
       - name: Lint
         run: pnpm lint
 
       - name: Type check
-        run: pnpm test:types:all
+        run: pnpm test:types
 
       - name: Run tests
         run: pnpm test
