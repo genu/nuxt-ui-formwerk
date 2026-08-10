@@ -46,5 +46,12 @@
       <!-- @vue-expect-error `nope` was not in initialValues -->
       {{ values.nope }}
     </SchemalessForm>
+
+    <!-- Guards against the emitted `submit` payload degrading to `any` -->
+    <!-- @vue-expect-error `nope` is not on the schema output -->
+    <SchemaForm :schema="schema" @submit="(data) => save(data.toObject().nope)" />
+
+    <!-- @vue-expect-error `nope` was not in initialValues -->
+    <SchemalessForm :initial-values="{ email: '', age: 0 }" @submit="(data) => save(data.toObject().nope)" />
   </div>
 </template>
