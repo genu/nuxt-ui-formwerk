@@ -24,15 +24,44 @@
     /** Initial values. Object, sync getter, or async getter. */
     initialValues?: MaybeGetter<MaybeAsync<FormValues<SchemaInput<TSchema>>>>
   }
+
+  /** The formwerk form API `USchemaForm` builds, exposes and hands to its default slot. */
+  export type SchemaFormApi<TSchema extends GenericFormSchema> = FormReturns<SchemaInput<TSchema>, SchemaOutput<TSchema>>
+
+  /** The values bag `USchemaForm` hands to its default slot: `PartialDeep<TInput>`, without importing type-fest. */
+  export type SchemaFormValues<TSchema extends GenericFormSchema> = FormValues<SchemaInput<TSchema>>
+
+  /** Default slot props of `USchemaForm`. */
+  export interface SchemaFormSlotProps<TSchema extends GenericFormSchema> {
+    form: SchemaFormApi<TSchema>
+    values: SchemaFormValues<TSchema>
+    blurredFields: ReadonlySet<string>
+    touchedFields: ReadonlySet<string>
+    dirtyFields: ReadonlySet<string>
+  }
+
+  /** Slots of `USchemaForm`. */
+  export interface SchemaFormSlots<TSchema extends GenericFormSchema> {
+    default(props: SchemaFormSlotProps<TSchema>): unknown
+  }
+
+  /** Events of `USchemaForm`. */
+  export interface SchemaFormEmits<TSchema extends GenericFormSchema> {
+    submit: [data: ConsumableData<SchemaOutput<TSchema>>]
+    error: [issues: IssueCollection[]]
+  }
+
+  /**
+   * What `USchemaForm` exposes on a template ref.
+   *
+   * Passed to `defineExpose` as an explicit type argument rather than being
+   * inferred: spreading `form` structurally would inline type-fest internals the
+   * declaration emitter cannot name. See `FormValues` in ../types/form.
+   */
+  export type SchemaFormExpose<TSchema extends GenericFormSchema> = SchemaFormApi<TSchema> & FormRootState
 </script>
 
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
-  type TInput = SchemaInput<TSchema>
-  type TOutput = SchemaOutput<TSchema>
-  type FormApi = FormReturns<TInput, TOutput>
-  /** `PartialDeep<TInput>`, without importing type-fest. */
-  type Values = FormValues<TInput>
-
   const {
     as = "form",
     validateOn = "blur",
@@ -44,22 +73,11 @@
     initialDirty,
   } = defineProps<SchemaFormProps<TSchema>>()
 
-  const emit = defineEmits<{
-    submit: [data: ConsumableData<TOutput>]
-    error: [issues: IssueCollection[]]
-  }>()
+  const emit = defineEmits<SchemaFormEmits<TSchema>>()
 
-  defineSlots<{
-    default(props: {
-      form: FormApi
-      values: Values
-      blurredFields: ReadonlySet<string>
-      touchedFields: ReadonlySet<string>
-      dirtyFields: ReadonlySet<string>
-    }): unknown
-  }>()
+  defineSlots<SchemaFormSlots<TSchema>>()
 
-  // The generic Values type cannot be proven to satisfy useForm's own overload
+  // The generic values type cannot be proven to satisfy useForm's own overload
   // constraints from inside the component, so the argument is cast here. The
   // public surface — props, slots, emits, expose — stays fully typed.
   const form = useForm({
@@ -71,7 +89,7 @@
     // Destructured props stay reactive in Vue 3.5 — the compiler rewrites each
     // reference back to `__props.x`, so these getters still track changes.
     disabled: () => disabled,
-  } as never) as unknown as FormApi
+  } as never) as unknown as SchemaFormApi<TSchema>
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,
@@ -98,9 +116,8 @@
     if (issues.length) emit("error", issues)
   }
 
-  // Annotated rather than inferred: spreading `form` structurally would inline
-  // type-fest internals the emitter cannot name. See FormValues in ../types/form.
-  defineExpose<FormApi & FormRootState>({ ...form, blurredFields, touchedFields, dirtyFields })
+  // Annotated rather than inferred — see SchemaFormExpose.
+  defineExpose<SchemaFormExpose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 
 <template>

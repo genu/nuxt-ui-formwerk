@@ -20,13 +20,43 @@
      */
     initialValues?: TInput | (() => TInput)
   }
+
+  /** The formwerk form API `USchemalessForm` builds, exposes and hands to its default slot. */
+  export type SchemalessFormApi<TInput extends FormObject> = FormReturns<TInput>
+
+  /** The values bag `USchemalessForm` hands to its default slot: `PartialDeep<TInput>`, without importing type-fest. */
+  export type SchemalessFormValues<TInput extends FormObject> = FormValues<TInput>
+
+  /** Default slot props of `USchemalessForm`. */
+  export interface SchemalessFormSlotProps<TInput extends FormObject> {
+    form: SchemalessFormApi<TInput>
+    values: SchemalessFormValues<TInput>
+    blurredFields: ReadonlySet<string>
+    touchedFields: ReadonlySet<string>
+    dirtyFields: ReadonlySet<string>
+  }
+
+  /** Slots of `USchemalessForm`. */
+  export interface SchemalessFormSlots<TInput extends FormObject> {
+    default(props: SchemalessFormSlotProps<TInput>): unknown
+  }
+
+  /** Events of `USchemalessForm`. */
+  export interface SchemalessFormEmits<TInput extends FormObject> {
+    submit: [data: ConsumableData<TInput>]
+    error: [issues: IssueCollection[]]
+  }
+
+  /**
+   * What `USchemalessForm` exposes on a template ref.
+   *
+   * See SchemaForm.vue — annotated so the declaration emitter never inlines
+   * type-fest internals.
+   */
+  export type SchemalessFormExpose<TInput extends FormObject> = SchemalessFormApi<TInput> & FormRootState
 </script>
 
 <script lang="ts" setup generic="TInput extends FormObject">
-  type FormApi = FormReturns<TInput>
-  /** `PartialDeep<TInput>`, without importing type-fest. */
-  type Values = FormValues<TInput>
-
   const {
     as = "form",
     validateOn = "blur",
@@ -37,20 +67,9 @@
     initialDirty,
   } = defineProps<SchemalessFormProps<TInput>>()
 
-  const emit = defineEmits<{
-    submit: [data: ConsumableData<TInput>]
-    error: [issues: IssueCollection[]]
-  }>()
+  const emit = defineEmits<SchemalessFormEmits<TInput>>()
 
-  defineSlots<{
-    default(props: {
-      form: FormApi
-      values: Values
-      blurredFields: ReadonlySet<string>
-      touchedFields: ReadonlySet<string>
-      dirtyFields: ReadonlySet<string>
-    }): unknown
-  }>()
+  defineSlots<SchemalessFormSlots<TInput>>()
 
   // See SchemaForm.vue — the generic cannot satisfy useForm's overload
   // constraints from inside the component. The public surface stays typed.
@@ -61,7 +80,7 @@
     initialDirty,
     // See SchemaForm.vue — destructured props stay reactive in Vue 3.5.
     disabled: () => disabled,
-  } as never) as unknown as FormApi
+  } as never) as unknown as SchemalessFormApi<TInput>
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,
@@ -82,8 +101,8 @@
     if (issues.length) emit("error", issues)
   }
 
-  // See SchemaForm.vue — annotated so the emitter never inlines type-fest internals.
-  defineExpose<FormApi & FormRootState>({ ...form, blurredFields, touchedFields, dirtyFields })
+  // Annotated rather than inferred — see SchemalessFormExpose.
+  defineExpose<SchemalessFormExpose<TInput>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 
 <template>
