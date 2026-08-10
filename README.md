@@ -151,12 +151,14 @@ function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
 | ----------------------- | --------------------------------- | ---------- | --------------------------------------------------------------------------------------------------- |
 | `schema`                | Standard Schema                   | *required* | Drives all type inference. Read once at setup — see [Gotchas](#gotchas).                            |
 | `initialValues`         | `MaybeGetter<MaybeAsync<Values>>` | -          | Initial values. Object, sync getter, or async getter are all supported.                             |
-| `as`                    | `string \| Component`             | `'form'`   | Element or component to render as. Use a non-form element to avoid invalid nested `<form>` markup.  |
+| `as`                    | `string \| Component`             | `'form'`   | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See the note below. |
 | `id`                    | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                          |
 | `validateOn`            | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`   | When field errors become visible.                                                                   |
 | `disabled`              | `boolean`                         | `false`    | Disables every field, and strips disabled paths out of the submitted data.                          |
 | `initialTouched`        | `TouchedSchema<TInput>`           | -          | Marks fields as touched on mount.                                                                   |
 | `initialDirty`          | `DirtySchema<TInput>`             | -          | Marks fields as dirty on mount.                                                                     |
+
+`as` is meant for native elements: `novalidate` is only applied when `as` is the string `"form"`, because there's no way to tell what a component renders. Pass a component that renders its own `<form>` and setting `novalidate` on it is your responsibility — otherwise native constraint validation swallows the submit event and `@submit`/`@error` never emit.
 
 #### Slot Props
 
@@ -218,7 +220,7 @@ const initialValues: Credentials = { email: "", password: "" }
 | Prop                    | Type                       | Default    | Description                                                                                           |
 | ----------------------- | --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
 | `initialValues`         | `TInput \| (() => TInput)`  | -          | Initial values. Only place the shape can be inferred from — object or sync getter, see [Gotchas](#gotchas). |
-| `as`                    | `string \| Component`       | `'form'`   | Element or component to render as. Use a non-form element to avoid invalid nested `<form>` markup.      |
+| `as`                    | `string \| Component`       | `'form'`   | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See `USchemaForm`'s note. |
 | `id`                    | `string`                    | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                              |
 | `validateOn`            | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When field errors become visible.                                                                       |
 | `disabled`              | `boolean`                   | `false`    | Disables every field, and strips disabled paths out of the submitted data.                              |
