@@ -54,8 +54,11 @@ export type SchemaOutput<TSchema> =
  * Props common to every self-contained form root.
  *
  * This is formwerk's `_FormProps` minus the two options that provably no-op on
- * these components — `scrollToInvalidFieldOnSubmit` and `disableHtmlValidation`
- * (see the design spec) — plus `as` and `validateOn`.
+ * these components, plus `as` and `validateOn`.
+ *
+ * `scrollToInvalidFieldOnSubmit` is absent because it queries
+ * `[aria-invalid][aria-errormessage][data-fw-form-id]`, and `Field.vue` never
+ * binds formwerk's `controlProps`, so those attributes never reach the input.
  *
  * `disableHtmlValidation` is absent because native constraint validation is
  * always off here: the rendered `<form>` carries `novalidate`, matching
