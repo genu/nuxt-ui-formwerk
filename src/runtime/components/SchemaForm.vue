@@ -1,15 +1,7 @@
 <script lang="ts">
-  import {
-    useForm,
-    type ConsumableData,
-    type FormReturns,
-    type GenericFormSchema,
-    type IssueCollection,
-    type MaybeAsync,
-    type MaybeGetter,
-  } from "@formwerk/core"
+  import type { ConsumableData, FormReturns, GenericFormSchema, IssueCollection, MaybeAsync, MaybeGetter } from "@formwerk/core"
   import { computed } from "vue"
-  import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
+  import { useFormRoot, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
 
   /**
@@ -83,10 +75,10 @@
 
   defineSlots<Slots<TSchema>>()
 
-  // The generic values type cannot be proven to satisfy useForm's own overload
-  // constraints from inside the component, so the argument is cast here. The
-  // public surface — props, slots, emits, expose — stays fully typed.
-  const form = useForm({
+  // useGenericForm, not useForm — a generic component cannot satisfy useForm's
+  // overload constraints. See useGenericForm for why, and why the assertion it
+  // holds is unavoidable. The public surface stays fully typed either way.
+  const form = useGenericForm<FormApi<TSchema>>({
     id,
     schema,
     initialValues,
@@ -95,7 +87,7 @@
     // Destructured props stay reactive in Vue 3.5 — the compiler rewrites each
     // reference back to `__props.x`, so these getters still track changes.
     disabled: () => disabled,
-  } as never) as unknown as FormApi<TSchema>
+  })
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,

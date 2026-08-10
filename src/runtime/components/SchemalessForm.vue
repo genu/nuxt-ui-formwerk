@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { useForm, type ConsumableData, type FormObject, type FormReturns, type IssueCollection } from "@formwerk/core"
+  import type { ConsumableData, FormObject, FormReturns, IssueCollection } from "@formwerk/core"
   import { computed } from "vue"
-  import { useFormRoot, type FormRootState } from "../composables/useFormRoot"
+  import { useFormRoot, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues } from "../types/form"
 
   /**
@@ -74,16 +74,16 @@
 
   defineSlots<Slots<TInput>>()
 
-  // See SchemaForm.vue — the generic cannot satisfy useForm's overload
-  // constraints from inside the component. The public surface stays typed.
-  const form = useForm({
+  // useGenericForm, not useForm — see useGenericForm for why a generic component
+  // cannot satisfy useForm's overload constraints.
+  const form = useGenericForm<FormApi<TInput>>({
     id,
     initialValues,
     initialTouched,
     initialDirty,
     // See SchemaForm.vue — destructured props stay reactive in Vue 3.5.
     disabled: () => disabled,
-  } as never) as unknown as FormApi<TInput>
+  })
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,
