@@ -24,36 +24,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Also prepares the playground, which the playground type check needs.
       - name: Prepare
-        run: pnpm dev:prepare
+        run: pnpm dev:prepare:playground
 
       - name: Lint
         run: pnpm lint
 
       - name: Type check
-        run: pnpm test:types
+        run: pnpm test:types:all
 
       - name: Run tests
         run: pnpm test
 
       - name: Build
-        run: |
-          set -o pipefail
-          pnpm prepack 2>&1 | tee build.log
+        run: pnpm prepack
 
-      # nuxt-module-build exits 0 even when the declaration emitter fails, and
-      # vue-sfc-transformer then writes an empty .d.ts that breaks consumers.
-      - name: Check declaration output
-        run: |
-          if grep -q 'error TS' build.log; then
-            echo '::error::prepack reported TypeScript errors — declarations are unreliable'
-            grep 'error TS' build.log
-            exit 1
-          fi
-
-          empty=$(find dist \( -name '*.d.ts' -o -name '*.d.vue.ts' \) -empty)
-          if [ -n "$empty" ]; then
-            echo '::error::empty declaration files were emitted'
-            echo "$empty"
-            exit 1
-          fi
+      - name: Verify declaration output
+        run: pnpm verify:dist

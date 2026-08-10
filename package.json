@@ -25,16 +25,20 @@
   },
   "scripts": {
     "prepack": "nuxt-module-build build",
+    "verify:dist": "node scripts/verify-dist.mjs",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
+    "dev:prepare:playground": "pnpm dev:prepare && nuxi prepare playground",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json",
+    "test:types:playground": "vue-tsc --noEmit -p playground/tsconfig.json",
+    "test:types:all": "pnpm test:types && pnpm test:types:playground"
   },
   "dependencies": {
     "@nuxt/kit": "4.5.1",
