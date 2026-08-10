@@ -83,6 +83,16 @@
   // validation only. Async submit work that needs a loading state should go
   // through `form.handleSubmit` (slot prop or template ref) instead.
   const onSubmit = async (event?: Event) => {
+    // getSubmitErrors() below is read after an await, so it is not tied to the
+    // attempt that produced it — a re-entrant submit would make this call emit
+    // the other attempt's issues. handleSubmit sets isSubmitting synchronously
+    // and clears it on both paths, so the flag is a safe in-flight gate. Still
+    // preventDefault, or the ignored submit would navigate the page.
+    if (form.isSubmitting.value) {
+      event?.preventDefault()
+      return
+    }
+
     await form.handleSubmit((data) => emit("submit", data))(event)
 
     const issues = form.getSubmitErrors()

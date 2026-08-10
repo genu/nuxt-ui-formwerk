@@ -72,6 +72,14 @@
   // See SchemaForm.vue — handleSubmit has no failure hook, so `error` is derived
   // afterwards from getSubmitErrors().
   const onSubmit = async (event?: Event) => {
+    // See SchemaForm.vue — getSubmitErrors() is read after an await, so a
+    // re-entrant submit would cross the wires. preventDefault still runs, or
+    // the ignored submit would navigate the page.
+    if (form.isSubmitting.value) {
+      event?.preventDefault()
+      return
+    }
+
     await form.handleSubmit((data) => emit("submit", data))(event)
 
     const issues = form.getSubmitErrors()
