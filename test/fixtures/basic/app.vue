@@ -23,14 +23,61 @@
     <NuxtUiFormField data-testid="nuxtui-form-field" name="test" label="Test Field">
       <UInput data-testid="test-input" />
     </NuxtUiFormField>
+
+    <!-- Test: USchemaForm owns its own useForm() call -->
+    <USchemaForm data-testid="schema-form" :schema="schema">
+      <template #default="{ values }">
+        <UFormField name="email" label="Schema Email">
+          <template #default="{ model }">
+            <UInput v-bind="model" data-testid="schema-email-input" />
+          </template>
+        </UFormField>
+        <span data-testid="schema-values">{{ values }}</span>
+      </template>
+    </USchemaForm>
+
+    <!-- Test: USchemalessForm needs no schema -->
+    <USchemalessForm data-testid="schemaless-form" :initial-values="{ nickname: '' }">
+      <template #default>
+        <UFormField name="nickname" label="Nickname">
+          <template #default="{ model }">
+            <UInput v-bind="model" data-testid="nickname-input" />
+          </template>
+        </UFormField>
+      </template>
+    </USchemalessForm>
+
+    <!-- Test: as prop escapes the nested-form restriction -->
+    <USchemaForm data-testid="as-div-form" as="div" :schema="schema">
+      <template #default>
+        <span>as-div</span>
+      </template>
+    </USchemaForm>
+
+    <!-- Test: two forms in one component, which UForm cannot do -->
+    <USchemaForm data-testid="multi-form-a" :schema="schema">
+      <template #default>
+        <span>a</span>
+      </template>
+    </USchemaForm>
+    <USchemaForm data-testid="multi-form-b" :schema="schema">
+      <template #default>
+        <span>b</span>
+      </template>
+    </USchemaForm>
   </div>
 </template>
 
 <script setup>
-import { useForm } from "@formwerk/core"
+  import { useForm } from "@formwerk/core"
+  import { z } from "zod"
 
-const { handleSubmit } = useForm()
-const onSubmit = handleSubmit(() => {
-  // Handle form submit
-})
+  const { handleSubmit } = useForm()
+  const onSubmit = handleSubmit(() => {
+    // Handle form submit
+  })
+
+  const schema = z.object({
+    email: z.string(),
+  })
 </script>

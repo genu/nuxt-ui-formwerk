@@ -17,14 +17,36 @@
     <NuxtUiFormField data-testid="nuxtui-form-field" name="test" label="Test Field">
       <NInput data-testid="test-input" />
     </NuxtUiFormField>
+
+    <!-- Test: new roots also pick up the custom prefix -->
+    <NSchemaForm data-testid="schema-form" :schema="schema">
+      <template #default>
+        <NFormField name="email" label="Email">
+          <template #default="{ model }">
+            <NInput v-bind="model" data-testid="schema-email-input" />
+          </template>
+        </NFormField>
+      </template>
+    </NSchemaForm>
+
+    <NSchemalessForm data-testid="schemaless-form" :initial-values="{ nickname: '' }">
+      <template #default>
+        <span>schemaless</span>
+      </template>
+    </NSchemalessForm>
   </div>
 </template>
 
 <script setup>
-import { useForm } from "@formwerk/core"
+  import { useForm } from "@formwerk/core"
+  import { z } from "zod"
 
-const { handleSubmit } = useForm()
-const onSubmit = handleSubmit(() => {
-  // Handle form submit
-})
+  const { handleSubmit } = useForm()
+  const onSubmit = handleSubmit(() => {
+    // Handle form submit
+  })
+
+  const schema = z.object({
+    email: z.string(),
+  })
 </script>

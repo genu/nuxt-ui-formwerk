@@ -57,4 +57,52 @@ describe("ssr - basic", async () => {
     // Input is rendered with v-bind="model" working
     expect(html).toContain('data-testid="email-input"')
   })
+
+  // 5. Self-contained form roots
+  it("renders USchemaForm as a real form element", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="schema-form"')
+    expect(html).toMatch(/<form[^>]*data-testid="schema-form"/)
+  })
+
+  it("gives USchemaForm an id so formwerk can address it", async () => {
+    const html = await $fetch("/")
+    // Order-independent: Vue always merges a component's own bound attrs (id)
+    // ahead of fallthrough attrs (data-testid) in the rendered tag, so the two
+    // lookaheads assert both are present on the same <form> without assuming order.
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")(?=[^>]*id="[^"]+")[^>]*>/)
+  })
+
+  it("renders USchemalessForm", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="schemaless-form"')
+  })
+
+  it("renders fields inside USchemaForm", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="schema-email-input"')
+    expect(html).toContain("Schema Email")
+  })
+
+  it("marks the rendered form novalidate so native validation never swallows submit", async () => {
+    const html = await $fetch("/")
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")(?=[^>]*novalidate)[^>]*>/)
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schemaless-form")(?=[^>]*novalidate)[^>]*>/)
+  })
+
+  it("honours the as prop to avoid nested form elements", async () => {
+    const html = await $fetch("/")
+    expect(html).toMatch(/<div[^>]*data-testid="as-div-form"/)
+  })
+
+  it("leaves novalidate off when as is not a form", async () => {
+    const html = await $fetch("/")
+    expect(html).not.toMatch(/<div(?=[^>]*data-testid="as-div-form")(?=[^>]*novalidate)[^>]*>/)
+  })
+
+  it("renders two independent forms in one component", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="multi-form-a"')
+    expect(html).toContain('data-testid="multi-form-b"')
+  })
 })

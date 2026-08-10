@@ -27,4 +27,16 @@ describe("ssr - custom prefix", async () => {
     const html = await $fetch("/")
     expect(html).toContain('data-testid="nuxtui-form-field"')
   })
+
+  it("registers NSchemaForm under the custom prefix", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="schema-form"')
+    // Same lookahead style as basic.test.ts, so it does not assume attribute order.
+    expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")[^>]*>/)
+  })
+
+  it("registers NSchemalessForm under the custom prefix", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="schemaless-form"')
+  })
 })

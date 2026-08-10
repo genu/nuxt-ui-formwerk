@@ -25,6 +25,7 @@
   },
   "scripts": {
     "prepack": "nuxt-module-build build",
+    "verify:dist": "vue-tsc --noEmit -p test/consumer/tsconfig.json",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -34,7 +35,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json"
   },
   "dependencies": {
     "@nuxt/kit": "4.5.1",
@@ -55,7 +56,8 @@
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
-    "vue-tsc": "3.3.9"
+    "vue-tsc": "3.3.9",
+    "zod": "4.4.3"
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",

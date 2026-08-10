@@ -1,5 +1,4 @@
-import { fileURLToPath } from "node:url"
-import { defineNuxtModule, addComponent, createResolver } from "@nuxt/kit"
+import { defineNuxtModule, addComponent, createResolver, resolveModule, directoryToURL } from "@nuxt/kit"
 
 export type * from "./runtime/types"
 
@@ -17,9 +16,31 @@ export default defineNuxtModule({
     const uiOptions = nuxt.options.ui as { prefix?: string } | undefined
     const prefix = uiOptions?.prefix ?? "U"
 
-    // Prevent duplicate @formwerk/core instances which break context sharing between
-    // useForm() and useFormContext(). Required for dev playground and pnpm strict mode.
-    nuxt.options.alias["@formwerk/core"] = fileURLToPath(import.meta.resolve("@formwerk/core"))
+    // Pin every import of @formwerk/core to one file. Two instances break context sharing
+    // between useForm() and useFormContext(), and each drags its own Vue in — the symptom is
+    // silent: markup renders, reactivity is dead, and the console stays clean.
+    //
+    // Resolve from the consumer's rootDir first so a linked checkout (pnpm workspace or
+    // monorepo) gets the app's copy rather than this module's own, then fall back to ours
+    // for the normal npm install, where the consumer has no direct @formwerk/core.
+    let formwerk: string
+    try {
+      formwerk = resolveModule("@formwerk/core", { url: directoryToURL(nuxt.options.rootDir) })
+    } catch {
+      formwerk = resolveModule("@formwerk/core", { url: new URL(import.meta.url) })
+    }
+    nuxt.options.alias["@formwerk/core"] = formwerk
+
+    // Nuxt UI's injection keys are plain per-module Symbols, so two physical copies of @nuxt/ui
+    // never match and our provide() is invisible to its components. Pin just this subpath —
+    // consumer's rootDir first, ours as fallback — rather than the whole package.
+    let uiFormField: string
+    try {
+      uiFormField = resolveModule("@nuxt/ui/composables/useFormField", { url: directoryToURL(nuxt.options.rootDir) })
+    } catch {
+      uiFormField = resolveModule("@nuxt/ui/composables/useFormField", { url: new URL(import.meta.url) })
+    }
+    nuxt.options.alias["@nuxt/ui/composables/useFormField"] = uiFormField
 
     // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
     const componentsToRename = [`${prefix}Form`, `${prefix}FormField`]
@@ -56,6 +77,16 @@ export default defineNuxtModule({
     addComponent({
       name: `${prefix}FormRepeater`,
       filePath: resolver.resolve("./runtime/components/Repeater.vue"),
+    })
+
+    addComponent({
+      name: `${prefix}SchemaForm`,
+      filePath: resolver.resolve("./runtime/components/SchemaForm.vue"),
+    })
+
+    addComponent({
+      name: `${prefix}SchemalessForm`,
+      filePath: resolver.resolve("./runtime/components/SchemalessForm.vue"),
     })
   },
 })

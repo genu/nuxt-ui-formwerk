@@ -48,6 +48,18 @@
   const resetForm = () => {
     form.reset()
   }
+
+  const loginSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  })
+
+  const feedbackSchema = z.object({
+    subject: z.string().min(3, "Subject must be at least 3 characters"),
+    message: z.string().min(10, "Message must be at least 10 characters"),
+  })
+
+  const lastSubmit = ref<string | null>(null)
 </script>
 
 <template>
@@ -151,6 +163,54 @@
           </UForm>
         </UCard>
       </div>
+
+      <UCard class="mt-8">
+        <h2 class="text-xl font-bold mb-1">Two independent forms, one component</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          Both forms live in this single component. Neither calls useForm() in script setup. Type in one and the other's values, errors
+          and dirty state must stay untouched.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <USchemaForm
+            :schema="loginSchema"
+            class="flex flex-col gap-3"
+            #="{ values, form, dirtyFields }"
+            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`"
+          >
+            <h3 class="font-medium">Login</h3>
+            <UFormField name="email" label="Email" #="{ model }">
+              <UInput v-bind="model" class="w-full" />
+            </UFormField>
+            <UFormField name="password" label="Password" #="{ model }">
+              <UInput v-bind="model" type="password" class="w-full" />
+            </UFormField>
+            <UButton type="submit" label="Submit login" :loading="form.isSubmitting.value" />
+            <pre class="text-xs">values: {{ values }}</pre>
+            <pre class="text-xs">dirty: {{ dirtyFields }}</pre>
+          </USchemaForm>
+
+          <USchemaForm
+            :schema="feedbackSchema"
+            class="flex flex-col gap-3"
+            #="{ values, form, dirtyFields }"
+            @submit="lastSubmit = `feedback: ${JSON.stringify($event.toJSON())}`"
+          >
+            <h3 class="font-medium">Feedback</h3>
+            <UFormField name="subject" label="Subject" #="{ model }">
+              <UInput v-bind="model" class="w-full" />
+            </UFormField>
+            <UFormField name="message" label="Message" #="{ model }">
+              <UInput v-bind="model" class="w-full" />
+            </UFormField>
+            <UButton type="submit" label="Submit feedback" :loading="form.isSubmitting.value" />
+            <pre class="text-xs">values: {{ values }}</pre>
+            <pre class="text-xs">dirty: {{ dirtyFields }}</pre>
+          </USchemaForm>
+        </div>
+
+        <p v-if="lastSubmit" class="mt-4 text-sm">Last submit — {{ lastSubmit }}</p>
+      </UCard>
     </UContainer>
   </UApp>
 </template>
