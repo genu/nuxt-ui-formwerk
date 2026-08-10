@@ -4,32 +4,17 @@
   import { useFormRoot, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
 
-  /**
-   * Props of `USchemaForm`.
-   *
-   * Generic in the schema rather than in the input shape, so it can be written
-   * out here — the SFC's own `generic` parameter is not in scope in this block.
-   *
-   * None of the types in this block are exported. `../types/index` star-exports
-   * every component, and `Form.vue` already exports a `Props`; a second export
-   * of the same name would make both ambiguous, and TypeScript drops ambiguous
-   * star exports silently. Consumers reach these through the component's own
-   * generated types instead.
-   */
+  /** Generic in the schema rather than in the input shape, so it can be written out here — the SFC's own `generic` parameter is not in scope in this block. */
   interface Props<TSchema extends GenericFormSchema> extends FormRootProps<SchemaInput<TSchema>> {
-    /** Standard Schema (zod, valibot, …). Drives all type inference. Read once at setup — use `:key` to swap it. */
+    /** Read once at setup — use `:key` to swap it. */
     schema: TSchema
-    /** Initial values. Object, sync getter, or async getter. */
     initialValues?: MaybeGetter<MaybeAsync<FormValues<SchemaInput<TSchema>>>>
   }
 
-  /** The formwerk form API `USchemaForm` builds, exposes and hands to its default slot. */
   type FormApi<TSchema extends GenericFormSchema> = FormReturns<SchemaInput<TSchema>, SchemaOutput<TSchema>>
 
-  /** The values bag `USchemaForm` hands to its default slot: `PartialDeep<TInput>`, without importing type-fest. */
   type Values<TSchema extends GenericFormSchema> = FormValues<SchemaInput<TSchema>>
 
-  /** Default slot props of `USchemaForm`. */
   interface SlotProps<TSchema extends GenericFormSchema> {
     form: FormApi<TSchema>
     values: Values<TSchema>
@@ -38,25 +23,16 @@
     dirtyFields: ReadonlySet<string>
   }
 
-  /** Slots of `USchemaForm`. */
   interface Slots<TSchema extends GenericFormSchema> {
     default(props: SlotProps<TSchema>): unknown
   }
 
-  /** Events of `USchemaForm`. */
   interface Emits<TSchema extends GenericFormSchema> {
     submit: [data: ConsumableData<SchemaOutput<TSchema>>]
     error: [issues: IssueCollection[]]
   }
 
-  /**
-   * What `USchemaForm` exposes on a template ref.
-   *
-   * Passed to `defineExpose` as an explicit type argument rather than being
-   * inferred: spreading `form` structurally would inline type-fest internals the
-   * declaration emitter cannot name. See `FormValues` in ../types/form.
-   */
-  type Expose<TSchema extends GenericFormSchema> = FormApi<TSchema> & FormRootState
+  interface Expose<TSchema extends GenericFormSchema> extends FormApi<TSchema>, FormRootState {}
 </script>
 
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
@@ -114,7 +90,7 @@
     if (issues.length) emit("error", issues)
   }
 
-  // Annotated rather than inferred — see Expose.
+  // Explicit type argument, not inferred: inference would inline type-fest internals the declaration emitter cannot name.
   defineExpose<Expose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 
