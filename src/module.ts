@@ -1,5 +1,4 @@
-import { fileURLToPath } from "node:url"
-import { defineNuxtModule, addComponent, createResolver } from "@nuxt/kit"
+import { defineNuxtModule, addComponent, createResolver, resolveModule, directoryToURL } from "@nuxt/kit"
 
 export type * from "./runtime/types"
 
@@ -17,16 +16,20 @@ export default defineNuxtModule({
     const uiOptions = nuxt.options.ui as { prefix?: string } | undefined
     const prefix = uiOptions?.prefix ?? "U"
 
-    // Prevent duplicate @formwerk/core instances which break context sharing between
-    // useForm() and useFormContext(). Required for dev playground and pnpm strict mode.
+    // Pin every import of @formwerk/core to one file. Two instances break context sharing
+    // between useForm() and useFormContext(), and each drags its own Vue in — the symptom is
+    // silent: markup renders, reactivity is dead, and the console stays clean.
     //
-    // Known gap: this assumes the module and its consumer share a dependency tree, which
-    // is true once this package is installed from npm. A consumer who links this package
-    // via a pnpm workspace/monorepo instead can end up with two Vue runtimes in one page —
-    // the same failure the playground's inline module works around (see
-    // playground/nuxt.config.ts). The symptom is silent: markup renders, reactivity is
-    // dead, and the console stays clean.
-    nuxt.options.alias["@formwerk/core"] = fileURLToPath(import.meta.resolve("@formwerk/core"))
+    // Resolve from the consumer's rootDir first so a linked checkout (pnpm workspace or
+    // monorepo) gets the app's copy rather than this module's own, then fall back to ours
+    // for the normal npm install, where the consumer has no direct @formwerk/core.
+    let formwerk: string
+    try {
+      formwerk = resolveModule("@formwerk/core", { url: directoryToURL(nuxt.options.rootDir) })
+    } catch {
+      formwerk = resolveModule("@formwerk/core", { url: new URL(import.meta.url) })
+    }
+    nuxt.options.alias["@formwerk/core"] = formwerk
 
     // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
     const componentsToRename = [`${prefix}Form`, `${prefix}FormField`]
