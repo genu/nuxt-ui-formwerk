@@ -1,4 +1,5 @@
 CHANGELOG.md
 pnpm-lock.yaml
+# Gitignored, but Prettier does not read .gitignore. Conductor creates .context
+# in every workspace, so format:check breaks without this entry.
 .context
-.superpowers

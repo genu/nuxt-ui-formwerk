@@ -6,16 +6,10 @@ export default defineNuxtConfig({
   modules: [
     "../src/module",
 
-    // src/module.ts aliases @formwerk/core to whichever copy resolves from the
-    // module's own location — the repo root's node_modules. That is right for a
-    // real consumer, but the playground is a separate pnpm project with its own
-    // node_modules, so it drags the root's Vue in alongside the playground's.
-    // Two Vue runtimes in one page silently kills all client-side reactivity:
-    // markup renders, nothing responds, and the console stays clean.
-    //
-    // Inline modules run after the ones listed above them, so this re-points the
-    // alias at the playground's own copy, using the same expression module.ts
-    // uses — just evaluated from here.
+    // The playground is a separate pnpm project, so src/module.ts's
+    // @formwerk/core alias resolves to the repo root's copy and drags a second
+    // Vue in. That silently kills client-side reactivity: renders fine, nothing
+    // responds, console stays clean. Re-point the alias at the playground's copy.
     (_options, nuxt) => {
       nuxt.options.alias["@formwerk/core"] = fileURLToPath(import.meta.resolve("@formwerk/core"))
     },
