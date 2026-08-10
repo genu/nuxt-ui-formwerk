@@ -17,8 +17,14 @@
    *
    * Generic in the schema rather than in the input shape, so it can be written
    * out here — the SFC's own `generic` parameter is not in scope in this block.
+   *
+   * None of the types in this block are exported. `../types/index` star-exports
+   * every component, and `Form.vue` already exports a `Props`; a second export
+   * of the same name would make both ambiguous, and TypeScript drops ambiguous
+   * star exports silently. Consumers reach these through the component's own
+   * generated types instead.
    */
-  export interface SchemaFormProps<TSchema extends GenericFormSchema> extends FormRootProps<SchemaInput<TSchema>> {
+  interface Props<TSchema extends GenericFormSchema> extends FormRootProps<SchemaInput<TSchema>> {
     /** Standard Schema (zod, valibot, …). Drives all type inference. Read once at setup — use `:key` to swap it. */
     schema: TSchema
     /** Initial values. Object, sync getter, or async getter. */
@@ -26,27 +32,27 @@
   }
 
   /** The formwerk form API `USchemaForm` builds, exposes and hands to its default slot. */
-  export type SchemaFormApi<TSchema extends GenericFormSchema> = FormReturns<SchemaInput<TSchema>, SchemaOutput<TSchema>>
+  type FormApi<TSchema extends GenericFormSchema> = FormReturns<SchemaInput<TSchema>, SchemaOutput<TSchema>>
 
   /** The values bag `USchemaForm` hands to its default slot: `PartialDeep<TInput>`, without importing type-fest. */
-  export type SchemaFormValues<TSchema extends GenericFormSchema> = FormValues<SchemaInput<TSchema>>
+  type Values<TSchema extends GenericFormSchema> = FormValues<SchemaInput<TSchema>>
 
   /** Default slot props of `USchemaForm`. */
-  export interface SchemaFormSlotProps<TSchema extends GenericFormSchema> {
-    form: SchemaFormApi<TSchema>
-    values: SchemaFormValues<TSchema>
+  interface SlotProps<TSchema extends GenericFormSchema> {
+    form: FormApi<TSchema>
+    values: Values<TSchema>
     blurredFields: ReadonlySet<string>
     touchedFields: ReadonlySet<string>
     dirtyFields: ReadonlySet<string>
   }
 
   /** Slots of `USchemaForm`. */
-  export interface SchemaFormSlots<TSchema extends GenericFormSchema> {
-    default(props: SchemaFormSlotProps<TSchema>): unknown
+  interface Slots<TSchema extends GenericFormSchema> {
+    default(props: SlotProps<TSchema>): unknown
   }
 
   /** Events of `USchemaForm`. */
-  export interface SchemaFormEmits<TSchema extends GenericFormSchema> {
+  interface Emits<TSchema extends GenericFormSchema> {
     submit: [data: ConsumableData<SchemaOutput<TSchema>>]
     error: [issues: IssueCollection[]]
   }
@@ -58,7 +64,7 @@
    * inferred: spreading `form` structurally would inline type-fest internals the
    * declaration emitter cannot name. See `FormValues` in ../types/form.
    */
-  export type SchemaFormExpose<TSchema extends GenericFormSchema> = SchemaFormApi<TSchema> & FormRootState
+  type Expose<TSchema extends GenericFormSchema> = FormApi<TSchema> & FormRootState
 </script>
 
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
@@ -71,11 +77,11 @@
     initialValues,
     initialTouched,
     initialDirty,
-  } = defineProps<SchemaFormProps<TSchema>>()
+  } = defineProps<Props<TSchema>>()
 
-  const emit = defineEmits<SchemaFormEmits<TSchema>>()
+  const emit = defineEmits<Emits<TSchema>>()
 
-  defineSlots<SchemaFormSlots<TSchema>>()
+  defineSlots<Slots<TSchema>>()
 
   // The generic values type cannot be proven to satisfy useForm's own overload
   // constraints from inside the component, so the argument is cast here. The
@@ -89,7 +95,7 @@
     // Destructured props stay reactive in Vue 3.5 — the compiler rewrites each
     // reference back to `__props.x`, so these getters still track changes.
     disabled: () => disabled,
-  } as never) as unknown as SchemaFormApi<TSchema>
+  } as never) as unknown as FormApi<TSchema>
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,
@@ -116,8 +122,8 @@
     if (issues.length) emit("error", issues)
   }
 
-  // Annotated rather than inferred — see SchemaFormExpose.
-  defineExpose<SchemaFormExpose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })
+  // Annotated rather than inferred — see Expose.
+  defineExpose<Expose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 
 <template>
