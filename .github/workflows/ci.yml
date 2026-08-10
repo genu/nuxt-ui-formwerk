@@ -24,10 +24,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # The playground is deliberately out of scope here: it is a local sandbox,
-      # not a workspace member, so its dependencies are never installed. Use
-      # `pnpm test:types:all` locally to cover it. test/types checks the public
-      # API on purpose, which is the coverage that matters.
       - name: Prepare
         run: pnpm dev:prepare
 

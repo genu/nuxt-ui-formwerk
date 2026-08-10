@@ -28,17 +28,14 @@
     "verify:dist": "vue-tsc --noEmit -p test/consumer/tsconfig.json",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
-    "dev:prepare:playground": "pnpm dev:prepare && nuxi prepare playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json",
-    "test:types:playground": "vue-tsc --noEmit -p playground/tsconfig.json",
-    "test:types:all": "pnpm test:types && pnpm test:types:playground"
+    "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json"
   },
   "dependencies": {
     "@nuxt/kit": "4.5.1",
