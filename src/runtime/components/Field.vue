@@ -24,11 +24,21 @@
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
   const formwerkOptions = inject(formwerkOptionsInjectionKey, undefined)
 
+  // This component overrides Nuxt UI's UFormField, so it can be reached from
+  // inside a plain Nuxt UI <UForm> — where it would keep its value in formwerk
+  // while the form read from `state`, and silently submit nothing. Fail loudly
+  // instead.
+  if (!formwerkOptions) {
+    throw new Error(
+      "UFormField requires a formwerk form root. Wrap it in <USchemaForm> or <USchemalessForm>, " +
+        "or use <NuxtUiFormField> for a plain Nuxt UI field.",
+    )
+  }
+
   const field = useFormField({
     path: props.name,
     label: props.label,
     description: props.description,
-    disabled: () => formwerkOptions?.value?.disabled,
   })
 
   const defaultSlot = slots.default?.({ model: {} })
@@ -59,7 +69,6 @@
 
   const error = computed(() => {
     if (!errorMessage.value) return undefined
-    if (!formwerkOptions || !formwerkOptions.value) return errorMessage.value
 
     // Once a submit has been attempted, formwerk has already run full-schema
     // validation, so surface errors regardless of per-field interaction state

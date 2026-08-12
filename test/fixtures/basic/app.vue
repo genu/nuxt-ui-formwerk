@@ -2,12 +2,24 @@
   <div>
     <div data-testid="basic">basic</div>
 
-    <!-- Test: UForm and UFormField render without recursion -->
-    <form @submit.prevent="onSubmit">
-      <UForm data-testid="form" :validate-on="'blur'">
-        <UFormField data-testid="form-field" name="email" label="Email">
+    <!-- Test: Nuxt UI's own Form is no longer shadowed, so it still renders a <form> -->
+    <UForm data-testid="nuxtui-form" :state="{ plain: '' }">
+      <NuxtUiFormField data-testid="nuxtui-nested-field" name="plain" label="Plain">
+        <UInput data-testid="plain-input" />
+      </NuxtUiFormField>
+    </UForm>
+
+    <!-- Test: Original Nuxt UI FormField is accessible with the NuxtUi prefix -->
+    <NuxtUiFormField data-testid="nuxtui-form-field" name="test" label="Test Field">
+      <UInput data-testid="test-input" />
+    </NuxtUiFormField>
+
+    <!-- Test: USchemaForm owns its own useForm() call, and UFormField renders without recursion -->
+    <USchemaForm data-testid="schema-form" :schema="schema">
+      <template #default="{ values }">
+        <UFormField data-testid="form-field" name="email" label="Schema Email">
           <template #default="{ model }">
-            <UInput v-bind="model" data-testid="email-input" />
+            <UInput v-bind="model" data-testid="schema-email-input" />
           </template>
         </UFormField>
 
@@ -16,22 +28,7 @@
             <UInput v-bind="model" data-testid="username-input" />
           </template>
         </UFormField>
-      </UForm>
-    </form>
 
-    <!-- Test: Original Nuxt UI components are accessible with NuxtUi prefix -->
-    <NuxtUiFormField data-testid="nuxtui-form-field" name="test" label="Test Field">
-      <UInput data-testid="test-input" />
-    </NuxtUiFormField>
-
-    <!-- Test: USchemaForm owns its own useForm() call -->
-    <USchemaForm data-testid="schema-form" :schema="schema">
-      <template #default="{ values }">
-        <UFormField name="email" label="Schema Email">
-          <template #default="{ model }">
-            <UInput v-bind="model" data-testid="schema-email-input" />
-          </template>
-        </UFormField>
         <span data-testid="schema-values">{{ values }}</span>
       </template>
     </USchemaForm>
@@ -54,7 +51,7 @@
       </template>
     </USchemaForm>
 
-    <!-- Test: two forms in one component, which UForm cannot do -->
+    <!-- Test: two forms in one component -->
     <USchemaForm data-testid="multi-form-a" :schema="schema">
       <template #default>
         <span>a</span>
@@ -69,13 +66,7 @@
 </template>
 
 <script setup>
-  import { useForm } from "@formwerk/core"
   import { z } from "zod"
-
-  const { handleSubmit } = useForm()
-  const onSubmit = handleSubmit(() => {
-    // Handle form submit
-  })
 
   const schema = z.object({
     email: z.string(),

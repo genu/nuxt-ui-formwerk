@@ -25,13 +25,12 @@ src/
 └── runtime/
     ├── components/
     │   ├── Field.vue              # Overrides UFormField; bridges Nuxt UI events to formwerk
-    │   ├── Form.vue               # Overrides UForm; reads a consumer-owned useForm()
     │   ├── Group.vue              # Groups related form fields
     │   ├── Repeater.vue           # Repeatable field groups (dynamic arrays)
     │   ├── SchemaForm.vue         # Self-contained root, schema-driven
     │   └── SchemalessForm.vue     # Self-contained root, no schema
     ├── composables/
-    │   └── useFormRoot.ts         # Shared wiring for all three form roots
+    │   └── useFormRoot.ts         # Shared wiring for both form roots
     └── types/
         ├── form.ts                # Injection keys, shared prop and value types
         └── index.ts               # Type re-exports (module.ts does `export type *`)
@@ -39,16 +38,18 @@ src/
 
 ### Registered components
 
-`UForm` and `UFormField` **override** Nuxt UI's components of the same name. `module.ts` renames the originals to `NuxtUiForm` / `NuxtUiFormField` via the `components:extend` hook, matching on `filePath.includes("@nuxt/ui")`. That match currently no-ops silently if it fails.
+Only `UFormField` **overrides** a Nuxt UI component. `module.ts` renames the original to `NuxtUiFormField` via the `components:extend` hook, matching on `filePath.includes("@nuxt/ui")`, and **throws** if no match is found — otherwise `Field.vue`'s `<NuxtUiFormField>` silently fails to resolve.
 
-| Component         | Notes                                                        |
-| ----------------- | ------------------------------------------------------------ |
-| `UForm`           | Requires the consumer to call `useForm()`; renders a `<div>` |
-| `USchemaForm`     | Self-contained, schema-driven, renders a real `<form>`       |
-| `USchemalessForm` | Self-contained, shape inferred from `initialValues`          |
-| `UFormField`      | Override of Nuxt UI's                                        |
-| `UFormGroup`      | Nested field grouping                                        |
-| `UFormRepeater`   | Dynamic arrays                                               |
+Nuxt UI's `UForm` is deliberately left alone. It was shadowed until v0.2: its API (`state`, `schema`, `@submit`, a real `<form>`) has no formwerk equivalent, so the override turned working Nuxt UI forms into silently broken ones. Formwerk forms are opt-in through the self-contained roots.
+
+| Component         | Notes                                                  |
+| ----------------- | ------------------------------------------------------ |
+| `USchemaForm`     | Self-contained, schema-driven, renders a real `<form>` |
+| `USchemalessForm` | Self-contained, shape inferred from `initialValues`    |
+| `UFormField`      | Override of Nuxt UI's; throws outside a formwerk root  |
+| `UFormGroup`      | Nested field grouping                                  |
+| `UFormRepeater`   | Dynamic arrays                                         |
+| `UForm`           | Nuxt UI's own, untouched                               |
 
 ### Two pinned aliases (both load-bearing)
 
@@ -61,17 +62,14 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 
 ### Component Integration Pattern
 
-**Form roots.** All three call `useFormRoot(form, options)`, which creates the two event buses, provides the four injection keys, and tracks per-field interaction state. Callers own the `useForm()` / `useFormContext()` call and pass the result in — that is what lets one component host several independent forms.
-
-- `Form.vue` gets its form from `useFormContext()` (consumer-owned).
-- `SchemaForm.vue` / `SchemalessForm.vue` create their own via `useGenericForm`, and emit `@submit` / `@error`.
+**Form roots.** Both call `useFormRoot(form, options)`, which creates the two event buses, provides the four injection keys, and tracks per-field interaction state. They create their form via `useGenericForm` and emit `@submit` / `@error`. `useFormRoot` takes the form as an argument rather than calling `useForm()` itself — that is what lets one component host several independent forms.
 
 **Field Component** ([src/runtime/components/Field.vue](src/runtime/components/Field.vue)):
 
 - Calls `useFormField` for field state, then `useCustomControl` with `_field` for the control layer
-- Injects `formBus`, `formwerkBus`, `formwerkOptions`
+- Injects `formBus`, `formwerkBus`, `formwerkOptions`; **throws** when `formwerkOptions` is absent, since that means it is outside a formwerk root
 - Sniffs the first default-slot vnode at setup to derive formwerk's `controlType` — fragile, and computed once
-- Never binds formwerk's `controlProps`, so `aria-invalid` / `aria-errormessage` never reach the input and `scrollToInvalidFieldOnSubmit` cannot work
+- Never binds formwerk's `controlProps`. Not an a11y gap: Nuxt UI's own `ariaAttrs` (`aria-invalid`, `aria-describedby`) still reach the input, because `Field.vue` passes `:error` to `NuxtUiFormField`. What is lost is formwerk-specific — `scrollToInvalidFieldOnSubmit`, `aria-errormessage`, `data-fw-form-id`. Binding `controlProps` would collide with Nuxt UI over `id` and `aria-describedby`.
 
 **Repeater Component** ([src/runtime/components/Repeater.vue](src/runtime/components/Repeater.vue)):
 
@@ -81,7 +79,7 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 
 ### Injection Keys
 
-- `formwerkOptionsInjectionKey`: ours — `validateOn`, `disabled`, `isSubmitAttempted`
+- `formwerkOptionsInjectionKey`: ours — `validateOn`, `isSubmitAttempted`. Its presence is also how `Field.vue` detects it is inside a formwerk root.
 - `formwerkBusInjectionKey`: ours — touched / blur / dirty events
 - `formBusInjectionKey`: Nuxt UI's — input components emit blur/change/input/focus here
 - `formOptionsInjectionKey`: Nuxt UI's — `disabled`, `validateOnInputDelay`
@@ -91,9 +89,11 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 Two independent channels, easy to confuse:
 
 1. **Nuxt UI channel** — `useFormRoot` provides `formOptionsInjectionKey`; each Nuxt UI input's own `useFormField` injects it and computes `formOptions.disabled || props.disabled`, then binds the DOM attribute. This **bypasses `Field.vue` entirely**.
-2. **formwerk channel** — `formwerkOptionsInjectionKey` → `Field.vue`'s `useFormField` init → `createDisabledContext` → field `isDisabled`. This is what suppresses errors and strips disabled paths from the submitted payload.
+2. **formwerk channel** — the roots pass `disabled` to `useForm`, which creates a `createDisabledContext` that descendant fields inherit through provide/inject. This is what suppresses errors and strips disabled paths from the submitted payload.
 
-Both are required; neither substitutes for the other. Note that `disabled` belongs on the `useFormField` init, **not** on `useCustomControl` — passing `_field` there short-circuits `resolveFieldState`, so its own `disabled` option is never read. `required` has no formwerk channel at all.
+Both are required; neither substitutes for the other. `Field.vue` wires nothing here — it did while `UForm` existed, because there the consumer owned the `useForm()` call and the prop had no other route.
+
+If you ever do need a field-level `disabled`, it goes on the `useFormField` init, **not** on `useCustomControl`: passing `_field` there short-circuits `resolveFieldState`, so its own `disabled` option is never read. `required` has no formwerk channel at all.
 
 ## Development Commands
 

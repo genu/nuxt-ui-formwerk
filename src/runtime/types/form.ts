@@ -3,7 +3,6 @@ import type { UseEventBusReturn } from "@vueuse/core"
 import type { StandardSchema, FormObject, FormReturns, TouchedSchema, DirtySchema } from "@formwerk/core"
 
 export interface FormInjectedOptions {
-  disabled?: boolean
   validateOn?: FormwerkInputEvents
   isSubmitAttempted?: boolean
 }

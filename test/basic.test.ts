@@ -13,9 +13,9 @@ describe("ssr - basic", async () => {
   })
 
   // 1. Component Override Tests
-  it("renders UForm without infinite recursion", async () => {
+  it("leaves Nuxt UI's own UForm registered and rendering a form element", async () => {
     const html = await $fetch("/")
-    expect(html).toContain('data-testid="form"')
+    expect(html).toMatch(/<form[^>]*data-testid="nuxtui-form"/)
   })
 
   it("renders UFormField without infinite recursion", async () => {
@@ -31,12 +31,8 @@ describe("ssr - basic", async () => {
   // 3. Form/Field Integration Tests
   it("renders form field with label", async () => {
     const html = await $fetch("/")
-    expect(html).toContain("Email")
-  })
-
-  it("renders input inside form field", async () => {
-    const html = await $fetch("/")
-    expect(html).toContain('data-testid="email-input"')
+    expect(html).toContain('data-testid="form-field"')
+    expect(html).toContain("Schema Email")
   })
 
   it("renders required form field", async () => {
@@ -45,17 +41,10 @@ describe("ssr - basic", async () => {
     expect(html).toContain("Username")
   })
 
-  // 4. Formwerk Integration Tests
-  it("form accepts validateOn prop", async () => {
-    const html = await $fetch("/")
-    // Form renders successfully with validateOn="blur"
-    expect(html).toContain('data-testid="form"')
-  })
-
   it("form field exposes model to slot", async () => {
     const html = await $fetch("/")
     // Input is rendered with v-bind="model" working
-    expect(html).toContain('data-testid="email-input"')
+    expect(html).toContain('data-testid="schema-email-input"')
   })
 
   // 5. Self-contained form roots
@@ -104,5 +93,11 @@ describe("ssr - basic", async () => {
     const html = await $fetch("/")
     expect(html).toContain('data-testid="multi-form-a"')
     expect(html).toContain('data-testid="multi-form-b"')
+  })
+
+  it("renders fields inside USchemalessForm", async () => {
+    const html = await $fetch("/")
+    expect(html).toContain('data-testid="nickname-input"')
+    expect(html).toContain("Nickname")
   })
 })

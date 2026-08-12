@@ -13,9 +13,9 @@ describe("ssr - custom prefix", async () => {
     expect(html).toContain("custom-prefix")
   })
 
-  it("renders NForm (custom prefix) without infinite recursion", async () => {
+  it("leaves Nuxt UI's own NForm registered under the custom prefix", async () => {
     const html = await $fetch("/")
-    expect(html).toContain('data-testid="form"')
+    expect(html).toMatch(/<form[^>]*data-testid="nuxtui-form"/)
   })
 
   it("renders NFormField (custom prefix) without infinite recursion", async () => {

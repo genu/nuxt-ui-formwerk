@@ -17,7 +17,7 @@ Enhanced form components for Nuxt UI with [@formwerk/core](https://formwerk.dev/
 ## Features
 
 - **Formwerk Integration** - Seamless integration with [@formwerk/core](https://formwerk.dev/) for advanced form validation
-- **Drop-in Replacement** - Overrides Nuxt UI's form components, keeping the same component names
+- **Familiar Field API** - `UFormField` keeps Nuxt UI's name and props, so templates need no rewriting
 - **Field-level Validation** - Granular validation control with error message handling
 - **State Tracking** - Track touched, blurred, and dirty states per field
 - **Flexible Validation Strategies** - Configure when validation occurs (on blur, on input, etc.)
@@ -47,92 +47,60 @@ That's it! You can now use enhanced form components in your Nuxt app.
 
 ## How It Works
 
-This module **overrides** Nuxt UI's form components (`UForm`, `UFormField`) with formwerk-enhanced versions. The original Nuxt UI components are renamed internally (e.g., `NuxtUiForm`, `NuxtUiFormField`) and are still accessible if needed.
+Formwerk forms are **opt-in**: you choose a formwerk root (`USchemaForm` or `USchemalessForm`) where you want one. Nuxt UI's own `UForm` is left alone and keeps working for forms that don't need formwerk.
 
-This means you use the same component names you're familiar with:
+The one component this module **does** override is `UFormField`. The original stays reachable as `NuxtUiFormField`.
 
-- `UForm` - Enhanced form component (overrides Nuxt UI's UForm)
-- `USchemaForm` - Self-contained, schema-driven form component (new)
-- `USchemalessForm` - Self-contained, schema-free form component (new)
-- `UFormField` - Enhanced field component (overrides Nuxt UI's UFormField)
-- `UFormGroup` - Field grouping component (new)
-- `UFormRepeater` - Dynamic array field component (new)
+| Component         | Origin        | Purpose                                          |
+| ----------------- | ------------- | ------------------------------------------------ |
+| `USchemaForm`     | new           | Self-contained root, driven by a Standard Schema |
+| `USchemalessForm` | new           | Self-contained root, shape from `initialValues`  |
+| `UFormField`      | **overrides** | Field wired to formwerk state and validation     |
+| `UFormGroup`      | new           | Nested field grouping                            |
+| `UFormRepeater`   | new           | Dynamic array fields                             |
+| `UForm`           | untouched     | Nuxt UI's own form — not formwerk-aware          |
+| `NuxtUiFormField` | renamed       | Nuxt UI's original field                         |
 
 The module automatically uses the same prefix as your Nuxt UI configuration (default: `U`).
+
+> [!IMPORTANT]
+> `UFormField` requires a formwerk root. Inside a plain Nuxt UI `<UForm>` it would hold its value in formwerk while the form read from `state` — submitting nothing — so it throws instead. Use `<NuxtUiFormField>` for plain Nuxt UI fields.
 
 ### Event Bus Integration
 
 The module bridges Nuxt UI's form system with formwerk by intercepting and coordinating events between both systems:
 
-1. **Dual Event Buses** - `UForm` creates two event buses:
+1. **Dual Event Buses** - the form root creates two event buses:
    - A Nuxt UI form bus (`form-{id}`) that Nuxt UI input components emit to
    - A formwerk bus (`formwerk-form-{id}`) for internal state tracking
 
 2. **Event Interception** - `UFormField` listens to the Nuxt UI form bus and intercepts events (`blur`, `change`, `input`, `focus`) emitted by Nuxt UI input components. These events are translated into formwerk state updates (`setBlurred`, `setTouched`).
 
-3. **State Propagation** - When formwerk field state changes (touched, blurred, dirty), `UFormField` emits events on the formwerk bus, which `UForm` listens to for tracking field-level state across the entire form.
+3. **State Propagation** - When formwerk field state changes (touched, blurred, dirty), `UFormField` emits events on the formwerk bus, which the form root listens to for tracking field-level state across the entire form.
 
 This architecture allows Nuxt UI's native input components to work seamlessly with formwerk's validation and state management without requiring any modifications to the input components themselves.
 
 ## Usage
 
-### UForm
-
-The root form component that provides validation context and tracks form state.
-
-```vue
-<script setup lang="ts">
-import { z } from "zod"
-import { useForm } from "@formwerk/core"
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-})
-
-const form = useForm({ schema })
-</script>
-
-<template>
-  <UForm validate-on="blur" #="{ blurredFields, touchedFields, dirtyFields }">
-    <!-- Form content here -->
-    <p>Blurred fields: {{ blurredFields.size }}</p>
-  </UForm>
-</template>
-```
-
-#### Props
-
-| Prop         | Type                             | Default  | Description                |
-| ------------ | -------------------------------- | -------- | -------------------------- |
-| `validateOn` | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When to trigger validation |
-| `disabled`   | `boolean`                        | `false`  | Disable all form fields    |
-
-#### Slot Props
-
-- `blurredFields` - Set of field names that have been blurred
-- `touchedFields` - Set of field names that have been touched
-- `dirtyFields` - Set of field names with modified values
-
 ### USchemaForm
 
-`UForm` reads a form you created with `useForm()`. `USchemaForm` creates its own. Because `useForm()` provides on the calling component, only one form per component is possible with `UForm` — `USchemaForm` lifts that limit, so you can put several forms in a single component.
+`USchemaForm` creates and owns its own formwerk form, so you never call `useForm()` yourself. Because `useForm()` provides on the calling component, owning it in script setup would limit you to one form per component — `USchemaForm` lifts that limit, so you can put several forms in a single component.
 
 Use `USchemaForm` when you have a [Standard Schema](https://standardschema.dev/) (zod, valibot, …) to validate against — the schema drives all type inference for `values`, `initialValues`, and the submitted data.
 
 ```vue
 <script setup lang="ts">
-import { z } from "zod"
-import type { ConsumableData } from "@formwerk/core"
+  import { z } from "zod"
+  import type { ConsumableData } from "@formwerk/core"
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-})
+  const schema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+  })
 
-function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
-  return $fetch("/api/sign-in", { method: "POST", body: data.toJSON() })
-}
+  function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
+    return $fetch("/api/sign-in", { method: "POST", body: data.toJSON() })
+  }
 </script>
 
 <template>
@@ -147,16 +115,16 @@ function onSubmit(data: ConsumableData<z.infer<typeof schema>>) {
 
 #### Props
 
-| Prop                    | Type                             | Default    | Description                                                                                       |
-| ----------------------- | --------------------------------- | ---------- | --------------------------------------------------------------------------------------------------- |
-| `schema`                | Standard Schema                   | *required* | Drives all type inference. Read once at setup — see [Gotchas](#gotchas).                            |
-| `initialValues`         | `MaybeGetter<MaybeAsync<Values>>` | -          | Initial values. Object, sync getter, or async getter are all supported.                             |
-| `as`                    | `string \| Component`             | `'form'`   | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See the note below. |
-| `id`                    | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                          |
-| `validateOn`            | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`   | When field errors become visible.                                                                   |
-| `disabled`              | `boolean`                         | `false`    | Disables every field, and strips disabled paths out of the submitted data.                          |
-| `initialTouched`        | `TouchedSchema<TInput>`           | -          | Marks fields as touched on mount.                                                                   |
-| `initialDirty`          | `DirtySchema<TInput>`             | -          | Marks fields as dirty on mount.                                                                     |
+| Prop             | Type                              | Default        | Description                                                                                                      |
+| ---------------- | --------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `schema`         | Standard Schema                   | _required_     | Drives all type inference. Read once at setup — see [Gotchas](#gotchas).                                         |
+| `initialValues`  | `MaybeGetter<MaybeAsync<Values>>` | -              | Initial values. Object, sync getter, or async getter are all supported.                                          |
+| `as`             | `string \| Component`             | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See the note below. |
+| `id`             | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                           |
+| `validateOn`     | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`       | When field errors become visible.                                                                                |
+| `disabled`       | `boolean`                         | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                       |
+| `initialTouched` | `TouchedSchema<TInput>`           | -              | Marks fields as touched on mount.                                                                                |
+| `initialDirty`   | `DirtySchema<TInput>`             | -              | Marks fields as dirty on mount.                                                                                  |
 
 `as` is meant for native elements: `novalidate` is only applied when `as` is the string `"form"`, because there's no way to tell what a component renders. Pass a component that renders its own `<form>` and setting `novalidate` on it is your responsibility — otherwise native constraint validation swallows the submit event and `@submit`/`@error` never emit.
 
@@ -181,7 +149,7 @@ Via `ref`/`useTemplateRef`: the entire formwerk form API flattened (`values`, `i
 
 ### USchemalessForm
 
-The schema-free counterpart to `USchemaForm`, for forms that don't validate against a Standard Schema. Like `USchemaForm`, it creates its own form via `useForm()`, so it isn't limited to one form per component the way `UForm` is.
+The schema-free counterpart to `USchemaForm`, for forms that don't validate against a Standard Schema. Like `USchemaForm`, it creates its own form, so it isn't limited to one form per component.
 
 Because there's no schema, `initialValues` is the only place the form's shape can be inferred from.
 
@@ -202,12 +170,12 @@ If you want a reusable named shape, declare it with `type`, not `interface` — 
 
 ```vue
 <script setup lang="ts">
-type Credentials = {
-  email: string
-  password: string
-}
+  type Credentials = {
+    email: string
+    password: string
+  }
 
-const initialValues: Credentials = { email: "", password: "" }
+  const initialValues: Credentials = { email: "", password: "" }
 </script>
 
 <template>
@@ -217,15 +185,15 @@ const initialValues: Credentials = { email: "", password: "" }
 
 #### Props
 
-| Prop                    | Type                       | Default    | Description                                                                                           |
-| ----------------------- | --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
-| `initialValues`         | `TInput \| (() => TInput)`  | -          | Initial values. Only place the shape can be inferred from — object or sync getter, see [Gotchas](#gotchas). |
-| `as`                    | `string \| Component`       | `'form'`   | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See `USchemaForm`'s note. |
-| `id`                    | `string`                    | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                              |
-| `validateOn`            | `'touched' \| 'blur' \| 'dirty'` | `'blur'` | When field errors become visible.                                                                       |
-| `disabled`              | `boolean`                   | `false`    | Disables every field, and strips disabled paths out of the submitted data.                              |
-| `initialTouched`        | `TouchedSchema<TInput>`     | -          | Marks fields as touched on mount.                                                                       |
-| `initialDirty`          | `DirtySchema<TInput>`       | -          | Marks fields as dirty on mount.                                                                         |
+| Prop             | Type                             | Default        | Description                                                                                                            |
+| ---------------- | -------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `initialValues`  | `TInput \| (() => TInput)`       | -              | Initial values. Only place the shape can be inferred from — object or sync getter, see [Gotchas](#gotchas).            |
+| `as`             | `string \| Component`            | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See `USchemaForm`'s note. |
+| `id`             | `string`                         | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                                 |
+| `validateOn`     | `'touched' \| 'blur' \| 'dirty'` | `'blur'`       | When field errors become visible.                                                                                      |
+| `disabled`       | `boolean`                        | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                             |
+| `initialTouched` | `TouchedSchema<TInput>`          | -              | Marks fields as touched on mount.                                                                                      |
+| `initialDirty`   | `DirtySchema<TInput>`            | -              | Marks fields as dirty on mount.                                                                                        |
 
 #### Slot Props
 
@@ -251,7 +219,7 @@ Via `ref`/`useTemplateRef`: the entire formwerk form API flattened (`values`, `i
 These were all found experimentally — expect to hit them cold otherwise.
 
 1. **Declare shapes with `type`, not `interface`** (`USchemalessForm`). Formwerk's `FormObject` is `Record<string, unknown>`, and TypeScript gives interfaces no implicit index signature, so an `interface` is rejected with a confusing error. Use a `type` alias instead.
-2. **Async initial values need `USchemaForm`.** On `USchemalessForm`, `:initial-values` is the only place the shape can be inferred from, so an object or a *sync* getter works, but an async getter is rejected at compile time. Use `USchemaForm` (the schema supplies the shape, so async is fine there), or `UForm` with your own `useForm<T>()` call.
+2. **Async initial values need `USchemaForm`.** On `USchemalessForm`, `:initial-values` is the only place the shape can be inferred from, so an object or a _sync_ getter works, but an async getter is rejected at compile time. Use `USchemaForm` instead — the schema supplies the shape, so async is fine there.
 3. **`:schema` is read once at setup.** Formwerk closes over it, so swapping the schema at runtime does nothing — use `:key` on `USchemaForm` to force a remount when the schema changes.
 4. **Use `useTemplateRef`, not `ComponentExposed`.** The usual `ComponentExposed<typeof Comp>` advice for generic components degrades the type to `{}` here. A plain `useTemplateRef("form")` keeps the exposed API fully typed.
 5. **`isSubmitting` covers validation only when you submit via `@submit`.** Vue discards whatever an emit listener returns, so an `async` handler keeps running after `isSubmitting` has flipped back to `false`, and a `:loading` button flashes instead of staying lit. Drive async submits with `form.handleSubmit(async …)` — off the slot prop or a template ref — and `isSubmitting` stays true for the whole callback.
@@ -268,11 +236,11 @@ Enhanced field component that wraps Nuxt UI's UFormField with formwerk validatio
 
 ```vue
 <template>
-  <UForm>
+  <USchemalessForm>
     <UFormField name="email" label="Email" required #="{ model }">
       <UInput v-bind="model" type="email" />
     </UFormField>
-  </UForm>
+  </USchemalessForm>
 </template>
 ```
 
@@ -294,7 +262,7 @@ Groups related form fields together for nested validation.
 
 ```vue
 <template>
-  <UForm>
+  <USchemalessForm>
     <UFormGroup name="address">
       <UFormField name="street" label="Street" #="{ model }">
         <UInput v-bind="model" />
@@ -303,7 +271,7 @@ Groups related form fields together for nested validation.
         <UInput v-bind="model" />
       </UFormField>
     </UFormGroup>
-  </UForm>
+  </USchemalessForm>
 </template>
 ```
 
@@ -319,32 +287,27 @@ Dynamic array field component for managing lists of items with add, remove, and 
 
 ```vue
 <script setup lang="ts">
-import { z } from "zod"
-import { useForm } from "@formwerk/core"
+  import { z } from "zod"
+  import { useForm } from "@formwerk/core"
 
-const schema = z.object({
-  contacts: z
-    .array(
-      z.object({
-        name: z.string().min(1, "Name is required"),
-        email: z.string().email("Invalid email"),
-      })
-    )
-    .min(1, "At least one contact required")
-    .max(5, "Maximum 5 contacts"),
-})
+  const schema = z.object({
+    contacts: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Invalid email"),
+        }),
+      )
+      .min(1, "At least one contact required")
+      .max(5, "Maximum 5 contacts"),
+  })
 
-const form = useForm({ schema })
+  const form = useForm({ schema })
 </script>
 
 <template>
-  <UForm>
-    <UFormRepeater
-      name="contacts"
-      :min="1"
-      :max="5"
-      :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }"
-    >
+  <USchemalessForm>
+    <UFormRepeater name="contacts" :min="1" :max="5" :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }">
       <template #default="{ index, items, isFirst, isLast, repeater }">
         <div class="flex gap-4 items-end">
           <UFormField name="name" label="Name" class="flex-1" #="{ model }">
@@ -354,54 +317,39 @@ const form = useForm({ schema })
             <UInput v-bind="model" placeholder="Contact email" />
           </UFormField>
           <div class="flex gap-1">
-            <UButton
-              icon="i-lucide-arrow-up"
-              variant="ghost"
-              size="sm"
-              :disabled="isFirst"
-              @click="repeater.move(index, index - 1)"
-            />
+            <UButton icon="i-lucide-arrow-up" variant="ghost" size="sm" :disabled="isFirst" @click="repeater.move(index, index - 1)" />
             <UButton
               icon="i-lucide-arrow-down"
               variant="ghost"
               size="sm"
               :disabled="isLast"
-              @click="repeater.move(index, index + 1)"
-            />
+              @click="repeater.move(index, index + 1)" />
             <UButton
               icon="i-lucide-trash"
               color="error"
               variant="ghost"
               size="sm"
               :disabled="items.length <= 1"
-              @click="repeater.remove(index)"
-            />
+              @click="repeater.remove(index)" />
           </div>
         </div>
       </template>
       <template #trailing="{ items, repeater }">
-        <UButton
-          icon="i-lucide-plus"
-          variant="outline"
-          :disabled="items.length >= 5"
-          @click="repeater.add()"
-        >
-          Add Contact
-        </UButton>
+        <UButton icon="i-lucide-plus" variant="outline" :disabled="items.length >= 5" @click="repeater.add()"> Add Contact </UButton>
       </template>
     </UFormRepeater>
-  </UForm>
+  </USchemalessForm>
 </template>
 ```
 
 #### Props
 
-| Prop   | Type     | Required | Description                       |
-| ------ | -------- | -------- | --------------------------------- |
-| `name` | `string` | Yes      | Field name for the array          |
-| `min`  | `number` | No       | Minimum number of items           |
-| `max`  | `number` | No       | Maximum number of items           |
-| `ui`   | `object` | No       | Styling classes for slots         |
+| Prop   | Type     | Required | Description               |
+| ------ | -------- | -------- | ------------------------- |
+| `name` | `string` | Yes      | Field name for the array  |
+| `min`  | `number` | No       | Minimum number of items   |
+| `max`  | `number` | No       | Maximum number of items   |
+| `ui`   | `object` | No       | Styling classes for slots |
 
 #### UI Prop
 
@@ -418,34 +366,34 @@ const form = useForm({ schema })
 
 **default** - Rendered for each item in the array
 
-| Prop       | Type               | Description                              |
-| ---------- | ------------------ | ---------------------------------------- |
-| `index`    | `number`           | Current item index                       |
-| `items`    | `readonly string[]`| Array of item keys                       |
-| `isFirst`  | `boolean`          | Whether this is the first item           |
-| `isLast`   | `boolean`          | Whether this is the last item            |
-| `repeater` | `RepeaterMethods`  | Methods to manipulate the array          |
+| Prop       | Type                | Description                     |
+| ---------- | ------------------- | ------------------------------- |
+| `index`    | `number`            | Current item index              |
+| `items`    | `readonly string[]` | Array of item keys              |
+| `isFirst`  | `boolean`           | Whether this is the first item  |
+| `isLast`   | `boolean`           | Whether this is the last item   |
+| `repeater` | `RepeaterMethods`   | Methods to manipulate the array |
 
 **leading** - Content before the items (optional)
 
-| Prop       | Type               | Description                     |
-| ---------- | ------------------ | ------------------------------- |
-| `items`    | `readonly string[]`| Array of item keys              |
-| `repeater` | `RepeaterMethods`  | Methods to manipulate the array |
+| Prop       | Type                | Description                     |
+| ---------- | ------------------- | ------------------------------- |
+| `items`    | `readonly string[]` | Array of item keys              |
+| `repeater` | `RepeaterMethods`   | Methods to manipulate the array |
 
 **trailing** - Content after the items (optional)
 
-| Prop       | Type               | Description                     |
-| ---------- | ------------------ | ------------------------------- |
-| `items`    | `readonly string[]`| Array of item keys              |
-| `repeater` | `RepeaterMethods`  | Methods to manipulate the array |
+| Prop       | Type                | Description                     |
+| ---------- | ------------------- | ------------------------------- |
+| `items`    | `readonly string[]` | Array of item keys              |
+| `repeater` | `RepeaterMethods`   | Methods to manipulate the array |
 
 #### Repeater Methods
 
 ```ts
 interface RepeaterMethods {
-  add: (count?: number) => void           // Add items to the end
-  remove: (index: number) => void         // Remove item at index
+  add: (count?: number) => void // Add items to the end
+  remove: (index: number) => void // Remove item at index
   move: (from: number, to: number) => void // Move item from one index to another
   swap: (indexA: number, indexB: number) => void // Swap two items
   insert: (index: number, count?: number) => void // Insert items at index
@@ -458,28 +406,26 @@ interface RepeaterMethods {
 
 ```vue
 <script setup lang="ts">
-import { z } from "zod"
-import { useForm } from "@formwerk/core"
+  import { z } from "zod"
+  import type { ConsumableData } from "@formwerk/core"
 
-const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  address: z.object({
-    street: z.string().min(1, "Street is required"),
-    city: z.string().min(1, "City is required"),
-  }),
-})
+  const schema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    address: z.object({
+      street: z.string().min(1, "Street is required"),
+      city: z.string().min(1, "City is required"),
+    }),
+  })
 
-const form = useForm({ schema })
-
-const onSubmit = form.handleSubmit((data) => {
-  console.log("Validated data:", data.toJSON())
-})
+  const onSubmit = (data: ConsumableData<z.output<typeof schema>>) => {
+    console.log("Validated data:", data.toJSON())
+  }
 </script>
 
 <template>
-  <UForm validate-on="blur">
+  <USchemaForm :schema="schema" validate-on="blur" @submit="onSubmit">
     <div class="space-y-4">
       <UFormField name="name" label="Name" required #="{ model }">
         <UInput v-bind="model" />
@@ -502,35 +448,35 @@ const onSubmit = form.handleSubmit((data) => {
         </UFormField>
       </UFormGroup>
 
-      <UButton type="submit" @click="onSubmit">Submit</UButton>
+      <UButton type="submit">Submit</UButton>
     </div>
-  </UForm>
+  </USchemaForm>
 </template>
 ```
 
 ## Components Summary
 
-| Component          | Description                                       |
-| ------------------ | -------------------------------------------------- |
-| `UForm`            | Root form component (overrides Nuxt UI)            |
-| `USchemaForm`      | Self-contained, schema-driven form component       |
-| `USchemalessForm`  | Self-contained, schema-free form component         |
-| `UFormField`       | Field wrapper with validation (overrides Nuxt UI)  |
-| `UFormGroup`       | Groups related fields for nested paths             |
-| `UFormRepeater`    | Dynamic array fields with add/remove/reorder       |
+| Component         | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `USchemaForm`     | Self-contained, schema-driven form component      |
+| `USchemalessForm` | Self-contained, schema-free form component        |
+| `UFormField`      | Field wrapper with validation (overrides Nuxt UI) |
+| `UFormGroup`      | Groups related fields for nested paths            |
+| `UFormRepeater`   | Dynamic array fields with add/remove/reorder      |
 
 ## Accessing Original Nuxt UI Components
 
-The original Nuxt UI form components are renamed and still accessible:
+`UForm` is Nuxt UI's own component — this module does not touch it. Use it for forms that don't need formwerk.
 
-- `NuxtUiForm` - Original Nuxt UI Form component
+Nuxt UI's original field is renamed and still accessible:
+
 - `NuxtUiFormField` - Original Nuxt UI FormField component
 
 ## Technical Details
 
 This module bridges [@formwerk/core](https://formwerk.dev/) with [@nuxt/ui](https://ui.nuxt.com/) by:
 
-1. **UForm** creates a formwerk form context and manages dual event buses (one for Nuxt UI, one for formwerk)
+1. **USchemaForm / USchemalessForm** create a formwerk form and manage dual event buses (one for Nuxt UI, one for formwerk)
 2. **UFormField** uses formwerk's `useCustomControl` composable to register fields and handle validation
 3. **UFormRepeater** uses formwerk's `useFormRepeater` composable for array field management
 4. Event coordination between both systems ensures validation triggers work as expected

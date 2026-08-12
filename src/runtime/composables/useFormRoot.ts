@@ -64,7 +64,6 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
     formwerkOptionsInjectionKey,
     computed(() => ({
       validateOn: toValue(options.validateOn),
-      disabled: toValue(options.disabled),
       isSubmitAttempted: isSubmitAttempted.value,
     })),
   )

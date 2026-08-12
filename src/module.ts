@@ -42,28 +42,38 @@ export default defineNuxtModule({
     }
     nuxt.options.alias["@nuxt/ui/composables/useFormField"] = uiFormField
 
-    // Rename Nuxt UI's Form and FormField to NuxtUi* so we can override them
-    const componentsToRename = [`${prefix}Form`, `${prefix}FormField`]
+    // Rename Nuxt UI's FormField to NuxtUiFormField so we can override it.
+    //
+    // Only FormField. Nuxt UI's Form is left alone: its API (state, schema,
+    // @submit, a real <form>) has no formwerk equivalent, so shadowing it
+    // replaced working forms with silently broken ones. Formwerk forms are
+    // opt-in through USchemaForm / USchemalessForm.
+    const componentsToRename = [`${prefix}FormField`]
 
     nuxt.hook("components:extend", (components) => {
       for (const name of componentsToRename) {
         const component = components.find((c) => c.pascalName === name && c.filePath?.includes("@nuxt/ui"))
-        if (component) {
-          component.pascalName = `NuxtUi${name.slice(prefix.length)}`
-          component.kebabName = `nuxt-ui-${name
-            .slice(prefix.length)
-            .replaceAll(/([a-z])([A-Z])/g, "$1-$2")
-            .toLowerCase()}`
+
+        // Throwing rather than skipping: the match depends on @nuxt/ui internals
+        // (a filePath substring). If it ever stops matching, our Field.vue
+        // renders <NuxtUiFormField>, which no longer resolves — a silent, and
+        // very confusing, break at runtime.
+        if (!component) {
+          throw new Error(
+            `[nuxt-ui-formwerk] Could not find Nuxt UI's ${name} to rename. ` +
+              `The installed @nuxt/ui version may be incompatible with this module.`,
+          )
         }
+
+        component.pascalName = `NuxtUi${name.slice(prefix.length)}`
+        component.kebabName = `nuxt-ui-${name
+          .slice(prefix.length)
+          .replaceAll(/([a-z])([A-Z])/g, "$1-$2")
+          .toLowerCase()}`
       }
     })
 
     // Register our components with the same prefix
-    addComponent({
-      name: `${prefix}Form`,
-      filePath: resolver.resolve("./runtime/components/Form.vue"),
-    })
-
     addComponent({
       name: `${prefix}FormField`,
       filePath: resolver.resolve("./runtime/components/Field.vue"),
