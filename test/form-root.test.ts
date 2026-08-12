@@ -1,20 +1,14 @@
 // @vitest-environment nuxt
 import { describe, it, expect } from "vitest"
 import { mountSuspended } from "@nuxt/test-utils/runtime"
-import { flushPromises } from "@vue/test-utils"
 import FormRootHarness from "./fixtures/basic/components/FormRootHarness.vue"
+import { settle } from "./setup/settle"
 
 /**
  * `UFormRoot` adopts a caller-owned form, the only way to reach one during `setup`.
  * Shared wiring is covered in event-bridge.test.ts; what matters here is that
  * adoption works and an adopted form still validates, submits and shows errors.
  */
-const settle = async () => {
-  await flushPromises()
-  await new Promise((resolve) => setTimeout(resolve, 30))
-  await flushPromises()
-}
-
 describe("UFormRoot", () => {
   it("wires fields to the adopted form", async () => {
     const wrapper = await mountSuspended(FormRootHarness)

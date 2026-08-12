@@ -4,6 +4,7 @@ import { mountSuspended } from "@nuxt/test-utils/runtime"
 import { flushPromises } from "@vue/test-utils"
 import { nextTick } from "vue"
 import EventBridgeHarness from "./fixtures/basic/components/EventBridgeHarness.vue"
+import { settle } from "./setup/settle"
 
 /**
  * The bridge between Nuxt UI's form events and formwerk's field state. Rides on
@@ -12,16 +13,6 @@ import EventBridgeHarness from "./fixtures/basic/components/EventBridgeHarness.v
  */
 const mount = (showErrorsOn?: "touched" | "blur" | "dirty") =>
   mountSuspended(EventBridgeHarness, { props: showErrorsOn ? { showErrorsOn } : {} })
-
-/**
- * formwerk batches validation behind a 10ms `setTimeout`, which `flushPromises`
- * does not wait for. Any assertion about an error message has to clear it.
- */
-const settle = async () => {
-  await flushPromises()
-  await new Promise((resolve) => setTimeout(resolve, 30))
-  await flushPromises()
-}
 
 describe("Nuxt UI to formwerk event bridge", () => {
   describe("state tracking", () => {
