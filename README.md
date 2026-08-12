@@ -279,6 +279,8 @@ Enhanced field component that wraps Nuxt UI's UFormField with formwerk validatio
 
 Accepts all `UFormField` props except `validateOnInputDelay`, `errorPattern`, `eagerValidation`, and `error` (these are managed by formwerk).
 
+`error` is absent because formwerk owns the message. For a server-side failure, write to the submit-error bag — `form.context.setFieldSubmitErrors(path, message)` — which displays regardless of `showErrorsOn`, since the field may never have been touched. `form.setErrors` writes to the same bag as schema validation instead, so on a pristine field it stays hidden until a submit is attempted.
+
 #### Slot Props
 
 - `model` - Object containing `{ modelValue, onUpdate:modelValue }` for v-bind compatibility

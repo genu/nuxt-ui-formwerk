@@ -52,7 +52,7 @@
   }
 
   const {
-    field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
+    field: { errorMessage, submitErrorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
     controlType: slotComponentName || "CustomInput",
@@ -67,7 +67,12 @@
   watch(isBlurred, (newValue) => emitFormEvent("blur", props.name, newValue))
   watch(isDirty, (newValue) => emitFormEvent("dirty", props.name, newValue))
 
-  const error = computed(() => {
+  /**
+   * A validation error, but only once the field has reached the state the form
+   * asked to gate on. Without the gate, validating one field would light up
+   * every other field in the schema, none of which the user has touched yet.
+   */
+  const visibleValidationError = computed(() => {
     if (!errorMessage.value) return undefined
 
     // Once a submit has been attempted, formwerk has already run full-schema
@@ -85,6 +90,19 @@
       default:
         return errorMessage.value
     }
+  })
+
+  const error = computed(() => {
+    // A live validation error wins: after a submit the gate is open anyway, so
+    // reaching the fallback means the schema is currently happy with this field
+    // and a stale submit error would be the more misleading of the two.
+    if (visibleValidationError.value) return visibleValidationError.value
+
+    // Submit errors skip the gate. They are never speculative — either
+    // formwerk's submit handler wrote them, or the app did for a server-side
+    // failure — and formwerk clears them at the start of every submit, so they
+    // cannot outlive the attempt that produced them.
+    return submitErrorMessage.value || undefined
   })
 
   const model = computed(() => ({
