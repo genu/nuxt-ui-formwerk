@@ -1,9 +1,22 @@
 {
   "name": "nuxt-ui-formwerk",
   "version": "0.1.24",
-  "description": "A collection of beautiful, animated UI components for Nuxt applications",
+  "description": "Formwerk-powered form components for Nuxt UI: schema validation, field-level state, and dynamic array fields",
   "license": "MIT",
   "repository": "https://github.com/genu/nuxt-ui-formwerk.git",
+  "homepage": "https://github.com/genu/nuxt-ui-formwerk#readme",
+  "bugs": "https://github.com/genu/nuxt-ui-formwerk/issues",
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "nuxt-ui",
+    "formwerk",
+    "forms",
+    "form-validation",
+    "vue",
+    "standard-schema",
+    "zod"
+  ],
   "packageManager": "pnpm@11.20.0+sha512.9a6f330a95b66446ea088faf1521405a8a01f07fde7124cc9958dfed52d4bb436737e65b08f85f37b46fcba375092558ac51262b816844b22f63406ed166bfee",
   "files": [
     "dist"
@@ -49,9 +62,11 @@
     "@nuxt/test-utils": "4.1.0",
     "@types/culori": "4.0.1",
     "@types/node": "latest",
+    "@vue/test-utils": "2.4.11",
     "eslint": "10.8.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
+    "happy-dom": "20.11.2",
     "nuxt": "4.5.2",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
@@ -61,7 +76,6 @@
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",
-    "@nuxt/ui": "^4.0.0",
-    "@internationalized/date": "^3.10.0"
+    "@nuxt/ui": "^4.0.0"
   }
 }

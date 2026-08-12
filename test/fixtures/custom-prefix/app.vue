@@ -2,32 +2,34 @@
   <div>
     <div data-testid="basic">custom-prefix</div>
 
-    <!-- Test: Components use custom N prefix -->
-    <form @submit.prevent="onSubmit">
-      <NForm data-testid="form" :validate-on="'blur'">
-        <NFormField data-testid="form-field" name="email" label="Email">
-          <template #default="{ model }">
-            <NInput v-bind="model" data-testid="email-input" />
-          </template>
-        </NFormField>
-      </NForm>
-    </form>
+    <!-- Test: Nuxt UI's own Form keeps the custom prefix and is not shadowed -->
+    <NForm data-testid="nuxtui-form" :state="{ plain: '' }">
+      <NuxtUiFormField data-testid="nuxtui-nested-field" name="plain" label="Plain">
+        <NInput data-testid="plain-input" />
+      </NuxtUiFormField>
+    </NForm>
 
-    <!-- Test: Original Nuxt UI components accessible with NuxtUi prefix -->
+    <!-- Test: Original Nuxt UI FormField accessible with NuxtUi prefix -->
     <NuxtUiFormField data-testid="nuxtui-form-field" name="test" label="Test Field">
       <NInput data-testid="test-input" />
     </NuxtUiFormField>
 
-    <!-- Test: new roots also pick up the custom prefix -->
+    <!-- Test: our components use the custom N prefix -->
     <NSchemaForm data-testid="schema-form" :schema="schema">
       <template #default>
-        <NFormField name="email" label="Email">
+        <NFormField data-testid="form-field" name="email" label="Email">
           <template #default="{ model }">
             <NInput v-bind="model" data-testid="schema-email-input" />
           </template>
         </NFormField>
       </template>
     </NSchemaForm>
+
+    <NFormRoot :form="adopted" data-testid="form-root">
+      <template #default>
+        <span>adopted</span>
+      </template>
+    </NFormRoot>
 
     <NSchemalessForm data-testid="schemaless-form" :initial-values="{ nickname: '' }">
       <template #default>
@@ -38,15 +40,12 @@
 </template>
 
 <script setup>
-  import { useForm } from "@formwerk/core"
   import { z } from "zod"
-
-  const { handleSubmit } = useForm()
-  const onSubmit = handleSubmit(() => {
-    // Handle form submit
-  })
+  import { useForm } from "@formwerk/core"
 
   const schema = z.object({
     email: z.string(),
   })
+
+  const adopted = useForm({ initialValues: { email: "" } })
 </script>

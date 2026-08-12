@@ -2,7 +2,7 @@
   import { useCustomControl, useFormField } from "@formwerk/core"
   import type { FormFieldProps } from "@nuxt/ui"
   import { formBusInjectionKey } from "@nuxt/ui/composables/useFormField"
-  import { inject, watch, computed, useSlots, type Component } from "vue"
+  import { inject, watch, computed } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
 </script>
 
@@ -18,11 +18,19 @@
   }
 
   const props = defineProps<FieldProps>()
-  const slots = useSlots()
 
   const formBus = inject(formBusInjectionKey, undefined)
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
   const formwerkOptions = inject(formwerkOptionsInjectionKey, undefined)
+
+  // Overriding Nuxt UI's UFormField means a plain <UForm> can reach this, where it
+  // would hold its value in formwerk while that form reads from `state`.
+  if (!formwerkOptions) {
+    throw new Error(
+      "UFormField requires a formwerk form root. Wrap it in <USchemaForm> or <USchemalessForm>, " +
+        "or use <NuxtUiFormField> for a plain Nuxt UI field.",
+    )
+  }
 
   const field = useFormField({
     path: props.name,
@@ -30,23 +38,13 @@
     description: props.description,
   })
 
-  const defaultSlot = slots.default?.({ model: {} })
-  const firstNode = defaultSlot?.[0]
-
-  let slotComponentName: string | null = null
-
-  if (firstNode && typeof firstNode.type === "object" && firstNode.type !== null) {
-    const component = firstNode.type as Component & { __name?: string }
-    if (component.__name || component.name) slotComponentName = component.__name || component.name || null
-  }
-
   const {
-    field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
+    field: { errorMessage, submitErrorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
-    required: props.required,
-    disabled: formwerkOptions?.value?.disabled,
-    controlType: slotComponentName || "CustomInput",
+    // Devtools label only. Do not try to detect it from the slot: that has to run
+    // before the values it would need to pass exist, and crashed slots reading them.
+    controlType: "CustomInput",
     _field: field,
   })
 
@@ -58,16 +56,15 @@
   watch(isBlurred, (newValue) => emitFormEvent("blur", props.name, newValue))
   watch(isDirty, (newValue) => emitFormEvent("dirty", props.name, newValue))
 
-  const error = computed(() => {
+  // Gated, because validating one field populates errors for every other field in
+  // the schema, none of which the user has touched yet.
+  const visibleValidationError = computed(() => {
     if (!errorMessage.value) return undefined
-    if (!formwerkOptions || !formwerkOptions.value) return errorMessage.value
 
-    // Once a submit has been attempted, formwerk has already run full-schema
-    // validation, so surface errors regardless of per-field interaction state
-    // (mirrors Nuxt UI's own <UForm>, which always validates on submit).
+    // Submit already validated the whole schema, so the gate has nothing left to protect.
     if (formwerkOptions.value.isSubmitAttempted) return errorMessage.value
 
-    switch (formwerkOptions.value.validateOn) {
+    switch (formwerkOptions.value.showErrorsOn) {
       case "blur":
         return isBlurred.value ? errorMessage.value : undefined
       case "touched":
@@ -79,18 +76,21 @@
     }
   })
 
+  const error = computed(() => {
+    if (visibleValidationError.value) return visibleValidationError.value
+
+    // Ungated: a submit error is never speculative, and formwerk clears them at the
+    // start of every submit. Second, so a live error beats a stale server one.
+    return submitErrorMessage.value || undefined
+  })
+
   const model = computed(() => ({
     modelValue: fieldValue.value,
     "onUpdate:modelValue": setValue,
   }))
 
-  /**
-   * Intercept form events
-   */
-
   if (formBus) {
     formBus.on(async (event) => {
-      // Only respond to events for this specific field
       if ("name" in event && event.name !== props.name) return
 
       switch (event.type) {

@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { ConsumableData, FormObject, FormReturns, IssueCollection } from "@formwerk/core"
   import { computed } from "vue"
-  import { useFormRoot, useGenericForm, type FormRootState } from "../composables/useFormRoot"
+  import { useFormRoot, useFormSubmit, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues } from "../types/form"
 
-  /** Generic in the input shape so it can be declared here — the SFC's own `generic` parameter is not in scope in this block. */
+  /** Generic in the input shape: the SFC's own `generic` is not in scope here. */
   interface Props<TInput extends FormObject> extends FormRootProps<TInput> {
-    /** The only place the form's shape can be inferred from, so declare it with `type`, not `interface`. For async initial values use `USchemaForm`. */
+    /** The only place the form's shape can be inferred from. For async values use `USchemaForm`. */
     initialValues?: TInput | (() => TInput)
   }
 
@@ -37,7 +37,8 @@
 <script lang="ts" setup generic="TInput extends FormObject">
   const {
     as = "form",
-    validateOn = "blur",
+    showErrorsOn = "blur",
+    validateOnInputDelay = 300,
     disabled = false,
     id,
     initialValues,
@@ -49,45 +50,31 @@
 
   defineSlots<Slots<TInput>>()
 
-  // useGenericForm, not useForm — see useGenericForm for why a generic component
-  // cannot satisfy useForm's overload constraints.
+  // Not useForm: a generic component cannot satisfy its overloads. See useGenericForm.
   const form = useGenericForm<FormApi<TInput>>({
     id,
     initialValues,
     initialTouched,
     initialDirty,
-    // See SchemaForm.vue — destructured props stay reactive in Vue 3.5.
+    // Destructured props stay reactive in Vue 3.5, so this getter still tracks.
     disabled: () => disabled,
   })
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
-    validateOn: () => validateOn,
+    showErrorsOn: () => showErrorsOn,
+    validateOnInputDelay: () => validateOnInputDelay,
     disabled: () => disabled,
   })
 
-  // See SchemaForm.vue — native constraint validation would swallow the submit
-  // event before formwerk ever sees it.
+  // Without novalidate the browser's constraint bubbles swallow the submit event.
   const novalidate = computed(() => (as === "form" ? true : undefined))
 
-  // See SchemaForm.vue — handleSubmit has no failure hook, so `error` is derived
-  // afterwards from getSubmitErrors().
-  const onSubmit = async (event?: Event) => {
-    // See SchemaForm.vue — getSubmitErrors() is read after an await, so a
-    // re-entrant submit would cross the wires. preventDefault still runs, or
-    // the ignored submit would navigate the page.
-    if (form.isSubmitting.value) {
-      event?.preventDefault()
-      return
-    }
+  const onSubmit = useFormSubmit(form, {
+    onSubmit: (data) => emit("submit", data),
+    onError: (issues) => emit("error", issues),
+  })
 
-    await form.handleSubmit((data) => emit("submit", data))(event)
-
-    const issues = form.getSubmitErrors()
-
-    if (issues.length) emit("error", issues)
-  }
-
-  // See SchemaForm.vue — explicit type argument keeps type-fest internals out of the emitted declarations.
+  // Explicit type argument: inference inlines type-fest internals the emitter cannot name.
   defineExpose<Expose<TInput>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 

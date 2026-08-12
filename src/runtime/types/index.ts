@@ -1,5 +1,6 @@
-export * from "../components/Form.vue"
 export * from "../components/Field.vue"
+export * from "../components/FormRoot.vue"
+export * from "../composables/useFormRoot"
 export * from "../components/Group.vue"
 export * from "../components/Repeater.vue"
 export * from "./form"

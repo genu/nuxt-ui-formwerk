@@ -72,8 +72,8 @@
       PINNED LIMITATION: async initialValues. Because the prop is typed
       `TInput | (() => TInput)`, an async getter is rejected outright rather
       than silently inferring an empty type — TInput would have to be
-      Promise<Contact>, which is not a FormObject. Use USchemaForm, or UForm
-      with your own useForm<T>() call.
+      Promise<Contact>, which is not a FormObject. Use USchemaForm instead —
+      the schema supplies the shape, so async is fine there.
     -->
     <!-- @vue-expect-error async initialValues is not supported here -->
     <SchemalessForm :initial-values="fetchDefaults" #="{ values }">{{ values }}</SchemalessForm>

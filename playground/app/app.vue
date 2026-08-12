@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { z } from "zod"
-  import { useForm } from "@formwerk/core"
+  import type { ConsumableData } from "@formwerk/core"
 
   const schema = z
     .object({
@@ -32,21 +32,15 @@
       path: ["confirmPassword"],
     })
 
-  const { values, ...form } = useForm({ id: "My Form", schema })
-
   const isSubmitting = ref(false)
 
-  const onSubmit = form.handleSubmit(async (data) => {
+  const onSubmit = async (data: ConsumableData<z.output<typeof schema>>) => {
     isSubmitting.value = true
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     isSubmitting.value = false
     console.log("Form submitted:", data.toJSON())
-  })
-
-  const resetForm = () => {
-    form.reset()
   }
 
   const loginSchema = z.object({
@@ -72,7 +66,12 @@
         </div>
 
         <UCard>
-          <UForm #="{ blurredFields, dirtyFields, touchedFields }" class="flex flex-col gap-4">
+          <USchemaForm
+            id="my-form"
+            :schema="schema"
+            #="{ form, values, blurredFields, dirtyFields, touchedFields }"
+            class="flex flex-col gap-4"
+            @submit="onSubmit">
             <div class="flex space-x-4">
               <UFormField name="name" #="{ model }" label="Name" class="flex-1">
                 <UInput v-bind="model" class="w-full" />
@@ -103,12 +102,7 @@
 
             <div class="mt-4">
               <h3 class="text-lg font-medium mb-2">Contacts</h3>
-              <UFormRepeater
-                name="contacts"
-                :min="1"
-                :max="5"
-                :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }"
-              >
+              <UFormRepeater name="contacts" :min="1" :max="5" :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }">
                 <template #default="{ index, items, isFirst, isLast, repeater }">
                   <div class="flex gap-4 items-end">
                     <UFormField name="name" label="Name" class="flex-1" #="{ model }">
@@ -141,12 +135,7 @@
                   </div>
                 </template>
                 <template #trailing="{ items, repeater }">
-                  <UButton
-                    icon="i-lucide-plus"
-                    variant="outline"
-                    :disabled="items.length >= 5"
-                    @click="repeater.add()"
-                  >
+                  <UButton icon="i-lucide-plus" variant="outline" :disabled="items.length >= 5" @click="repeater.add()">
                     Add Contact
                   </UButton>
                 </template>
@@ -158,9 +147,9 @@
             <pre>Blurried:{{ blurredFields }}</pre>
             <pre>Dirtied: {{ dirtyFields }}</pre>
             <pre>Touched: {{ touchedFields }}</pre>
-            <UButton label="Submit" @click="onSubmit" />
-            <UButton label="Reset" variant="ghost" @click="resetForm" />
-          </UForm>
+            <UButton label="Submit" type="submit" :loading="isSubmitting" />
+            <UButton label="Reset" variant="ghost" @click="form.reset()" />
+          </USchemaForm>
         </UCard>
       </div>
 
@@ -176,8 +165,7 @@
             :schema="loginSchema"
             class="flex flex-col gap-3"
             #="{ values, form, dirtyFields }"
-            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`"
-          >
+            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`">
             <h3 class="font-medium">Login</h3>
             <UFormField name="email" label="Email" #="{ model }">
               <UInput v-bind="model" class="w-full" />
@@ -194,8 +182,7 @@
             :schema="feedbackSchema"
             class="flex flex-col gap-3"
             #="{ values, form, dirtyFields }"
-            @submit="lastSubmit = `feedback: ${JSON.stringify($event.toJSON())}`"
-          >
+            @submit="lastSubmit = `feedback: ${JSON.stringify($event.toJSON())}`">
             <h3 class="font-medium">Feedback</h3>
             <UFormField name="subject" label="Subject" #="{ model }">
               <UInput v-bind="model" class="w-full" />

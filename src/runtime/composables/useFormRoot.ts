@@ -1,13 +1,18 @@
 import { computed, provide, reactive, toValue, type MaybeRefOrGetter } from "vue"
 import { useEventBus } from "@vueuse/core"
-import { useForm, type FormReturns } from "@formwerk/core"
+import { useForm, type FormReturns, type IssueCollection } from "@formwerk/core"
 import { formBusInjectionKey, formOptionsInjectionKey } from "@nuxt/ui/composables/useFormField"
-import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvent, type FormwerkInputEvents } from "../types/form"
+import {
+  formwerkOptionsInjectionKey,
+  formwerkBusInjectionKey,
+  type FormwerkInputEvent,
+  type FormwerkInputEvents,
+  type ErrorVisibility,
+} from "../types/form"
 
 /**
- * The options `useGenericForm` forwards to `useForm`. Loose on the value types: they are all
- * derived from the caller's unresolved generic parameter, so there is nothing to check them
- * against. Key names are still checked through excess property checking.
+ * Loose on value types by necessity: they derive from the caller's unresolved
+ * generic, so there is nothing to check them against. Key names still are.
  */
 export interface UseGenericFormOptions {
   id?: string
@@ -19,17 +24,19 @@ export interface UseGenericFormOptions {
 }
 
 /**
- * Calls `useForm()` from inside a component that is itself generic, returning the form API as `TForm`.
- *
- * `useForm` is overloaded, and from inside a generic SFC TypeScript cannot prove the options satisfy
- * either overload, so the call fails with TS2769 — hence the assertion. Callers must pass `TForm`
- * explicitly, or the public typing collapses to `FormReturns<never>`.
+ * `useForm` for generic SFCs. TypeScript cannot prove the options satisfy either
+ * overload from inside one (TS2769), hence the assertion. Pass `TForm` explicitly
+ * or the public typing collapses to `FormReturns<never>`.
  */
 export const useGenericForm = <TForm>(options: UseGenericFormOptions): TForm => useForm(options as never) as unknown as TForm
 
 export interface UseFormRootOptions {
-  validateOn: MaybeRefOrGetter<FormwerkInputEvents>
-  disabled: MaybeRefOrGetter<boolean>
+  /** When field errors become visible. Defaults to `"blur"`. */
+  showErrorsOn?: MaybeRefOrGetter<ErrorVisibility>
+  /** Disables every field in the form. Defaults to `false`. */
+  disabled?: MaybeRefOrGetter<boolean>
+  /** Debounce Nuxt UI inputs apply before emitting `input`. Defaults to `300`, matching Nuxt UI. */
+  validateOnInputDelay?: MaybeRefOrGetter<number>
 }
 
 export interface FormRootState {
@@ -38,16 +45,44 @@ export interface FormRootState {
   dirtyFields: Set<string>
 }
 
+export interface FormSubmitHandlers {
+  onSubmit: (data: any) => void
+  onError: (issues: IssueCollection[]) => void
+}
+
 /**
- * Wires a formwerk form into Nuxt UI's form system.
+ * Submit handler shared by every form root.
  *
- * Creates the two event buses, provides the four injection keys that Field,
- * Group and Repeater rely on, and tracks per-field interaction state.
- *
- * Callers own the `useForm()` / `useFormContext()` call and pass the result in,
- * which is what lets a single component host several independent forms.
+ * `handleSubmit` has no failure hook, so failures come from `getSubmitErrors()`
+ * afterwards — a read that lands after an `await` and would otherwise report a
+ * concurrent attempt's issues, hence the `isSubmitting` gate.
  */
-export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions): FormRootState => {
+export const useFormSubmit = (form: FormReturns<any, any>, handlers: FormSubmitHandlers) => {
+  return async (event?: Event) => {
+    if (form.isSubmitting.value) {
+      event?.preventDefault()
+      return
+    }
+
+    await form.handleSubmit((data) => handlers.onSubmit(data))(event)
+
+    const issues = form.getSubmitErrors()
+
+    if (issues.length) handlers.onError(issues)
+  }
+}
+
+/**
+ * Wires a formwerk form into Nuxt UI's form system: both event buses, the four
+ * injection keys the field components inject, and per-field interaction state.
+ *
+ * Taking the form as an argument rather than calling `useForm()` is what lets one
+ * component host several independent forms.
+ *
+ * Prefer `UFormRoot` unless you also want to own the element, `novalidate` and
+ * submit handling.
+ */
+export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions = {}): FormRootState => {
   const { context, isSubmitAttempted } = form
 
   const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(`formwerk-form-${context.id}`)
@@ -62,14 +97,15 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
   provide(
     formwerkOptionsInjectionKey,
     computed(() => ({
-      validateOn: toValue(options.validateOn),
+      showErrorsOn: toValue(options.showErrorsOn) ?? "blur",
       isSubmitAttempted: isSubmitAttempted.value,
     })),
   )
   provide(
     formOptionsInjectionKey,
     computed(() => ({
-      disabled: toValue(options.disabled),
+      disabled: toValue(options.disabled) ?? false,
+      validateOnInputDelay: toValue(options.validateOnInputDelay) ?? 300,
     })),
   )
 

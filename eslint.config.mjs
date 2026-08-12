@@ -25,20 +25,15 @@ export default createConfigForNuxt(eslintPluginPrettierRecommended, {
     "@stylistic/quote-props": "off",
 
     // Vue
-    "vue/max-attributes-per-line": ["error", { singleline: 5 }],
     "vue/space-infix-ops": ["error"],
     "vue/multi-word-component-names": "off",
     "vue/require-default-prop": "off",
-    "vue/html-closing-bracket-newline": [
-      "error",
-      {
-        singleline: "never",
-        multiline: "always",
-        selfClosingTag: {
-          singleline: "never",
-          multiline: "never",
-        },
-      },
-    ],
+
+    // No line-breaking rules here on purpose. `vue/html-closing-bracket-newline`
+    // and `vue/max-attributes-per-line` are both disabled by eslint-config-prettier,
+    // and re-enabling them put eslint in a fight prettier could not win:
+    // `bracketSameLine: true` wants `>` on the last attribute line, the rule wanted
+    // it on its own. Files ended up passing one tool or the other, never both, which
+    // is why `format:check` drifted and could not be added to CI.
   },
 })
