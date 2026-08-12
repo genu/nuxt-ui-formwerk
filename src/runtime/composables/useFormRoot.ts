@@ -30,6 +30,7 @@ export const useGenericForm = <TForm>(options: UseGenericFormOptions): TForm => 
 export interface UseFormRootOptions {
   validateOn: MaybeRefOrGetter<FormwerkInputEvents>
   disabled: MaybeRefOrGetter<boolean>
+  validateOnInputDelay: MaybeRefOrGetter<number>
 }
 
 export interface FormRootState {
@@ -63,6 +64,7 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
     formwerkOptionsInjectionKey,
     computed(() => ({
       validateOn: toValue(options.validateOn),
+      disabled: toValue(options.disabled),
       isSubmitAttempted: isSubmitAttempted.value,
     })),
   )
@@ -70,6 +72,7 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
     formOptionsInjectionKey,
     computed(() => ({
       disabled: toValue(options.disabled),
+      validateOnInputDelay: toValue(options.validateOnInputDelay),
     })),
   )
 

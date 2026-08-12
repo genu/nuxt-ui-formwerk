@@ -28,6 +28,7 @@
     path: props.name,
     label: props.label,
     description: props.description,
+    disabled: () => formwerkOptions?.value?.disabled,
   })
 
   const defaultSlot = slots.default?.({ model: {} })
@@ -45,7 +46,6 @@
   } = useCustomControl<any>({
     name: props.name,
     required: props.required,
-    disabled: formwerkOptions?.value?.disabled,
     controlType: slotComponentName || "CustomInput",
     _field: field,
   })
