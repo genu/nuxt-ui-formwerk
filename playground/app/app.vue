@@ -71,8 +71,7 @@
             :schema="schema"
             #="{ form, values, blurredFields, dirtyFields, touchedFields }"
             class="flex flex-col gap-4"
-            @submit="onSubmit"
-          >
+            @submit="onSubmit">
             <div class="flex space-x-4">
               <UFormField name="name" #="{ model }" label="Name" class="flex-1">
                 <UInput v-bind="model" class="w-full" />
@@ -166,8 +165,7 @@
             :schema="loginSchema"
             class="flex flex-col gap-3"
             #="{ values, form, dirtyFields }"
-            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`"
-          >
+            @submit="lastSubmit = `login: ${JSON.stringify($event.toJSON())}`">
             <h3 class="font-medium">Login</h3>
             <UFormField name="email" label="Email" #="{ model }">
               <UInput v-bind="model" class="w-full" />
@@ -184,8 +182,7 @@
             :schema="feedbackSchema"
             class="flex flex-col gap-3"
             #="{ values, form, dirtyFields }"
-            @submit="lastSubmit = `feedback: ${JSON.stringify($event.toJSON())}`"
-          >
+            @submit="lastSubmit = `feedback: ${JSON.stringify($event.toJSON())}`">
             <h3 class="font-medium">Feedback</h3>
             <UFormField name="subject" label="Subject" #="{ model }">
               <UInput v-bind="model" class="w-full" />
