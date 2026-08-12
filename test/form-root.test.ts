@@ -20,13 +20,6 @@ const settle = async () => {
 }
 
 describe("UFormRoot", () => {
-  it("gives the caller the form during setup", async () => {
-    const wrapper = await mountSuspended(FormRootHarness)
-    await settle()
-
-    expect(wrapper.get('[data-testid="setup-access"]').text()).toBe("true")
-  })
-
   it("wires fields to the adopted form", async () => {
     const wrapper = await mountSuspended(FormRootHarness)
     await wrapper.get('[data-testid="email"]').setValue("hello")

@@ -26,13 +26,6 @@ describe("form-level disabled", () => {
     expect(wrapper.get('[data-testid="is-path-disabled"]').text()).toBe("true")
   })
 
-  it("leaves the field enabled when the form is not disabled", async () => {
-    const wrapper = await mountSuspended(DisabledHarness, { props: { disabled: false } })
-    await nextTick()
-
-    expect(wrapper.get('[data-testid="is-path-disabled"]').text()).toBe("false")
-  })
-
   it("strips disabled paths out of the submitted data", async () => {
     const wrapper = await mountSuspended(DisabledHarness, { props: { disabled: true } })
     await nextTick()

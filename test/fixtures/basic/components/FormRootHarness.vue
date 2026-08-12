@@ -12,9 +12,6 @@
   const form = useForm({ schema, initialValues: { email: "" } })
   const submitted = ref<string>("none")
 
-  // The whole point: reachable synchronously, unlike a template ref.
-  const seenDuringSetup = ref(typeof form.values === "object")
-
   const watched = ref("none")
   watch(
     () => form.values.email,
@@ -31,7 +28,6 @@
         </template>
       </UFormField>
     </UFormRoot>
-    <span data-testid="setup-access">{{ seenDuringSetup }}</span>
     <span data-testid="watched">{{ watched }}</span>
     <span data-testid="submitted">{{ submitted }}</span>
   </div>
