@@ -1,15 +1,23 @@
-<script setup lang="ts">
+<script lang="ts">
   import { z } from "zod"
   import { ref, watch } from "vue"
   import { useForm } from "@formwerk/core"
 
+  export interface Props {
+    disabled?: boolean
+  }
+</script>
+
+<script setup lang="ts">
   /**
    * Harness for `UFormRoot`, which exists for exactly the case shown here:
    * the form is needed during `setup`, before any template ref would resolve.
    */
   const schema = z.object({ email: z.string().min(3, "email too short") })
 
-  const form = useForm({ schema, initialValues: { email: "" } })
+  const { disabled = false } = defineProps<Props>()
+
+  const form = useForm({ schema, initialValues: { email: "" }, disabled: () => disabled })
   const submitted = ref<string>("none")
 
   const watched = ref("none")

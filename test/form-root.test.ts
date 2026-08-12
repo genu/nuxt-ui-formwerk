@@ -64,6 +64,24 @@ describe("UFormRoot", () => {
     expect(wrapper.text()).toContain("email too short")
   })
 
+  it("disables Nuxt UI inputs when the adopted form is disabled", async () => {
+    const wrapper = await mountSuspended(FormRootHarness, { props: { disabled: true } })
+    await settle()
+
+    // `useForm({ disabled })` only reaches formwerk's own context. Nuxt UI's
+    // inputs read `disabled` off formOptions, so the root has to forward the
+    // form's resolved state — otherwise formwerk strips the path from the
+    // payload while the input stays editable.
+    expect(wrapper.get('[data-testid="email"]').attributes("disabled")).toBeDefined()
+  })
+
+  it("leaves inputs editable when the adopted form is not disabled", async () => {
+    const wrapper = await mountSuspended(FormRootHarness)
+    await settle()
+
+    expect(wrapper.get('[data-testid="email"]').attributes("disabled")).toBeUndefined()
+  })
+
   it("renders a real form element with novalidate", async () => {
     const wrapper = await mountSuspended(FormRootHarness)
     const form = wrapper.get('[data-testid="form"]')
