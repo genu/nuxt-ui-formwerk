@@ -38,7 +38,7 @@
 <script lang="ts" setup generic="TSchema extends GenericFormSchema">
   const {
     as = "form",
-    validateOn = "blur",
+    showErrorsOn = "blur",
     validateOnInputDelay = 300,
     disabled = false,
     id,
@@ -67,7 +67,7 @@
   })
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
-    validateOn: () => validateOn,
+    showErrorsOn: () => showErrorsOn,
     validateOnInputDelay: () => validateOnInputDelay,
     disabled: () => disabled,
   })

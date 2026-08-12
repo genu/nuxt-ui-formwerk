@@ -75,7 +75,7 @@
     // (mirrors Nuxt UI's own <UForm>, which always validates on submit).
     if (formwerkOptions.value.isSubmitAttempted) return errorMessage.value
 
-    switch (formwerkOptions.value.validateOn) {
+    switch (formwerkOptions.value.showErrorsOn) {
       case "blur":
         return isBlurred.value ? errorMessage.value : undefined
       case "touched":

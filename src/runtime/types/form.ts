@@ -3,7 +3,7 @@ import type { UseEventBusReturn } from "@vueuse/core"
 import type { StandardSchema, FormObject, FormReturns, TouchedSchema, DirtySchema } from "@formwerk/core"
 
 export interface FormInjectedOptions {
-  validateOn?: FormwerkInputEvents
+  showErrorsOn?: ErrorVisibility
   isSubmitAttempted?: boolean
 }
 
@@ -13,6 +13,18 @@ export type FormwerkInputEvent = {
 }
 
 export type FormwerkInputEvents = "touched" | "blur" | "dirty"
+
+/**
+ * Which field state has to be reached before that field's error is shown.
+ *
+ * Same union as the bus events that drive it, but aliased so the prop reads as
+ * what it does. Deliberately not called `validateOn`: Nuxt UI's forms have a
+ * prop by that name meaning something else entirely — an array of the DOM
+ * events that trigger validation. Sharing the name silently swallowed the
+ * array form, since it matches none of these and fell through to showing every
+ * error unconditionally.
+ */
+export type ErrorVisibility = FormwerkInputEvents
 
 export const formwerkOptionsInjectionKey: InjectionKey<ComputedRef<FormInjectedOptions>> = Symbol("nuxt-ui-formwerk.form-options")
 export const formwerkBusInjectionKey: InjectionKey<UseEventBusReturn<FormwerkInputEvents, FormwerkInputEvent>> =
@@ -53,7 +65,7 @@ export type SchemaOutput<TSchema> =
  * Props common to every self-contained form root.
  *
  * This is formwerk's `_FormProps` minus the two options that provably no-op on
- * these components, plus `as` and `validateOn`.
+ * these components, plus `as` and `showErrorsOn`.
  *
  * `scrollToInvalidFieldOnSubmit` is absent because it queries
  * `[aria-invalid][aria-errormessage][data-fw-form-id]`, and `Field.vue` never
@@ -69,7 +81,7 @@ export interface FormRootProps<TInput extends FormObject> {
   /** Form identifier. Auto-generated when omitted. */
   id?: string
   /** When field errors become visible. */
-  validateOn?: FormwerkInputEvents
+  showErrorsOn?: ErrorVisibility
   /** Debounce, in ms, that Nuxt UI inputs apply before emitting their `input` event. */
   validateOnInputDelay?: number
   /** Disables every field, and strips disabled paths out of the submitted data. */

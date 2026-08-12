@@ -2,7 +2,13 @@ import { computed, provide, reactive, toValue, type MaybeRefOrGetter } from "vue
 import { useEventBus } from "@vueuse/core"
 import { useForm, type FormReturns } from "@formwerk/core"
 import { formBusInjectionKey, formOptionsInjectionKey } from "@nuxt/ui/composables/useFormField"
-import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvent, type FormwerkInputEvents } from "../types/form"
+import {
+  formwerkOptionsInjectionKey,
+  formwerkBusInjectionKey,
+  type FormwerkInputEvent,
+  type FormwerkInputEvents,
+  type ErrorVisibility,
+} from "../types/form"
 
 /**
  * The options `useGenericForm` forwards to `useForm`. Loose on the value types: they are all
@@ -28,7 +34,7 @@ export interface UseGenericFormOptions {
 export const useGenericForm = <TForm>(options: UseGenericFormOptions): TForm => useForm(options as never) as unknown as TForm
 
 export interface UseFormRootOptions {
-  validateOn: MaybeRefOrGetter<FormwerkInputEvents>
+  showErrorsOn: MaybeRefOrGetter<ErrorVisibility>
   disabled: MaybeRefOrGetter<boolean>
   validateOnInputDelay: MaybeRefOrGetter<number>
 }
@@ -63,7 +69,7 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
   provide(
     formwerkOptionsInjectionKey,
     computed(() => ({
-      validateOn: toValue(options.validateOn),
+      showErrorsOn: toValue(options.showErrorsOn),
       isSubmitAttempted: isSubmitAttempted.value,
     })),
   )

@@ -79,7 +79,7 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 
 ### Injection Keys
 
-- `formwerkOptionsInjectionKey`: ours — `validateOn`, `isSubmitAttempted`. Its presence is also how `Field.vue` detects it is inside a formwerk root.
+- `formwerkOptionsInjectionKey`: ours — `showErrorsOn`, `isSubmitAttempted`. Its presence is also how `Field.vue` detects it is inside a formwerk root.
 - `formwerkBusInjectionKey`: ours — touched / blur / dirty events
 - `formBusInjectionKey`: Nuxt UI's — input components emit blur/change/input/focus here
 - `formOptionsInjectionKey`: Nuxt UI's — `disabled`, `validateOnInputDelay`

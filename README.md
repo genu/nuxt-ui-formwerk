@@ -115,16 +115,20 @@ Use `USchemaForm` when you have a [Standard Schema](https://standardschema.dev/)
 
 #### Props
 
-| Prop             | Type                              | Default        | Description                                                                                                      |
-| ---------------- | --------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `schema`         | Standard Schema                   | _required_     | Drives all type inference. Read once at setup — see [Gotchas](#gotchas).                                         |
-| `initialValues`  | `MaybeGetter<MaybeAsync<Values>>` | -              | Initial values. Object, sync getter, or async getter are all supported.                                          |
-| `as`             | `string \| Component`             | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See the note below. |
-| `id`             | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                           |
-| `validateOn`     | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`       | When field errors become visible.                                                                                |
-| `disabled`       | `boolean`                         | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                       |
-| `initialTouched` | `TouchedSchema<TInput>`           | -              | Marks fields as touched on mount.                                                                                |
-| `initialDirty`   | `DirtySchema<TInput>`             | -              | Marks fields as dirty on mount.                                                                                  |
+| Prop                   | Type                              | Default        | Description                                                                                                      |
+| ---------------------- | --------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `schema`               | Standard Schema                   | _required_     | Drives all type inference. Read once at setup — see [Gotchas](#gotchas).                                         |
+| `initialValues`        | `MaybeGetter<MaybeAsync<Values>>` | -              | Initial values. Object, sync getter, or async getter are all supported.                                          |
+| `as`                   | `string \| Component`             | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See the note below. |
+| `id`                   | `string`                          | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                           |
+| `showErrorsOn`         | `'touched' \| 'blur' \| 'dirty'`  | `'blur'`       | When field errors become visible.                                                                                |
+| `validateOnInputDelay` | `number`                          | `300`          | Debounce, in ms, that Nuxt UI inputs apply before emitting their `input` event. Matches Nuxt UI's default.       |
+| `disabled`             | `boolean`                         | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                       |
+| `initialTouched`       | `TouchedSchema<TInput>`           | -              | Marks fields as touched on mount.                                                                                |
+| `initialDirty`         | `DirtySchema<TInput>`             | -              | Marks fields as dirty on mount.                                                                                  |
+
+> [!NOTE]
+> `showErrorsOn` is deliberately **not** called `validateOn`. Nuxt UI's forms have a `validateOn` prop meaning something different — an array of the DOM events that trigger validation — and reusing the name silently swallowed the array form. Here the value is a single field state, and formwerk owns when validation actually runs.
 
 `as` is meant for native elements: `novalidate` is only applied when `as` is the string `"form"`, because there's no way to tell what a component renders. Pass a component that renders its own `<form>` and setting `novalidate` on it is your responsibility — otherwise native constraint validation swallows the submit event and `@submit`/`@error` never emit.
 
@@ -185,15 +189,16 @@ If you want a reusable named shape, declare it with `type`, not `interface` — 
 
 #### Props
 
-| Prop             | Type                             | Default        | Description                                                                                                            |
-| ---------------- | -------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `initialValues`  | `TInput \| (() => TInput)`       | -              | Initial values. Only place the shape can be inferred from — object or sync getter, see [Gotchas](#gotchas).            |
-| `as`             | `string \| Component`            | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See `USchemaForm`'s note. |
-| `id`             | `string`                         | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                                 |
-| `validateOn`     | `'touched' \| 'blur' \| 'dirty'` | `'blur'`       | When field errors become visible.                                                                                      |
-| `disabled`       | `boolean`                        | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                             |
-| `initialTouched` | `TouchedSchema<TInput>`          | -              | Marks fields as touched on mount.                                                                                      |
-| `initialDirty`   | `DirtySchema<TInput>`            | -              | Marks fields as dirty on mount.                                                                                        |
+| Prop                   | Type                             | Default        | Description                                                                                                            |
+| ---------------------- | -------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `initialValues`        | `TInput \| (() => TInput)`       | -              | Initial values. Only place the shape can be inferred from — object or sync getter, see [Gotchas](#gotchas).            |
+| `as`                   | `string \| Component`            | `'form'`       | Native element to render as. Use a non-form element to avoid invalid nested `<form>` markup. See `USchemaForm`'s note. |
+| `id`                   | `string`                         | auto-generated | Form identifier. Two forms sharing an explicit `id` share event buses.                                                 |
+| `showErrorsOn`         | `'touched' \| 'blur' \| 'dirty'` | `'blur'`       | When field errors become visible. See `USchemaForm`'s note on the name.                                                |
+| `validateOnInputDelay` | `number`                         | `300`          | Debounce, in ms, that Nuxt UI inputs apply before emitting their `input` event.                                        |
+| `disabled`             | `boolean`                        | `false`        | Disables every field, and strips disabled paths out of the submitted data.                                             |
+| `initialTouched`       | `TouchedSchema<TInput>`          | -              | Marks fields as touched on mount.                                                                                      |
+| `initialDirty`         | `DirtySchema<TInput>`            | -              | Marks fields as dirty on mount.                                                                                        |
 
 #### Slot Props
 
@@ -425,7 +430,7 @@ interface RepeaterMethods {
 </script>
 
 <template>
-  <USchemaForm :schema="schema" validate-on="blur" @submit="onSubmit">
+  <USchemaForm :schema="schema" show-errors-on="blur" @submit="onSubmit">
     <div class="space-y-4">
       <UFormField name="name" label="Name" required #="{ model }">
         <UInput v-bind="model" />
