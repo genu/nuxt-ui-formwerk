@@ -6,13 +6,9 @@ import { nextTick } from "vue"
 import ServerErrorHarness from "./fixtures/basic/components/ServerErrorHarness.vue"
 
 /**
- * Server-side errors reach a field through formwerk's submit-error bag, which
- * `Field.vue` surfaces without applying the `showErrorsOn` gate.
- *
- * The distinction matters: `form.setErrors` writes to the *same* bag as schema
- * validation, so an error set that way on a pristine field is indistinguishable
- * from a speculative validation error and stays hidden until the field is
- * interacted with or a submit is attempted.
+ * Server errors arrive through formwerk's submit-error bag, which `Field.vue`
+ * shows ungated. `form.setErrors` writes to the validation bag instead, where it
+ * is indistinguishable from a speculative error and stays hidden.
  */
 describe("server-side errors", () => {
   it("does not show an error before submit", async () => {
@@ -30,8 +26,7 @@ describe("server-side errors", () => {
     await flushPromises()
     await nextTick()
 
-    // Never blurred, touched or dirtied — so the gate would have hidden this
-    // had it been routed through the validation-error bag.
+    // Never blurred, touched or dirtied: the gate would have hidden a validation error.
     expect(wrapper.text()).toContain("already taken")
   })
 })

@@ -3,11 +3,9 @@ import { describe, it, expect } from "vitest"
 import { setup, $fetch } from "@nuxt/test-utils/e2e"
 
 /**
- * SSR-specific coverage. Behaviour belongs in the component suites, which mount
- * and interact; what only this harness can prove is that the module renders on
- * the server at all — `Field.vue` calls `useSlots()` and reads the first slot
- * vnode during setup, and the roots `provide()` there — and that component
- * registration and the `UFormField` rename survive a real Nuxt build.
+ * SSR-only concerns: that the module renders on a server at all, and that
+ * registration and the `UFormField` rename survive a real Nuxt build. Behaviour
+ * belongs in the component suites, which can actually observe state.
  */
 describe("ssr - basic", async () => {
   await setup({
@@ -34,9 +32,7 @@ describe("ssr - basic", async () => {
 
   it("renders USchemaForm as a real form element with an id", async () => {
     const html = await $fetch("/")
-    // Order-independent: Vue always merges a component's own bound attrs (id)
-    // ahead of fallthrough attrs (data-testid) in the rendered tag, so the two
-    // lookaheads assert both are present on the same <form> without assuming order.
+    // Two lookaheads rather than one pattern, so attribute order is not assumed.
     expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")(?=[^>]*id="[^"]+")[^>]*>/)
   })
 

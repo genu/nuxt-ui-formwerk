@@ -5,16 +5,9 @@
   import type { ErrorVisibility, FormValues } from "../types/form"
 
   /**
-   * Props for a root that adopts a form you already created.
-   *
-   * Everything absent here is absent on purpose. `schema`, `id`, `initialValues`,
-   * `initialTouched`, `initialDirty` and `disabled` all belong to the `useForm()`
-   * call that produced `form`; accepting them would mean silently ignoring them,
-   * which is what made the old `UForm` untrustworthy.
-   *
-   * `disabled` is the subtle one. It is not a prop, but the component still has to
-   * forward the form's resolved state to Nuxt UI's inputs — see the `useFormRoot`
-   * call below.
+   * `schema`, `id`, `initialValues`, `initialTouched`, `initialDirty` and `disabled`
+   * are absent on purpose: they belong to the caller's `useForm()`, so accepting
+   * them here would mean silently ignoring them.
    */
   interface Props<TInput extends FormObject, TOutput extends FormObject> {
     /** A form from `useForm()`. Read once at setup — use `:key` to swap it. */
@@ -55,15 +48,13 @@
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     showErrorsOn: () => showErrorsOn,
     validateOnInputDelay: () => validateOnInputDelay,
-    // Mirrored from the adopted form, not taken as a prop. `useForm({ disabled })`
-    // only reaches formwerk's own context; Nuxt UI's inputs read `disabled` off
-    // formOptions, which this composable provides. Without this the two disagree —
-    // formwerk strips the path from the payload while the input stays editable.
+    // `useForm({ disabled })` reaches formwerk's context but not Nuxt UI's inputs,
+    // which read formOptions. Without this, formwerk strips the path from the
+    // payload while the input stays editable.
     disabled: () => form.isDisabled.value,
   })
 
-  // See SchemaForm.vue — native constraint validation would swallow the submit
-  // event before formwerk ever sees it.
+  // Without novalidate the browser's constraint bubbles swallow the submit event.
   const novalidate = computed(() => (as === "form" ? true : undefined))
 
   const onSubmit = useFormSubmit(form, {

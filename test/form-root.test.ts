@@ -5,13 +5,9 @@ import { flushPromises } from "@vue/test-utils"
 import FormRootHarness from "./fixtures/basic/components/FormRootHarness.vue"
 
 /**
- * `UFormRoot` adopts a form the caller already owns, which is the only way to
- * reach the form during `setup` — a template ref on `USchemaForm` is null until
- * mount, and provide/inject only travels downward.
- *
- * The wiring it shares with the other roots is covered in event-bridge.test.ts;
- * what matters here is that adoption works at all, and that a caller-owned form
- * still gets validation, submit and error display.
+ * `UFormRoot` adopts a caller-owned form, the only way to reach one during `setup`.
+ * Shared wiring is covered in event-bridge.test.ts; what matters here is that
+ * adoption works and an adopted form still validates, submits and shows errors.
  */
 const settle = async () => {
   await flushPromises()
@@ -68,10 +64,8 @@ describe("UFormRoot", () => {
     const wrapper = await mountSuspended(FormRootHarness, { props: { disabled: true } })
     await settle()
 
-    // `useForm({ disabled })` only reaches formwerk's own context. Nuxt UI's
-    // inputs read `disabled` off formOptions, so the root has to forward the
-    // form's resolved state — otherwise formwerk strips the path from the
-    // payload while the input stays editable.
+    // `useForm({ disabled })` reaches formwerk but not Nuxt UI's inputs, so without
+    // forwarding, formwerk strips the path while the input stays editable.
     expect(wrapper.get('[data-testid="email"]').attributes("disabled")).toBeDefined()
   })
 

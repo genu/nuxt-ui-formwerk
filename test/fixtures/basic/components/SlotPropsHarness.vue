@@ -1,11 +1,7 @@
 <script setup lang="ts">
   import { z } from "zod"
 
-  /**
-   * Reads a property off the `value` slot prop, which is what used to crash:
-   * `Field.vue` invoked the default slot during setup to guess `controlType`,
-   * and could only pass `{ model: {} }` — so `value` was undefined at that call.
-   */
+  /** Reading a property off `value` used to crash: the slot ran at setup, before it existed. */
   const schema = z.object({ email: z.string() })
 </script>
 

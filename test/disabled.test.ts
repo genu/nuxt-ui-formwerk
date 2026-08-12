@@ -6,17 +6,9 @@ import { nextTick } from "vue"
 import DisabledHarness from "./fixtures/basic/components/DisabledHarness.vue"
 
 /**
- * These have to be component tests, not the SSR `$fetch` kind used elsewhere.
- * formwerk registers a field's disabled state inside `initFormPathIfNecessary`,
- * which defers the transaction to `nextTick`, and the `isDisabled` watcher is
- * not immediate — so the form's disabled map is still empty when SSR serialises
- * the markup.
- *
- * This guards an integration seam rather than module logic: `disabled` travels
- * useForm -> formwerk's disabled context -> the field, and the payload stripping
- * is formwerk's. Worth pinning because both ends are ours to keep working, and
- * because a regression here is invisible in markup — the input carries the
- * `disabled` attribute either way via Nuxt UI's separate formOptions channel.
+ * Cannot be an SSR test: formwerk defers the disabled registration to `nextTick`,
+ * so the map is empty when the markup serialises. Nor can it assert on the input's
+ * `disabled` attribute, which Nuxt UI sets through its own channel either way.
  */
 describe("form-level disabled", () => {
   it("tells formwerk the field is disabled", async () => {

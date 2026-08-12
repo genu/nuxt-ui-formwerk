@@ -9,10 +9,7 @@
 </script>
 
 <script setup lang="ts">
-  /**
-   * Harness for `UFormRoot`, which exists for exactly the case shown here:
-   * the form is needed during `setup`, before any template ref would resolve.
-   */
+  /** The case UFormRoot exists for: the form is needed during setup. */
   const schema = z.object({ email: z.string().min(3, "email too short") })
 
   const { disabled = false } = defineProps<Props>()

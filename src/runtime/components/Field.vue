@@ -23,10 +23,8 @@
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
   const formwerkOptions = inject(formwerkOptionsInjectionKey, undefined)
 
-  // This component overrides Nuxt UI's UFormField, so it can be reached from
-  // inside a plain Nuxt UI <UForm> — where it would keep its value in formwerk
-  // while the form read from `state`, and silently submit nothing. Fail loudly
-  // instead.
+  // Overriding Nuxt UI's UFormField means a plain <UForm> can reach this, where it
+  // would hold its value in formwerk while that form reads from `state`.
   if (!formwerkOptions) {
     throw new Error(
       "UFormField requires a formwerk form root. Wrap it in <USchemaForm> or <USchemalessForm>, " +
@@ -44,13 +42,8 @@
     field: { errorMessage, submitErrorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
-    // Static. This only labels the field in formwerk's devtools inspector —
-    // nothing branches on it. It used to be guessed by invoking the default
-    // slot during setup and reading the first vnode's component name, but that
-    // call runs before `useCustomControl` produces `setValue` and `fieldValue`,
-    // so it could only pass a half-built payload and any slot reading a
-    // property off `value` crashed. The ordering is circular, so there is no
-    // version of the guess that works.
+    // Devtools label only. Do not try to detect it from the slot: that has to run
+    // before the values it would need to pass exist, and crashed slots reading them.
     controlType: "CustomInput",
     _field: field,
   })
@@ -63,17 +56,12 @@
   watch(isBlurred, (newValue) => emitFormEvent("blur", props.name, newValue))
   watch(isDirty, (newValue) => emitFormEvent("dirty", props.name, newValue))
 
-  /**
-   * A validation error, but only once the field has reached the state the form
-   * asked to gate on. Without the gate, validating one field would light up
-   * every other field in the schema, none of which the user has touched yet.
-   */
+  // Gated, because validating one field populates errors for every other field in
+  // the schema, none of which the user has touched yet.
   const visibleValidationError = computed(() => {
     if (!errorMessage.value) return undefined
 
-    // Once a submit has been attempted, formwerk has already run full-schema
-    // validation, so surface errors regardless of per-field interaction state
-    // (mirrors Nuxt UI's own <UForm>, which always validates on submit).
+    // Submit already validated the whole schema, so the gate has nothing left to protect.
     if (formwerkOptions.value.isSubmitAttempted) return errorMessage.value
 
     switch (formwerkOptions.value.showErrorsOn) {
@@ -89,15 +77,10 @@
   })
 
   const error = computed(() => {
-    // A live validation error wins: after a submit the gate is open anyway, so
-    // reaching the fallback means the schema is currently happy with this field
-    // and a stale submit error would be the more misleading of the two.
     if (visibleValidationError.value) return visibleValidationError.value
 
-    // Submit errors skip the gate. They are never speculative — either
-    // formwerk's submit handler wrote them, or the app did for a server-side
-    // failure — and formwerk clears them at the start of every submit, so they
-    // cannot outlive the attempt that produced them.
+    // Ungated: a submit error is never speculative, and formwerk clears them at the
+    // start of every submit. Second, so a live error beats a stale server one.
     return submitErrorMessage.value || undefined
   })
 
@@ -106,13 +89,8 @@
     "onUpdate:modelValue": setValue,
   }))
 
-  /**
-   * Intercept form events
-   */
-
   if (formBus) {
     formBus.on(async (event) => {
-      // Only respond to events for this specific field
       if ("name" in event && event.name !== props.name) return
 
       switch (event.type) {

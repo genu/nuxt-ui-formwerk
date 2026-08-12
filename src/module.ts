@@ -12,17 +12,12 @@ export default defineNuxtModule({
   async setup(_options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    // Get the prefix from Nuxt UI's config, defaulting to 'U'
     const uiOptions = nuxt.options.ui as { prefix?: string } | undefined
     const prefix = uiOptions?.prefix ?? "U"
 
-    // Pin every import of @formwerk/core to one file. Two instances break context sharing
-    // between useForm() and useFormContext(), and each drags its own Vue in — the symptom is
-    // silent: markup renders, reactivity is dead, and the console stays clean.
-    //
-    // Resolve from the consumer's rootDir first so a linked checkout (pnpm workspace or
-    // monorepo) gets the app's copy rather than this module's own, then fall back to ours
-    // for the normal npm install, where the consumer has no direct @formwerk/core.
+    // Two copies of @formwerk/core break context sharing between useForm() and
+    // useFormContext(), silently: markup renders, reactivity is dead, console is clean.
+    // Consumer's copy wins so a linked checkout resolves to the app's, not ours.
     let formwerk: string
     try {
       formwerk = resolveModule("@formwerk/core", { url: directoryToURL(nuxt.options.rootDir) })
@@ -31,9 +26,8 @@ export default defineNuxtModule({
     }
     nuxt.options.alias["@formwerk/core"] = formwerk
 
-    // Nuxt UI's injection keys are plain per-module Symbols, so two physical copies of @nuxt/ui
-    // never match and our provide() is invisible to its components. Pin just this subpath —
-    // consumer's rootDir first, ours as fallback — rather than the whole package.
+    // Nuxt UI's injection keys are per-module Symbols, so two copies never match and
+    // our provide() is invisible to its components. Pin the subpath, not the package.
     let uiFormField: string
     try {
       uiFormField = resolveModule("@nuxt/ui/composables/useFormField", { url: directoryToURL(nuxt.options.rootDir) })
@@ -42,22 +36,16 @@ export default defineNuxtModule({
     }
     nuxt.options.alias["@nuxt/ui/composables/useFormField"] = uiFormField
 
-    // Rename Nuxt UI's FormField to NuxtUiFormField so we can override it.
-    //
-    // Only FormField. Nuxt UI's Form is left alone: its API (state, schema,
-    // @submit, a real <form>) has no formwerk equivalent, so shadowing it
-    // replaced working forms with silently broken ones. Formwerk forms are
-    // opt-in through USchemaForm / USchemalessForm.
+    // FormField only. Shadowing Nuxt UI's Form replaced working forms with silently
+    // broken ones — its state/schema/@submit API has no formwerk equivalent.
     const componentsToRename = [`${prefix}FormField`]
 
     nuxt.hook("components:extend", (components) => {
       for (const name of componentsToRename) {
         const component = components.find((c) => c.pascalName === name && c.filePath?.includes("@nuxt/ui"))
 
-        // Throwing rather than skipping: the match depends on @nuxt/ui internals
-        // (a filePath substring). If it ever stops matching, our Field.vue
-        // renders <NuxtUiFormField>, which no longer resolves — a silent, and
-        // very confusing, break at runtime.
+        // Matching on an @nuxt/ui internal. Skipping instead of throwing would leave
+        // Field.vue rendering an unresolvable <NuxtUiFormField> at runtime.
         if (!component) {
           throw new Error(
             `[nuxt-ui-formwerk] Could not find Nuxt UI's ${name} to rename. ` +
@@ -73,7 +61,6 @@ export default defineNuxtModule({
       }
     })
 
-    // Register our components with the same prefix
     addComponent({
       name: `${prefix}FormField`,
       filePath: resolver.resolve("./runtime/components/Field.vue"),
@@ -104,8 +91,6 @@ export default defineNuxtModule({
       filePath: resolver.resolve("./runtime/components/FormRoot.vue"),
     })
 
-    // The escape hatch the form roots are built on. Needed when the form has to
-    // exist during setup — a template ref on a root is null until mount.
     addImports({
       name: "useFormRoot",
       from: resolver.resolve("./runtime/composables/useFormRoot"),

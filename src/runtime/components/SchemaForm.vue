@@ -4,7 +4,7 @@
   import { useFormRoot, useFormSubmit, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
 
-  /** Generic in the schema rather than in the input shape, so it can be written out here — the SFC's own `generic` parameter is not in scope in this block. */
+  /** Generic in the schema, not the input shape: the SFC's own `generic` is not in scope here. */
   interface Props<TSchema extends GenericFormSchema> extends FormRootProps<SchemaInput<TSchema>> {
     /** Read once at setup — use `:key` to swap it. */
     schema: TSchema
@@ -52,17 +52,14 @@
 
   defineSlots<Slots<TSchema>>()
 
-  // useGenericForm, not useForm — a generic component cannot satisfy useForm's
-  // overload constraints. See useGenericForm for why, and why the assertion it
-  // holds is unavoidable. The public surface stays fully typed either way.
+  // Not useForm: a generic component cannot satisfy its overloads. See useGenericForm.
   const form = useGenericForm<FormApi<TSchema>>({
     id,
     schema,
     initialValues,
     initialTouched,
     initialDirty,
-    // Destructured props stay reactive in Vue 3.5 — the compiler rewrites each
-    // reference back to `__props.x`, so these getters still track changes.
+    // Destructured props stay reactive in Vue 3.5, so this getter still tracks.
     disabled: () => disabled,
   })
 
@@ -72,10 +69,8 @@
     disabled: () => disabled,
   })
 
-  // Native constraint validation would fire before submit and swallow the
-  // event, so @submit/@error would never emit. formwerk's own formProps sets
-  // novalidate for the same reason. Undefined (not false) keeps the attribute
-  // off non-form elements entirely.
+  // Without novalidate the browser's constraint bubbles swallow the submit event.
+  // Undefined rather than false keeps the attribute off non-form elements.
   const novalidate = computed(() => (as === "form" ? true : undefined))
 
   const onSubmit = useFormSubmit(form, {
@@ -83,7 +78,7 @@
     onError: (issues) => emit("error", issues),
   })
 
-  // Explicit type argument, not inferred: inference would inline type-fest internals the declaration emitter cannot name.
+  // Explicit type argument: inference inlines type-fest internals the emitter cannot name.
   defineExpose<Expose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 

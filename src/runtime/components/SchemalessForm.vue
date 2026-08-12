@@ -4,9 +4,9 @@
   import { useFormRoot, useFormSubmit, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues } from "../types/form"
 
-  /** Generic in the input shape so it can be declared here — the SFC's own `generic` parameter is not in scope in this block. */
+  /** Generic in the input shape: the SFC's own `generic` is not in scope here. */
   interface Props<TInput extends FormObject> extends FormRootProps<TInput> {
-    /** The only place the form's shape can be inferred from, so declare it with `type`, not `interface`. For async initial values use `USchemaForm`. */
+    /** The only place the form's shape can be inferred from. For async values use `USchemaForm`. */
     initialValues?: TInput | (() => TInput)
   }
 
@@ -50,14 +50,13 @@
 
   defineSlots<Slots<TInput>>()
 
-  // useGenericForm, not useForm — see useGenericForm for why a generic component
-  // cannot satisfy useForm's overload constraints.
+  // Not useForm: a generic component cannot satisfy its overloads. See useGenericForm.
   const form = useGenericForm<FormApi<TInput>>({
     id,
     initialValues,
     initialTouched,
     initialDirty,
-    // See SchemaForm.vue — destructured props stay reactive in Vue 3.5.
+    // Destructured props stay reactive in Vue 3.5, so this getter still tracks.
     disabled: () => disabled,
   })
 
@@ -67,8 +66,7 @@
     disabled: () => disabled,
   })
 
-  // See SchemaForm.vue — native constraint validation would swallow the submit
-  // event before formwerk ever sees it.
+  // Without novalidate the browser's constraint bubbles swallow the submit event.
   const novalidate = computed(() => (as === "form" ? true : undefined))
 
   const onSubmit = useFormSubmit(form, {
@@ -76,7 +74,7 @@
     onError: (issues) => emit("error", issues),
   })
 
-  // See SchemaForm.vue — explicit type argument keeps type-fest internals out of the emitted declarations.
+  // Explicit type argument: inference inlines type-fest internals the emitter cannot name.
   defineExpose<Expose<TInput>>({ ...form, blurredFields, touchedFields, dirtyFields })
 </script>
 

@@ -11,9 +11,8 @@ import {
 } from "../types/form"
 
 /**
- * The options `useGenericForm` forwards to `useForm`. Loose on the value types: they are all
- * derived from the caller's unresolved generic parameter, so there is nothing to check them
- * against. Key names are still checked through excess property checking.
+ * Loose on value types by necessity: they derive from the caller's unresolved
+ * generic, so there is nothing to check them against. Key names still are.
  */
 export interface UseGenericFormOptions {
   id?: string
@@ -25,11 +24,9 @@ export interface UseGenericFormOptions {
 }
 
 /**
- * Calls `useForm()` from inside a component that is itself generic, returning the form API as `TForm`.
- *
- * `useForm` is overloaded, and from inside a generic SFC TypeScript cannot prove the options satisfy
- * either overload, so the call fails with TS2769 — hence the assertion. Callers must pass `TForm`
- * explicitly, or the public typing collapses to `FormReturns<never>`.
+ * `useForm` for generic SFCs. TypeScript cannot prove the options satisfy either
+ * overload from inside one (TS2769), hence the assertion. Pass `TForm` explicitly
+ * or the public typing collapses to `FormReturns<never>`.
  */
 export const useGenericForm = <TForm>(options: UseGenericFormOptions): TForm => useForm(options as never) as unknown as TForm
 
@@ -54,24 +51,11 @@ export interface FormSubmitHandlers {
 }
 
 /**
- * The submit handler every form root binds to its element.
+ * Submit handler shared by every form root.
  *
- * Shared rather than repeated, because the two subtleties below are easy to
- * drop when copied:
- *
- * `handleSubmit` only runs its callback on success and offers no failure hook,
- * so failures are derived afterwards from `getSubmitErrors()`. It calls
- * `preventDefault` itself.
- *
- * That read happens after an `await`, so it is not tied to the attempt that
- * produced it — a re-entrant submit would report the other attempt's issues.
- * `isSubmitting` flips synchronously and clears on both paths, making it a safe
- * in-flight gate. The ignored submit still needs `preventDefault`, or the page
- * navigates.
- *
- * Note that Vue discards whatever an emit listener returns, so `isSubmitting`
- * covers validation only. Async submit work that needs a loading state should
- * go through `form.handleSubmit` directly.
+ * `handleSubmit` has no failure hook, so failures come from `getSubmitErrors()`
+ * afterwards — a read that lands after an `await` and would otherwise report a
+ * concurrent attempt's issues, hence the `isSubmitting` gate.
  */
 export const useFormSubmit = (form: FormReturns<any, any>, handlers: FormSubmitHandlers) => {
   return async (event?: Event) => {
@@ -89,35 +73,14 @@ export const useFormSubmit = (form: FormReturns<any, any>, handlers: FormSubmitH
 }
 
 /**
- * Wires a formwerk form into Nuxt UI's form system.
+ * Wires a formwerk form into Nuxt UI's form system: both event buses, the four
+ * injection keys the field components inject, and per-field interaction state.
  *
- * Creates the two event buses, provides the four injection keys that Field,
- * Group and Repeater rely on, and tracks per-field interaction state.
+ * Taking the form as an argument rather than calling `useForm()` is what lets one
+ * component host several independent forms.
  *
- * Callers own the `useForm()` call and pass the result in, which is what lets a
- * single component host several independent forms.
- *
- * `USchemaForm` and `USchemalessForm` are built on this and are what you want
- * almost always. Reach for the composable directly when you need the form
- * itself during `setup` — a template ref on those components is null until
- * mount. You then own the element, `novalidate`, and submit handling; copy
- * `SchemaForm.vue`'s `onSubmit` if you want its re-entrancy guard and `@error`
- * behaviour.
- *
- * ```vue
- * <script setup lang="ts">
- *   const form = useForm({ schema })
- *   useFormRoot(form)
- * </script>
- *
- * <template>
- *   <form novalidate @submit="form.handleSubmit(save)">
- *     <UFormField name="email" label="Email" #="{ model }">
- *       <UInput v-bind="model" />
- *     </UFormField>
- *   </form>
- * </template>
- * ```
+ * Prefer `UFormRoot` unless you also want to own the element, `novalidate` and
+ * submit handling.
  */
 export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions = {}): FormRootState => {
   const { context, isSubmitAttempted } = form

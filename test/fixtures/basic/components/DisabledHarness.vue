@@ -8,16 +8,7 @@
 </script>
 
 <script setup lang="ts">
-  /**
-   * Harness for form-level `disabled`.
-   *
-   * `USchemalessForm` passes `disabled` straight to `useForm`, which provides
-   * formwerk's disabled context for its fields to inherit — so this covers the
-   * whole chain without the module wiring anything itself.
-   *
-   * Both signals are rendered rather than exposed, so assertions read the DOM
-   * instead of reaching into `vm`.
-   */
+  /** State is rendered rather than exposed, so assertions read the DOM, not `vm`. */
   const { disabled = false } = defineProps<Props>()
 
   const submitted = ref<Record<string, unknown> | undefined>()

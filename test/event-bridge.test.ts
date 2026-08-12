@@ -6,18 +6,16 @@ import { nextTick } from "vue"
 import EventBridgeHarness from "./fixtures/basic/components/EventBridgeHarness.vue"
 
 /**
- * Coverage for the bridge between Nuxt UI's form events and formwerk's field
- * state — the thing this module exists to do, and the part most exposed to
- * @nuxt/ui internals moving, since it rides on `formBusInjectionKey` and the
- * event shape Nuxt UI's inputs emit. None of it is observable in SSR markup.
+ * The bridge between Nuxt UI's form events and formwerk's field state. Rides on
+ * `formBusInjectionKey` and the event shape Nuxt UI's inputs emit, neither of
+ * which is public API — so a Nuxt UI minor can break it silently.
  */
 const mount = (showErrorsOn?: "touched" | "blur" | "dirty") =>
   mountSuspended(EventBridgeHarness, { props: showErrorsOn ? { showErrorsOn } : {} })
 
 /**
- * formwerk batches schema validation behind a 10ms `setTimeout` (SCHEMA_BATCH_MS),
- * so `flushPromises` alone returns before any error exists — microtasks only.
- * Every assertion about an error message has to clear that timer first.
+ * formwerk batches validation behind a 10ms `setTimeout`, which `flushPromises`
+ * does not wait for. Any assertion about an error message has to clear it.
  */
 const settle = async () => {
   await flushPromises()
@@ -118,8 +116,7 @@ describe("Nuxt UI to formwerk event bridge", () => {
       await wrapper.get('[data-testid="email"]').trigger("blur")
       await settle()
 
-      // Full-schema validation ran, so `other` has an error too — the gate is
-      // the only thing keeping it off a field the user has never seen.
+      // `other` has an error too by now — the gate is the only thing hiding it.
       expect(wrapper.text()).toContain("email too short")
       expect(wrapper.text()).not.toContain("other too short")
     })

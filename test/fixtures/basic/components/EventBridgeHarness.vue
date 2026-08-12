@@ -9,16 +9,8 @@
 
 <script setup lang="ts">
   /**
-   * Harness for the Nuxt UI <-> formwerk event bridge.
-   *
-   * Nuxt UI inputs emit blur/change/input/focus on their own bus; `Field.vue`
-   * translates those into formwerk's setBlurred/setTouched, then re-emits
-   * formwerk's state changes on a second bus that the root accumulates into
-   * these three sets. None of that is visible in markup, so it is asserted
-   * through what the sets and the rendered error message say.
-   *
-   * `validate-on-input-delay="0"` because Nuxt UI debounces its `input` event
-   * by 300ms, which would otherwise have to be waited out on every keystroke.
+   * The three sets are the only visible output of the bridge, so they carry the
+   * assertions. `validate-on-input-delay="0"` skips Nuxt UI's 300ms input debounce.
    */
   const { showErrorsOn = "blur" } = defineProps<Props>()
 
