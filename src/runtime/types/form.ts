@@ -71,6 +71,8 @@ export interface FormRootProps<TInput extends FormObject> {
   id?: string
   /** When field errors become visible. */
   validateOn?: FormwerkInputEvents
+  /** Debounce, in ms, that Nuxt UI inputs apply before emitting their `input` event. */
+  validateOnInputDelay?: number
   /** Disables every field, and strips disabled paths out of the submitted data. */
   disabled?: boolean
   /** Marks fields as touched on mount. */

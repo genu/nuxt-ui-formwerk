@@ -5,6 +5,7 @@
 
   export interface Props {
     validateOn?: FormwerkInputEvents
+    validateOnInputDelay?: number
     disabled?: boolean
   }
 </script>
@@ -20,10 +21,11 @@
     throw new Error("FormwerkForm must be used within a component that has called useForm()")
   }
 
-  const { validateOn = "blur", disabled = false } = defineProps<Props>()
+  const { validateOn = "blur", validateOnInputDelay = 300, disabled = false } = defineProps<Props>()
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(formContext, {
     validateOn: () => validateOn,
+    validateOnInputDelay: () => validateOnInputDelay,
     disabled: () => disabled,
   })
 </script>

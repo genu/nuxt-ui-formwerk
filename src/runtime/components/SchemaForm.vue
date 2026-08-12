@@ -39,6 +39,7 @@
   const {
     as = "form",
     validateOn = "blur",
+    validateOnInputDelay = 300,
     disabled = false,
     id,
     schema,
@@ -67,6 +68,7 @@
 
   const { blurredFields, touchedFields, dirtyFields } = useFormRoot(form, {
     validateOn: () => validateOn,
+    validateOnInputDelay: () => validateOnInputDelay,
     disabled: () => disabled,
   })
 
