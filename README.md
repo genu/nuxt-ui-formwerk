@@ -5,14 +5,20 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-> [!WARNING]
-> **Experimental Module**
->
-> This module is currently in an experimental phase. APIs may change, and some features may not be fully stable. Use with caution in production environments and please report any issues you encounter.
-
 Enhanced form components for Nuxt UI with [@formwerk/core](https://formwerk.dev/) integration. This module bridges the gap between Formwerk's powerful form validation and state management with Nuxt UI's beautiful form components.
 
 - [Release Notes](/CHANGELOG.md)
+
+## Stability
+
+The API is settled. `USchemaForm`, `USchemalessForm`, `UFormField`, `UFormGroup`, `UFormRepeater` and `useFormRoot` are the supported surface, and it is considered feature complete — new work should be additive.
+
+It is still versioned `0.x` for one reason: **`@formwerk/core` is pre-1.0.** This module re-exports formwerk's types directly (`FormReturns`, `ConsumableData`, `IssueCollection`, `GenericFormSchema`, and the repeater's `Iteration`), so a formwerk major would change this package's public types no matter how stable its own design is. Promising semver on a surface we do not own would be a promise we could not keep. `1.0.0` follows formwerk's.
+
+In practice that means breaking changes are expected only where `@formwerk/core` or `@nuxt/ui` force them. Two things worth knowing regardless:
+
+- This module reaches into `@nuxt/ui` internals that are not public API — its form event bus and `useFormField` injection keys — against a `^4.0.0` peer range. A Nuxt UI minor can, in principle, break the bridge.
+- `UForm` is **not** ours. It is Nuxt UI's own component, untouched. Only `UFormField` is overridden.
 
 ## Features
 
