@@ -1,4 +1,4 @@
-import { defineNuxtModule, addComponent, createResolver, resolveModule, directoryToURL } from "@nuxt/kit"
+import { defineNuxtModule, addComponent, addImports, createResolver, resolveModule, directoryToURL } from "@nuxt/kit"
 
 export type * from "./runtime/types"
 
@@ -97,6 +97,13 @@ export default defineNuxtModule({
     addComponent({
       name: `${prefix}SchemalessForm`,
       filePath: resolver.resolve("./runtime/components/SchemalessForm.vue"),
+    })
+
+    // The escape hatch the form roots are built on. Needed when the form has to
+    // exist during setup — a template ref on a root is null until mount.
+    addImports({
+      name: "useFormRoot",
+      from: resolver.resolve("./runtime/composables/useFormRoot"),
     })
   },
 })

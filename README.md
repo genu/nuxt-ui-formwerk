@@ -235,6 +235,32 @@ Also worth knowing:
 - **Native HTML5 validation is always off.** When rendered as a real `<form>`, these components set `novalidate`, matching formwerk's own `formProps`. Without it the browser's constraint bubbles fire first and swallow the `submit` event, so `@submit`/`@error` would never emit for a field marked `required`. There is no `disableHtmlValidation` prop, because formwerk's own flag provably no-ops here (this module's fields never hand formwerk an `inputEl`).
 - **Two forms sharing an explicit `:id` share event buses.** Leave `id` unset (it's auto-generated) unless you specifically want two form components to observe the same formwerk/Nuxt UI events.
 
+### useFormRoot
+
+Both roots own their `useForm()` call and expose the full form API, so a `useTemplateRef` gets you `values`, `setErrors`, `reset` and the rest. That ref is `null` until mount, though — when you need the form during `setup`, call `useForm()` yourself and hand it to `useFormRoot`:
+
+```vue
+<script setup lang="ts">
+  const form = useForm({ schema })
+  useFormRoot(form)
+
+  // Available immediately, unlike a template ref.
+  watch(() => form.values.email, syncDraft)
+</script>
+
+<template>
+  <form novalidate @submit="form.handleSubmit(save)">
+    <UFormField name="email" label="Email" #="{ model }">
+      <UInput v-bind="model" />
+    </UFormField>
+  </form>
+</template>
+```
+
+`useFormRoot` does the wiring the roots do — both event buses, the injection keys `UFormField`/`UFormGroup`/`UFormRepeater` rely on, and the interaction-state sets it returns as `{ blurredFields, touchedFields, dirtyFields }`. Everything else is yours: the element, `novalidate`, and submit handling. Copy `SchemaForm.vue`'s `onSubmit` if you want its re-entrancy guard and `@error` behaviour.
+
+Options are all optional: `showErrorsOn` (`'blur'`), `disabled` (`false`), `validateOnInputDelay` (`300`).
+
 ### UFormField
 
 Enhanced field component that wraps Nuxt UI's UFormField with formwerk validation.

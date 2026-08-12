@@ -34,9 +34,12 @@ export interface UseGenericFormOptions {
 export const useGenericForm = <TForm>(options: UseGenericFormOptions): TForm => useForm(options as never) as unknown as TForm
 
 export interface UseFormRootOptions {
-  showErrorsOn: MaybeRefOrGetter<ErrorVisibility>
-  disabled: MaybeRefOrGetter<boolean>
-  validateOnInputDelay: MaybeRefOrGetter<number>
+  /** When field errors become visible. Defaults to `"blur"`. */
+  showErrorsOn?: MaybeRefOrGetter<ErrorVisibility>
+  /** Disables every field in the form. Defaults to `false`. */
+  disabled?: MaybeRefOrGetter<boolean>
+  /** Debounce Nuxt UI inputs apply before emitting `input`. Defaults to `300`, matching Nuxt UI. */
+  validateOnInputDelay?: MaybeRefOrGetter<number>
 }
 
 export interface FormRootState {
@@ -51,10 +54,32 @@ export interface FormRootState {
  * Creates the two event buses, provides the four injection keys that Field,
  * Group and Repeater rely on, and tracks per-field interaction state.
  *
- * Callers own the `useForm()` / `useFormContext()` call and pass the result in,
- * which is what lets a single component host several independent forms.
+ * Callers own the `useForm()` call and pass the result in, which is what lets a
+ * single component host several independent forms.
+ *
+ * `USchemaForm` and `USchemalessForm` are built on this and are what you want
+ * almost always. Reach for the composable directly when you need the form
+ * itself during `setup` — a template ref on those components is null until
+ * mount. You then own the element, `novalidate`, and submit handling; copy
+ * `SchemaForm.vue`'s `onSubmit` if you want its re-entrancy guard and `@error`
+ * behaviour.
+ *
+ * ```vue
+ * <script setup lang="ts">
+ *   const form = useForm({ schema })
+ *   useFormRoot(form)
+ * </script>
+ *
+ * <template>
+ *   <form novalidate @submit="form.handleSubmit(save)">
+ *     <UFormField name="email" label="Email" #="{ model }">
+ *       <UInput v-bind="model" />
+ *     </UFormField>
+ *   </form>
+ * </template>
+ * ```
  */
-export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions): FormRootState => {
+export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOptions = {}): FormRootState => {
   const { context, isSubmitAttempted } = form
 
   const formwerkBus = useEventBus<FormwerkInputEvents, FormwerkInputEvent>(`formwerk-form-${context.id}`)
@@ -69,15 +94,15 @@ export const useFormRoot = (form: FormReturns<any, any>, options: UseFormRootOpt
   provide(
     formwerkOptionsInjectionKey,
     computed(() => ({
-      showErrorsOn: toValue(options.showErrorsOn),
+      showErrorsOn: toValue(options.showErrorsOn) ?? "blur",
       isSubmitAttempted: isSubmitAttempted.value,
     })),
   )
   provide(
     formOptionsInjectionKey,
     computed(() => ({
-      disabled: toValue(options.disabled),
-      validateOnInputDelay: toValue(options.validateOnInputDelay),
+      disabled: toValue(options.disabled) ?? false,
+      validateOnInputDelay: toValue(options.validateOnInputDelay) ?? 300,
     })),
   )
 
