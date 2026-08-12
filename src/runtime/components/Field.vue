@@ -2,7 +2,7 @@
   import { useCustomControl, useFormField } from "@formwerk/core"
   import type { FormFieldProps } from "@nuxt/ui"
   import { formBusInjectionKey } from "@nuxt/ui/composables/useFormField"
-  import { inject, watch, computed, useSlots, type Component } from "vue"
+  import { inject, watch, computed } from "vue"
   import { formwerkOptionsInjectionKey, formwerkBusInjectionKey, type FormwerkInputEvents } from "../types/form"
 </script>
 
@@ -18,7 +18,6 @@
   }
 
   const props = defineProps<FieldProps>()
-  const slots = useSlots()
 
   const formBus = inject(formBusInjectionKey, undefined)
   const formwerkBus = inject(formwerkBusInjectionKey, undefined)
@@ -41,21 +40,18 @@
     description: props.description,
   })
 
-  const defaultSlot = slots.default?.({ model: {} })
-  const firstNode = defaultSlot?.[0]
-
-  let slotComponentName: string | null = null
-
-  if (firstNode && typeof firstNode.type === "object" && firstNode.type !== null) {
-    const component = firstNode.type as Component & { __name?: string }
-    if (component.__name || component.name) slotComponentName = component.__name || component.name || null
-  }
-
   const {
     field: { errorMessage, submitErrorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
-    controlType: slotComponentName || "CustomInput",
+    // Static. This only labels the field in formwerk's devtools inspector —
+    // nothing branches on it. It used to be guessed by invoking the default
+    // slot during setup and reading the first vnode's component name, but that
+    // call runs before `useCustomControl` produces `setValue` and `fieldValue`,
+    // so it could only pass a half-built payload and any slot reading a
+    // property off `value` crashed. The ordering is circular, so there is no
+    // version of the guess that works.
+    controlType: "CustomInput",
     _field: field,
   })
 

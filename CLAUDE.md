@@ -73,7 +73,7 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 
 - Calls `useFormField` for field state, then `useCustomControl` with `_field` for the control layer
 - Injects `formBus`, `formwerkBus`, `formwerkOptions`; **throws** when `formwerkOptions` is absent, since that means it is outside a formwerk root
-- Sniffs the first default-slot vnode at setup to derive formwerk's `controlType` — fragile, and computed once
+- Passes a static `controlType` to `useCustomControl`. It only labels the field in formwerk's devtools; it used to be guessed by invoking the default slot at setup, which crashed any slot reading a property off `value` — that call runs before `useCustomControl` produces `setValue`/`fieldValue`, and `useCustomControl` consumes `controlType`, so the ordering is circular and no guess can work
 - Never binds formwerk's `controlProps`. Not an a11y gap: Nuxt UI's own `ariaAttrs` (`aria-invalid`, `aria-describedby`) still reach the input, because `Field.vue` passes `:error` to `NuxtUiFormField`. What is lost is formwerk-specific — `scrollToInvalidFieldOnSubmit`, `aria-errormessage`, `data-fw-form-id`. Binding `controlProps` would collide with Nuxt UI over `id` and `aria-describedby`.
 
 **Repeater Component** ([src/runtime/components/Repeater.vue](src/runtime/components/Repeater.vue)):
