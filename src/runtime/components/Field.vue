@@ -45,7 +45,6 @@
     field: { errorMessage, fieldValue, setValue, setBlurred, setTouched, isTouched, isBlurred, isDirty },
   } = useCustomControl<any>({
     name: props.name,
-    required: props.required,
     controlType: slotComponentName || "CustomInput",
     _field: field,
   })
