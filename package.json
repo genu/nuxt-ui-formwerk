@@ -1,6 +1,6 @@
 {
   "name": "nuxt-ui-formwerk",
-  "version": "0.1.24",
+  "version": "0.2.0",
   "description": "Formwerk-powered form components for Nuxt UI: schema validation, field-level state, and dynamic array fields",
   "license": "MIT",
   "repository": "https://github.com/genu/nuxt-ui-formwerk.git",
