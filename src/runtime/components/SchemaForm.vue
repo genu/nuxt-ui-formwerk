@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ConsumableData, FormReturns, GenericFormSchema, IssueCollection, MaybeAsync, MaybeGetter } from "@formwerk/core"
   import { computed } from "vue"
-  import { useFormRoot, useGenericForm, type FormRootState } from "../composables/useFormRoot"
+  import { useFormRoot, useFormSubmit, useGenericForm, type FormRootState } from "../composables/useFormRoot"
   import type { FormRootProps, FormValues, SchemaInput, SchemaOutput } from "../types/form"
 
   /** Generic in the schema rather than in the input shape, so it can be written out here — the SFC's own `generic` parameter is not in scope in this block. */
@@ -78,29 +78,10 @@
   // off non-form elements entirely.
   const novalidate = computed(() => (as === "form" ? true : undefined))
 
-  // handleSubmit only runs its callback on success and offers no failure hook,
-  // so `error` is derived afterwards. It also calls preventDefault itself.
-  //
-  // Vue discards whatever an emit listener returns, so `isSubmitting` covers
-  // validation only. Async submit work that needs a loading state should go
-  // through `form.handleSubmit` (slot prop or template ref) instead.
-  const onSubmit = async (event?: Event) => {
-    // getSubmitErrors() below is read after an await, so it is not tied to the
-    // attempt that produced it — a re-entrant submit would make this call emit
-    // the other attempt's issues. handleSubmit sets isSubmitting synchronously
-    // and clears it on both paths, so the flag is a safe in-flight gate. Still
-    // preventDefault, or the ignored submit would navigate the page.
-    if (form.isSubmitting.value) {
-      event?.preventDefault()
-      return
-    }
-
-    await form.handleSubmit((data) => emit("submit", data))(event)
-
-    const issues = form.getSubmitErrors()
-
-    if (issues.length) emit("error", issues)
-  }
+  const onSubmit = useFormSubmit(form, {
+    onSubmit: (data) => emit("submit", data),
+    onError: (issues) => emit("error", issues),
+  })
 
   // Explicit type argument, not inferred: inference would inline type-fest internals the declaration emitter cannot name.
   defineExpose<Expose<TSchema>>({ ...form, blurredFields, touchedFields, dirtyFields })

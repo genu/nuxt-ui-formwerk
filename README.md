@@ -11,7 +11,7 @@ Enhanced form components for Nuxt UI with [@formwerk/core](https://formwerk.dev/
 
 ## Stability
 
-The API is settled. `USchemaForm`, `USchemalessForm`, `UFormField`, `UFormGroup`, `UFormRepeater` and `useFormRoot` are the supported surface, and it is considered feature complete — new work should be additive.
+The API is settled. `USchemaForm`, `USchemalessForm`, `UFormRoot`, `UFormField`, `UFormGroup`, `UFormRepeater` and `useFormRoot` are the supported surface, and it is considered feature complete — new work should be additive.
 
 It is still versioned `0.x` for one reason: **`@formwerk/core` is pre-1.0.** This module re-exports formwerk's types directly (`FormReturns`, `ConsumableData`, `IssueCollection`, `GenericFormSchema`, and the repeater's `Iteration`), so a formwerk major would change this package's public types no matter how stable its own design is. Promising semver on a surface we do not own would be a promise we could not keep. `1.0.0` follows formwerk's.
 
@@ -53,7 +53,7 @@ That's it! You can now use enhanced form components in your Nuxt app.
 
 ## How It Works
 
-Formwerk forms are **opt-in**: you choose a formwerk root (`USchemaForm` or `USchemalessForm`) where you want one. Nuxt UI's own `UForm` is left alone and keeps working for forms that don't need formwerk.
+Formwerk forms are **opt-in**: you choose a formwerk root (`USchemaForm`, `USchemalessForm` or `UFormRoot`) where you want one. Nuxt UI's own `UForm` is left alone and keeps working for forms that don't need formwerk.
 
 The one component this module **does** override is `UFormField`. The original stays reachable as `NuxtUiFormField`.
 
@@ -61,6 +61,7 @@ The one component this module **does** override is `UFormField`. The original st
 | ----------------- | ------------- | ------------------------------------------------ |
 | `USchemaForm`     | new           | Self-contained root, driven by a Standard Schema |
 | `USchemalessForm` | new           | Self-contained root, shape from `initialValues`  |
+| `UFormRoot`       | new           | Adopts a form you created with `useForm()`       |
 | `UFormField`      | **overrides** | Field wired to formwerk state and validation     |
 | `UFormGroup`      | new           | Nested field grouping                            |
 | `UFormRepeater`   | new           | Dynamic array fields                             |
@@ -70,7 +71,7 @@ The one component this module **does** override is `UFormField`. The original st
 The module automatically uses the same prefix as your Nuxt UI configuration (default: `U`).
 
 > [!IMPORTANT]
-> `UFormField` requires a formwerk root. Inside a plain Nuxt UI `<UForm>` it would hold its value in formwerk while the form read from `state` — submitting nothing — so it throws instead. Use `<NuxtUiFormField>` for plain Nuxt UI fields.
+> `UFormField` requires one of those roots. Inside a plain Nuxt UI `<UForm>` it would hold its value in formwerk while the form read from `state` — submitting nothing — so it throws instead. Use `<NuxtUiFormField>` for plain Nuxt UI fields.
 
 ### Event Bus Integration
 
@@ -241,31 +242,44 @@ Also worth knowing:
 - **Native HTML5 validation is always off.** When rendered as a real `<form>`, these components set `novalidate`, matching formwerk's own `formProps`. Without it the browser's constraint bubbles fire first and swallow the `submit` event, so `@submit`/`@error` would never emit for a field marked `required`. There is no `disableHtmlValidation` prop, because formwerk's own flag provably no-ops here (this module's fields never hand formwerk an `inputEl`).
 - **Two forms sharing an explicit `:id` share event buses.** Leave `id` unset (it's auto-generated) unless you specifically want two form components to observe the same formwerk/Nuxt UI events.
 
-### useFormRoot
+### UFormRoot
 
-Both roots own their `useForm()` call and expose the full form API, so a `useTemplateRef` gets you `values`, `setErrors`, `reset` and the rest. That ref is `null` until mount, though — when you need the form during `setup`, call `useForm()` yourself and hand it to `useFormRoot`:
+`USchemaForm` and `USchemalessForm` own their `useForm()` call, which is what lets several forms live in one component. They expose the whole form API, so a `useTemplateRef` reaches `values`, `setErrors`, `reset` and the rest.
+
+That ref is `null` until mount, though. When the form has to exist during `setup` — a watcher, a wizard registration, a composable that needs it synchronously — create it yourself and hand it to `UFormRoot`:
 
 ```vue
 <script setup lang="ts">
   const form = useForm({ schema })
-  useFormRoot(form)
 
-  // Available immediately, unlike a template ref.
-  watch(() => form.values.email, syncDraft)
+  watch(() => form.values.email, syncDraft) // available immediately
 </script>
 
 <template>
-  <form novalidate @submit="form.handleSubmit(save)">
+  <UFormRoot :form="form" @submit="save">
     <UFormField name="email" label="Email" #="{ model }">
       <UInput v-bind="model" />
     </UFormField>
-  </form>
+  </UFormRoot>
 </template>
 ```
 
-`useFormRoot` does the wiring the roots do — both event buses, the injection keys `UFormField`/`UFormGroup`/`UFormRepeater` rely on, and the interaction-state sets it returns as `{ blurredFields, touchedFields, dirtyFields }`. Everything else is yours: the element, `novalidate`, and submit handling. Copy `SchemaForm.vue`'s `onSubmit` if you want its re-entrancy guard and `@error` behaviour.
+Everything else behaves like the other roots: it renders a real `<form>` with `novalidate`, emits `@submit` and `@error`, and exposes the interaction sets.
 
-Options are all optional: `showErrorsOn` (`'blur'`), `disabled` (`false`), `validateOnInputDelay` (`300`).
+#### Props
+
+| Prop                   | Type                             | Default    | Description                                                            |
+| ---------------------- | -------------------------------- | ---------- | ---------------------------------------------------------------------- |
+| `form`                 | `FormReturns`                    | _required_ | A form from `useForm()`. Read once at setup — use `:key` to swap it.   |
+| `as`                   | `string \| Component`            | `'form'`   | Element to render as. Use a non-form element to avoid nested `<form>`. |
+| `showErrorsOn`         | `'touched' \| 'blur' \| 'dirty'` | `'blur'`   | When field errors become visible.                                      |
+| `validateOnInputDelay` | `number`                         | `300`      | Debounce before Nuxt UI inputs emit `input`.                           |
+
+There is deliberately no `schema`, `id`, `initialValues`, `initialTouched`, `initialDirty` or `disabled`. Those belong to your `useForm()` call, and accepting them here would mean silently ignoring them. `disabled` especially: formwerk's disabled context is created by `useForm`, so this component could only ever half-apply it.
+
+#### useFormRoot
+
+The composable underneath all three roots, auto-imported. Reach for it when you want the wiring but not the element — `useFormRoot(form, options)` provides the buses and injection keys that `UFormField`, `UFormGroup` and `UFormRepeater` need, and returns `{ blurredFields, touchedFields, dirtyFields }`. You then own the element, `novalidate` and submit handling. Options are all optional: `showErrorsOn` (`'blur'`), `disabled` (`false`), `validateOnInputDelay` (`300`).
 
 ### UFormField
 
@@ -499,6 +513,7 @@ interface RepeaterMethods {
 | ----------------- | ------------------------------------------------- |
 | `USchemaForm`     | Self-contained, schema-driven form component      |
 | `USchemalessForm` | Self-contained, schema-free form component        |
+| `UFormRoot`       | Root for a form you own; created via `useForm()`  |
 | `UFormField`      | Field wrapper with validation (overrides Nuxt UI) |
 | `UFormGroup`      | Groups related fields for nested paths            |
 | `UFormRepeater`   | Dynamic array fields with add/remove/reorder      |

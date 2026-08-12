@@ -44,6 +44,17 @@
       </template>
     </USchemalessForm>
 
+    <!-- Test: UFormRoot adopts a caller-owned form -->
+    <UFormRoot :form="adopted" data-testid="form-root">
+      <template #default>
+        <UFormField name="email" label="Adopted Email">
+          <template #default="{ model }">
+            <UInput v-bind="model" data-testid="adopted-input" />
+          </template>
+        </UFormField>
+      </template>
+    </UFormRoot>
+
     <!-- Test: as prop escapes the nested-form restriction -->
     <USchemaForm data-testid="as-div-form" as="div" :schema="schema">
       <template #default>
@@ -67,8 +78,11 @@
 
 <script setup>
   import { z } from "zod"
+  import { useForm } from "@formwerk/core"
 
   const schema = z.object({
     email: z.string(),
   })
+
+  const adopted = useForm({ initialValues: { email: "" } })
 </script>

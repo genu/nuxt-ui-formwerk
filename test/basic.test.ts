@@ -95,6 +95,12 @@ describe("ssr - basic", async () => {
     expect(html).toContain('data-testid="multi-form-b"')
   })
 
+  it("registers UFormRoot for a caller-owned form", async () => {
+    const html = await $fetch("/")
+    expect(html).toMatch(/<form[^>]*data-testid="form-root"/)
+    expect(html).toContain('data-testid="adopted-input"')
+  })
+
   it("renders fields inside USchemalessForm", async () => {
     const html = await $fetch("/")
     expect(html).toContain('data-testid="nickname-input"')

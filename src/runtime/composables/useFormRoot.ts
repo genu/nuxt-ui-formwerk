@@ -1,6 +1,6 @@
 import { computed, provide, reactive, toValue, type MaybeRefOrGetter } from "vue"
 import { useEventBus } from "@vueuse/core"
-import { useForm, type FormReturns } from "@formwerk/core"
+import { useForm, type FormReturns, type IssueCollection } from "@formwerk/core"
 import { formBusInjectionKey, formOptionsInjectionKey } from "@nuxt/ui/composables/useFormField"
 import {
   formwerkOptionsInjectionKey,
@@ -46,6 +46,46 @@ export interface FormRootState {
   blurredFields: Set<string>
   touchedFields: Set<string>
   dirtyFields: Set<string>
+}
+
+export interface FormSubmitHandlers {
+  onSubmit: (data: any) => void
+  onError: (issues: IssueCollection[]) => void
+}
+
+/**
+ * The submit handler every form root binds to its element.
+ *
+ * Shared rather than repeated, because the two subtleties below are easy to
+ * drop when copied:
+ *
+ * `handleSubmit` only runs its callback on success and offers no failure hook,
+ * so failures are derived afterwards from `getSubmitErrors()`. It calls
+ * `preventDefault` itself.
+ *
+ * That read happens after an `await`, so it is not tied to the attempt that
+ * produced it — a re-entrant submit would report the other attempt's issues.
+ * `isSubmitting` flips synchronously and clears on both paths, making it a safe
+ * in-flight gate. The ignored submit still needs `preventDefault`, or the page
+ * navigates.
+ *
+ * Note that Vue discards whatever an emit listener returns, so `isSubmitting`
+ * covers validation only. Async submit work that needs a loading state should
+ * go through `form.handleSubmit` directly.
+ */
+export const useFormSubmit = (form: FormReturns<any, any>, handlers: FormSubmitHandlers) => {
+  return async (event?: Event) => {
+    if (form.isSubmitting.value) {
+      event?.preventDefault()
+      return
+    }
+
+    await form.handleSubmit((data) => handlers.onSubmit(data))(event)
+
+    const issues = form.getSubmitErrors()
+
+    if (issues.length) handlers.onError(issues)
+  }
 }
 
 /**

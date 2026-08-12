@@ -25,12 +25,13 @@ src/
 └── runtime/
     ├── components/
     │   ├── Field.vue              # Overrides UFormField; bridges Nuxt UI events to formwerk
+    │   ├── FormRoot.vue           # Root that adopts a caller-owned form
     │   ├── Group.vue              # Groups related form fields
     │   ├── Repeater.vue           # Repeatable field groups (dynamic arrays)
     │   ├── SchemaForm.vue         # Self-contained root, schema-driven
     │   └── SchemalessForm.vue     # Self-contained root, no schema
     ├── composables/
-    │   └── useFormRoot.ts         # Shared wiring for both form roots
+    │   └── useFormRoot.ts         # Shared wiring + submit handling for all three roots
     └── types/
         ├── form.ts                # Injection keys, shared prop and value types
         └── index.ts               # Type re-exports (module.ts does `export type *`)
@@ -46,6 +47,7 @@ Nuxt UI's `UForm` is deliberately left alone. It was shadowed until v0.2: its AP
 | ----------------- | ------------------------------------------------------ |
 | `USchemaForm`     | Self-contained, schema-driven, renders a real `<form>` |
 | `USchemalessForm` | Self-contained, shape inferred from `initialValues`    |
+| `UFormRoot`       | Adopts a form the caller made with `useForm()`         |
 | `UFormField`      | Override of Nuxt UI's; throws outside a formwerk root  |
 | `UFormGroup`      | Nested field grouping                                  |
 | `UFormRepeater`   | Dynamic arrays                                         |
@@ -62,7 +64,10 @@ Both reach into `@nuxt/ui` internals that are **not public API**, against a `^4.
 
 ### Component Integration Pattern
 
-**Form roots.** Both call `useFormRoot(form, options)`, which creates the two event buses, provides the four injection keys, and tracks per-field interaction state. They create their form via `useGenericForm` and emit `@submit` / `@error`. `useFormRoot` takes the form as an argument rather than calling `useForm()` itself — that is what lets one component host several independent forms.
+**Form roots.** All three call `useFormRoot(form, options)` for the wiring — two event buses, four injection keys, per-field interaction state — and `useFormSubmit(form, handlers)` for the submit handler. `useFormRoot` takes the form as an argument rather than calling `useForm()` itself, which is what lets one component host several independent forms.
+
+- `SchemaForm.vue` / `SchemalessForm.vue` create their own form via `useGenericForm`.
+- `FormRoot.vue` adopts one passed as a prop. It exists because a template ref on the other two is null until mount, so nothing reaches the form during `setup`. Its prop list is short on purpose: `schema`, `id`, `initialValues`, `initialTouched`, `initialDirty` and `disabled` all belong to the caller's `useForm()`, and accepting them would mean silently ignoring them — the failure mode that got `UForm` deleted. `disabled` is the sharp one, since formwerk's disabled context is created by `useForm`.
 
 **Field Component** ([src/runtime/components/Field.vue](src/runtime/components/Field.vue)):
 

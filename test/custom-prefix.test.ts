@@ -35,6 +35,11 @@ describe("ssr - custom prefix", async () => {
     expect(html).toMatch(/<form(?=[^>]*data-testid="schema-form")[^>]*>/)
   })
 
+  it("registers NFormRoot under the custom prefix", async () => {
+    const html = await $fetch("/")
+    expect(html).toMatch(/<form[^>]*data-testid="form-root"/)
+  })
+
   it("registers NSchemalessForm under the custom prefix", async () => {
     const html = await $fetch("/")
     expect(html).toContain('data-testid="schemaless-form"')

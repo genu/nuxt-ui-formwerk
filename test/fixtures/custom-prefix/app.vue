@@ -25,6 +25,12 @@
       </template>
     </NSchemaForm>
 
+    <NFormRoot :form="adopted" data-testid="form-root">
+      <template #default>
+        <span>adopted</span>
+      </template>
+    </NFormRoot>
+
     <NSchemalessForm data-testid="schemaless-form" :initial-values="{ nickname: '' }">
       <template #default>
         <span>schemaless</span>
@@ -35,8 +41,11 @@
 
 <script setup>
   import { z } from "zod"
+  import { useForm } from "@formwerk/core"
 
   const schema = z.object({
     email: z.string(),
   })
+
+  const adopted = useForm({ initialValues: { email: "" } })
 </script>
