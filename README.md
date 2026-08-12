@@ -250,9 +250,20 @@ That ref is `null` until mount, though. When the form has to exist during `setup
 
 ```vue
 <script setup lang="ts">
+  import { useForm, type ConsumableData } from "@formwerk/core"
+  import { z } from "zod"
+
+  const schema = z.object({ email: z.string().email() })
+
   const form = useForm({ schema })
 
-  watch(() => form.values.email, syncDraft) // available immediately
+  // Available immediately — a template ref on the other roots would still be null here.
+  watch(
+    () => form.values.email,
+    (email) => console.log("draft", email),
+  )
+
+  const save = (data: ConsumableData<z.infer<typeof schema>>) => $fetch("/api/save", { method: "POST", body: data.toJSON() })
 </script>
 
 <template>
@@ -341,7 +352,6 @@ Dynamic array field component for managing lists of items with add, remove, and 
 ```vue
 <script setup lang="ts">
   import { z } from "zod"
-  import { useForm } from "@formwerk/core"
 
   const schema = z.object({
     contacts: z
@@ -354,12 +364,10 @@ Dynamic array field component for managing lists of items with add, remove, and 
       .min(1, "At least one contact required")
       .max(5, "Maximum 5 contacts"),
   })
-
-  const form = useForm({ schema })
 </script>
 
 <template>
-  <USchemalessForm>
+  <USchemaForm :schema="schema">
     <UFormRepeater name="contacts" :min="1" :max="5" :ui="{ root: 'flex flex-col gap-3', item: 'p-4 border rounded-lg' }">
       <template #default="{ index, items, isFirst, isLast, repeater }">
         <div class="flex gap-4 items-end">
@@ -391,7 +399,7 @@ Dynamic array field component for managing lists of items with add, remove, and 
         <UButton icon="i-lucide-plus" variant="outline" :disabled="items.length >= 5" @click="repeater.add()"> Add Contact </UButton>
       </template>
     </UFormRepeater>
-  </USchemalessForm>
+  </USchemaForm>
 </template>
 ```
 
@@ -410,6 +418,7 @@ Dynamic array field component for managing lists of items with add, remove, and 
 {
   root?: string      // Class for the root container
   leading?: string   // Class for the leading slot wrapper
+  wrapper?: string   // Class for the container around the items
   item?: string      // Class for each iteration item
   trailing?: string  // Class for the trailing slot wrapper
 }
@@ -440,6 +449,14 @@ Dynamic array field component for managing lists of items with add, remove, and 
 | ---------- | ------------------- | ------------------------------- |
 | `items`    | `readonly string[]` | Array of item keys              |
 | `repeater` | `RepeaterMethods`   | Methods to manipulate the array |
+
+**wrapper** - Replaces the container around the items (optional). Receives the `Iteration` component so a custom container — a drag-and-drop list, say — can render the items itself without losing formwerk's per-item state.
+
+| Prop        | Type                | Description                     |
+| ----------- | ------------------- | ------------------------------- |
+| `items`     | `readonly string[]` | Array of item keys              |
+| `repeater`  | `RepeaterMethods`   | Methods to manipulate the array |
+| `Iteration` | `Component`         | Wraps one item; needs `:index`  |
 
 #### Repeater Methods
 

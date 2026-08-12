@@ -19,7 +19,7 @@ This is a Nuxt module that integrates [@formwerk/core](https://formwerk.dev/) wi
 
 Components are auto-registered using **Nuxt UI's own prefix**, read from `nuxt.options.ui.prefix` and defaulting to `U`. The module declares no `configKey` and accepts no options of its own.
 
-```
+```text
 src/
 ├── module.ts                      # Entry point: aliases, component renames, registration
 └── runtime/
@@ -111,7 +111,7 @@ pnpm dev:build        # Build the playground
 pnpm lint             # ESLint
 pnpm lint:fix         # ESLint --fix
 pnpm format           # Prettier --write
-pnpm format:check     # Prettier --check (currently fails on 5 pre-existing files; not in CI)
+pnpm format:check     # Prettier --check
 
 pnpm test             # Vitest run
 pnpm test:watch       # Vitest watch
@@ -123,7 +123,7 @@ pnpm verify:dist      # Type-check a consumer against dist/ (see below)
 
 There is no `release` script — releases go through release-please and the `release.yml` workflow.
 
-CI runs, in order: `lint` → `test:types` → `test` → `prepack` → `verify:dist`.
+CI runs, in order: `lint` → `format:check` → `test:types` → `test` → `prepack` → `verify:dist`.
 
 ## Testing
 
@@ -145,7 +145,7 @@ Prefer a component test whenever the behaviour under test is not visible in SSR 
 - **Test Framework**: Vitest with @nuxt/test-utils
 - **Build Tool**: @nuxt/module-builder
 - **Package Manager**: pnpm 11.20.0
-- **Releases**: release-please (`release-please-config.json`); `bump-minor-pre-major` is on, so `feat` commits currently bump a patch
+- **Releases**: release-please (`release-please-config.json`). Below 1.0.0, `bump-minor-pre-major` turns breaking changes into minor bumps and `bump-patch-for-minor-pre-major` turns `feat` into patch bumps — both are on
 
 ## Important Notes
 

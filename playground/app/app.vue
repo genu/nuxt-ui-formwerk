@@ -67,7 +67,7 @@
 
         <UCard>
           <USchemaForm
-            id="My Form"
+            id="my-form"
             :schema="schema"
             #="{ form, values, blurredFields, dirtyFields, touchedFields }"
             class="flex flex-col gap-4"
