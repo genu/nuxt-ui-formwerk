@@ -34,6 +34,17 @@
 
 - Eugen Istoc <eugenistoc@gmail.com>
 
+## [0.2.0](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.24...v0.2.0) (2026-08-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* `UForm` is removed. Nuxt UI's own `UForm` is no longer shadowed and works as it always did. Use `USchemaForm` or `USchemalessForm` for formwerk-backed forms. `UFormField` now throws outside a formwerk root.
+
+### Features
+
+* settle the public API ahead of v1 ([#106](https://github.com/genu/nuxt-ui-formwerk/issues/106)) ([eabd40b](https://github.com/genu/nuxt-ui-formwerk/commit/eabd40bcdbfd3e9f99cdee5d69a747797008d6b6))
+
 ## [0.1.24](https://github.com/genu/nuxt-ui-formwerk/compare/v0.1.23...v0.1.24) (2026-08-10)
 
 
