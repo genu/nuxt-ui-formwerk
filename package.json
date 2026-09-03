@@ -55,11 +55,11 @@
     "@vueuse/core": "14.4.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "3.4.1",
+    "@nuxt/devtools": "3.4.2",
     "@nuxt/eslint-config": "1.17.0",
     "@nuxt/module-builder": "1.0.3",
     "@nuxt/schema": "4.5.2",
-    "@nuxt/test-utils": "4.1.0",
+    "@nuxt/test-utils": "4.2.0",
     "@types/culori": "4.0.1",
     "@types/node": "latest",
     "@vue/test-utils": "2.4.11",
