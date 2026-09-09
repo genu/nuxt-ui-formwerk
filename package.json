@@ -72,7 +72,7 @@
     "typescript": "6.0.3",
     "vitest": "4.1.10",
     "vue-tsc": "3.3.9",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "peerDependencies": {
     "@formwerk/core": "^0.14.4",
