@@ -51,15 +51,15 @@
     "test:types": "vue-tsc --noEmit && vue-tsc --noEmit -p test/types/tsconfig.json"
   },
   "dependencies": {
-    "@nuxt/kit": "4.5.2",
+    "@nuxt/kit": "4.6.0",
     "@vueuse/core": "14.4.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "3.4.1",
+    "@nuxt/devtools": "3.4.2",
     "@nuxt/eslint-config": "1.17.0",
     "@nuxt/module-builder": "1.0.3",
-    "@nuxt/schema": "4.5.2",
-    "@nuxt/test-utils": "4.1.0",
+    "@nuxt/schema": "4.6.0",
+    "@nuxt/test-utils": "4.3.3",
     "@types/culori": "4.0.1",
     "@types/node": "latest",
     "@vue/test-utils": "2.4.11",
@@ -67,7 +67,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
     "happy-dom": "20.11.2",
-    "nuxt": "4.5.2",
+    "nuxt": "4.6.0",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
