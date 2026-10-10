@@ -16,7 +16,7 @@ importers:
         version: 4.6.0(@nuxt/schema@4.6.0)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.0)(rolldown@1.2.13)(unplugin@3.4.0(esbuild@0.28.0)(rolldown@1.2.13)(rollup@4.60.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(yaml@2.9.0)))
       '@nuxt/ui':
         specifier: ^4.0.0
-        version: 4.3.0(73b9af2ae1e2684975fc6b8f45dbd58e)
+        version: 4.3.0(1baf823566da3717cf7039f670819f20)
       '@vueuse/core':
         specifier: 14.4.0
         version: 14.4.0(vue@3.5.43(typescript@6.0.3))
@@ -73,8 +73,8 @@ importers:
         specifier: 3.3.12
         version: 3.3.12(typescript@6.0.3)
       zod:
-        specifier: 4.4.3
-        version: 4.4.3
+        specifier: 4.6.5
+        version: 4.6.5
 
 packages:
 
@@ -6420,8 +6420,8 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
-  zod@4.4.3:
-    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
 
@@ -7880,7 +7880,7 @@ snapshots:
       - vite
       - webpack
 
-  '@nuxt/ui@4.3.0(73b9af2ae1e2684975fc6b8f45dbd58e)':
+  '@nuxt/ui@4.3.0(1baf823566da3717cf7039f670819f20)':
     dependencies:
       '@iconify/vue': 5.0.0(vue@3.5.43(typescript@6.0.3))
       '@internationalized/date': 3.10.1
@@ -7943,7 +7943,7 @@ snapshots:
       vue-component-type-helpers: 3.2.1
     optionalDependencies:
       vue-router: 4.6.4(vue@3.5.43(typescript@6.0.3))
-      zod: 4.4.3
+      zod: 4.6.5
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -13506,4 +13506,4 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod@4.4.3: {}
+  zod@4.6.5: {}
