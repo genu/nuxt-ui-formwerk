@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "4.6.0",
-    "@vueuse/core": "14.4.0"
+    "@vueuse/core": "15.0.0"
   },
   "devDependencies": {
     "@nuxt/devtools": "3.4.2",
